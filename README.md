@@ -1,12 +1,14 @@
-# Plantilla inicial
+v0.2
 
-Objetivo:
-- Mantener la navegación actual del sitio.
-- Sustituir la portada por una imagen panorámica.
-- Implementar navegación mediante hotspots.
-- Contenido separado en /content.
+Cambios:
+- Sustitución del fondo por un visor esférico Three.js.
+- Hotspots externos en src/data/hotspots.json.
+- CSS de pantalla completa.
+- Identidad fija.
+- La imagen debe colocarse en:
+  public/panorama/portada.jpg
 
-Pendiente en la siguiente iteración:
-- Visor 360 con Three.js.
-- Carga dinámica de hotspots desde JSON.
-- Generación automática de páginas desde Markdown.
+Siguiente iteración:
+- Generador de páginas.
+- Editor local.
+- Renderizado desde Markdown.
