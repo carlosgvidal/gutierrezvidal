@@ -1,14 +1,15 @@
-v0.2
+# gutierrezvidal v0.4
 
-Cambios:
-- Sustitución del fondo por un visor esférico Three.js.
-- Hotspots externos en src/data/hotspots.json.
-- CSS de pantalla completa.
-- Identidad fija.
-- La imagen debe colocarse en:
-  public/panorama/portada.jpg
+Corrección aplicada:
 
-Siguiente iteración:
-- Generador de páginas.
-- Editor local.
-- Renderizado desde Markdown.
+- Sin iluminación.
+- Sin exposición.
+- Sin tone mapping.
+- Sin conversión automática de color.
+- Sin filtros CSS sobre la fotografía.
+- Sin superposición sobre el panorama.
+- Shader crudo para copiar los valores RGB de la imagen sin modificación.
+
+La portada incluida está en:
+
+public/panorama/portada.jpg
