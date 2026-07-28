@@ -1,32 +1,32 @@
 [
   {
     "label": "Escritura",
-    "yaw": -58,
-    "pitch": 2,
+    "imageX": 412,
+    "imageY": 514,
     "url": "escritura.html"
   },
   {
     "label": "Blog",
-    "yaw": -28,
-    "pitch": 0,
+    "imageX": 1282,
+    "imageY": 526,
     "url": "blog.html"
   },
   {
     "label": "Sonido",
-    "yaw": -4,
-    "pitch": 1,
+    "imageX": 690,
+    "imageY": 467,
     "url": "sonido.html"
   },
   {
     "label": "Archivo",
-    "yaw": 24,
-    "pitch": 0,
+    "imageX": 1040,
+    "imageY": 508,
     "url": "archivo.html"
   },
   {
     "label": "Perfil",
-    "yaw": 54,
-    "pitch": 6,
+    "imageX": 1016,
+    "imageY": 342,
     "url": "perfil.html"
   }
 ]
