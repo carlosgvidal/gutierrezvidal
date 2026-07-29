@@ -2,36 +2,36 @@
   {
     "id": "escritura",
     "label": "Escritura",
-    "imageX": 1098,
-    "imageY": 495,
+    "imageX": 1067,
+    "imageY": 428,
     "url": "escritura.html"
   },
   {
     "id": "blog",
     "label": "Blog",
-    "imageX": 655,
-    "imageY": 470,
+    "imageX": 692,
+    "imageY": 606,
     "url": "blog.html"
   },
   {
     "id": "sonido",
     "label": "Sonido",
-    "imageX": 1262,
-    "imageY": 463,
+    "imageX": 1252,
+    "imageY": 416,
     "url": "sonido.html"
   },
   {
     "id": "sistema",
     "label": "Sistema",
-    "imageX": 470,
-    "imageY": 450,
+    "imageX": 517,
+    "imageY": 646,
     "url": "sistema.html"
   },
   {
     "id": "perfil",
     "label": "Perfil",
-    "imageX": 885,
-    "imageY": 365,
+    "imageX": 897,
+    "imageY": 266,
     "url": "perfil.html"
   }
 ]
