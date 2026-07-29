@@ -1,10 +1,10 @@
 {
   "name": "gutierrezvidal-site",
+  "version": "0.7.0",
   "private": true,
-  "version": "0.5.0",
   "type": "module",
   "scripts": {
-    "test": "node tests/hotspots.test.mjs",
-    "serve": "python3 -m http.server 8000"
+    "editor": "node tools/editor-server.mjs",
+    "test": "node tests/project.test.mjs"
   }
 }

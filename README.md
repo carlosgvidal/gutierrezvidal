@@ -1,22 +1,42 @@
-# gutierrezvidal v0.5
+# gutierrezvidal v0.7
 
-## Cambios
+## Editor visual de hotspots
 
-- Hotspots posicionados mediante coordenadas directas sobre la imagen.
-- La vista inicial apunta al centro exacto del panorama.
-- Se mantiene intacto el renderizado sin aclarado de la fotografía.
-- Se conserva la estructura del proyecto.
+1. Abre una terminal en la carpeta del proyecto.
+2. Ejecuta:
 
-## Coordenadas
+```bash
+npm run editor
+```
 
-Las posiciones se editan en:
+3. Abre:
 
-`src/data/hotspots.json`
+```text
+http://127.0.0.1:4321/editor/
+```
 
-Cada enlace usa:
+4. Arrastra las etiquetas sobre la fotografía.
+5. Pulsa **Guardar**.
 
-- `imageX`: coordenada horizontal sobre la imagen de 1774 px.
-- `imageY`: coordenada vertical sobre la imagen de 887 px.
+El editor actualizará directamente:
+
+```text
+src/data/hotspots.json
+```
+
+La portada puede revisarse en:
+
+```text
+http://127.0.0.1:4321/index.html
+```
+
+## Alternativa sin servidor de escritura
+
+El botón **Descargar JSON** genera un archivo `hotspots.json`. Puede copiarse manualmente a:
+
+```text
+src/data/hotspots.json
+```
 
 ## Pruebas
 

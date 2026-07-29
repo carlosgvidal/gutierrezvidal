@@ -1,29 +1,34 @@
 [
   {
+    "id": "escritura",
     "label": "Escritura",
     "imageX": 1098,
     "imageY": 495,
     "url": "escritura.html"
   },
   {
+    "id": "blog",
     "label": "Blog",
     "imageX": 655,
     "imageY": 470,
     "url": "blog.html"
   },
   {
+    "id": "sonido",
     "label": "Sonido",
     "imageX": 1262,
     "imageY": 463,
     "url": "sonido.html"
   },
   {
+    "id": "sistema",
     "label": "Sistema",
     "imageX": 470,
     "imageY": 450,
     "url": "sistema.html"
   },
   {
+    "id": "perfil",
     "label": "Perfil",
     "imageX": 885,
     "imageY": 365,

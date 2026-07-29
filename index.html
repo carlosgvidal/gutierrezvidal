@@ -1,25 +1,30 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Carlos Adolfo Gutiérrez Vidal</title>
-<meta name="author" content="Carlos Adolfo Gutiérrez Vidal">
-<meta name="description" content="Sitio oficial de Carlos Adolfo Gutiérrez Vidal">
-<link rel="stylesheet" href="src/css/site.css">
-<script type="importmap">
-{"imports":{
-"three":"https://unpkg.com/three@0.167.1/build/three.module.js",
-"OrbitControls":"https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
-}}
-</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="author" content="Carlos Adolfo Gutiérrez Vidal">
+  <meta name="description" content="Sitio oficial de Carlos Adolfo Gutiérrez Vidal">
+  <meta property="og:title" content="Carlos Adolfo Gutiérrez Vidal">
+  <meta property="og:description" content="Lenguaje · Materia · Sistemas">
+  <meta property="og:type" content="website">
+  <title>Carlos Adolfo Gutiérrez Vidal</title>
+  <link rel="stylesheet" href="src/css/site.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
+      "OrbitControls": "https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
+    }
+  }
+  </script>
 </head>
 <body>
-<main id="viewer"></main>
-<div id="identity">
-<h1>Carlos Adolfo Gutiérrez Vidal</h1>
-<p>Lenguaje · Materia · Sistemas</p>
-</div>
-<script type="module" src="src/js/viewer.js"></script>
+  <main id="viewer" aria-label="Navegación panorámica"></main>
+  <div id="identity">
+    <h1>Carlos Adolfo Gutiérrez Vidal</h1>
+    <p>Lenguaje · Materia · Sistemas</p>
+  </div>
+  <script type="module" src="src/js/viewer.js"></script>
 </body>
 </html>

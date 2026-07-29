@@ -1,8 +1,14 @@
-$ node --check /mnt/data/gutierrezvidal-v0.5/src/js/viewer.js
+$ node --check /mnt/data/gutierrezvidal-v0.7/src/js/viewer.js
 exit=0
 
-$ node /mnt/data/gutierrezvidal-v0.5/tests/hotspots.test.mjs
+$ node --check /mnt/data/gutierrezvidal-v0.7/editor/editor.js
 exit=0
-Pruebas superadas: hotspots, rutas, coordenadas e imagen.
 
-Imagen de portada: SHA-256 sin cambios.
+$ node --check /mnt/data/gutierrezvidal-v0.7/tools/editor-server.mjs
+exit=0
+
+$ node /mnt/data/gutierrezvidal-v0.7/tests/project.test.mjs
+exit=0
+Pruebas superadas: estructura, metadatos, páginas y editor de hotspots.
+
+Servidor local: editor, JSON y portada respondieron HTTP 200.

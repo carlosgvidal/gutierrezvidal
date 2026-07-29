@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Editor de enlaces · Carlos Adolfo Gutiérrez Vidal</title>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Editor de enlaces</h1>
+      <p>Arrastra cada etiqueta hasta el objeto correspondiente.</p>
+    </div>
+    <div class="actions">
+      <button id="reset" type="button">Recargar</button>
+      <button id="save" type="button">Guardar</button>
+      <button id="download" type="button">Descargar JSON</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="stage" aria-label="Panorama editable">
+      <img id="panorama" src="../public/panorama/portada.jpg" alt="">
+      <div id="markers"></div>
+    </section>
+
+    <aside>
+      <h2>Enlaces</h2>
+      <div id="fields"></div>
+      <output id="status" aria-live="polite"></output>
+    </aside>
+  </main>
+
+  <script type="module" src="editor.js"></script>
+</body>
+</html>
