@@ -1,0 +1,13 @@
+{
+  "slug": "entrada-de-ejemplo",
+  "title": "Título de la entrada del blog",
+  "category": "Ensayo",
+  "date": "2026-07-29",
+  "description": "Entradilla o resumen breve de la publicación.",
+  "body": [
+    "Este es el primer párrafo de la entrada. La capitular se genera automáticamente mediante CSS.",
+    "Los párrafos siguientes conservan una medida de lectura editorial y un interlineado amplio.",
+    "Aquí puede continuar el artículo con nuevas secciones, citas, imágenes y referencias."
+  ],
+  "published": false
+}

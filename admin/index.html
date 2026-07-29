@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CMS · Carlos Adolfo Gutiérrez Vidal</title>
+<link rel="stylesheet" href="../src/css/editorial.css">
+<style>
+.cms{width:min(calc(100% - 28px),1100px);margin:24px auto 60px}
+.cms-grid{display:grid;grid-template-columns:280px 1fr;gap:24px}
+.cms-panel{border:1px solid var(--rule);padding:18px;background:var(--paper)}
+.cms label{display:block;margin:0 0 12px;font:500 12px/1.4 var(--sans)}
+.cms input,.cms textarea,.cms select{width:100%;margin-top:5px;padding:9px;border:1px solid var(--rule);background:#fff;font:16px/1.4 var(--serif)}
+.cms textarea{min-height:160px}
+.cms button{padding:9px 12px;border:1px solid #000;background:#000;color:#fff;font:500 12px var(--sans)}
+.cms button.secondary{background:transparent;color:#000}
+.cms nav button{display:block;width:100%;margin-bottom:8px;text-align:left}
+.cms-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.cms-status{margin-top:14px;font:12px var(--sans)}
+@media(max-width:760px){.cms-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="cms">
+<header class="page-header">
+<p class="page-kicker">Administración</p>
+<h1 class="page-title">CMS</h1>
+<p class="page-deck">Edición de navegación, páginas y entradas del blog mediante GitHub.</p>
+</header>
+
+<section class="cms-panel">
+<h2>Conexión</h2>
+<div class="cms-grid">
+<label>Usuario de GitHub<input id="owner" value="carlosgvidal"></label>
+<label>Repositorio<input id="repo" value="carlosgvidal.github.io"></label>
+<label>Rama<input id="branch" value="main"></label>
+<label>Token de acceso<input id="token" type="password" autocomplete="off"></label>
+</div>
+<div class="cms-actions"><button id="connect">Cargar contenido</button></div>
+<p class="cms-status" id="connection-status"></p>
+</section>
+
+<div class="cms-grid" style="margin-top:24px">
+<aside class="cms-panel">
+<nav>
+<button data-view="site">Sitio y navegación</button>
+<button data-view="page">Páginas</button>
+<button data-view="post">Blog</button>
+</nav>
+</aside>
+
+<main class="cms-panel">
+<section id="view-site">
+<h2>Sitio y navegación</h2>
+<label>Título<input id="siteTitle"></label>
+<label>Lema<input id="tagline"></label>
+<label>Año de copyright<input id="copyrightYear" type="number"></label>
+<label>Navegación (una línea por enlace: Etiqueta|archivo.html)<textarea id="navigation"></textarea></label>
+<div class="cms-actions"><button id="save-site">Guardar sitio</button></div>
+</section>
+
+<section id="view-page" hidden>
+<h2>Páginas</h2>
+<label>Seleccionar página<select id="page-select"></select></label>
+<label>Título<input id="page-title"></label>
+<label>Antetítulo<input id="page-kicker"></label>
+<label>Entradilla<textarea id="page-deck"></textarea></label>
+<label>Cuerpo (un párrafo por línea)<textarea id="page-body"></textarea></label>
+<div class="cms-actions"><button id="save-page">Guardar página</button></div>
+</section>
+
+<section id="view-post" hidden>
+<h2>Blog</h2>
+<label>Seleccionar entrada<select id="post-select"></select></label>
+<label>Slug<input id="post-slug"></label>
+<label>Título<input id="post-title"></label>
+<label>Categoría<input id="post-category"></label>
+<label>Fecha<input id="post-date" type="date"></label>
+<label>Descripción<textarea id="post-description"></textarea></label>
+<label>Cuerpo (un párrafo por línea)<textarea id="post-body"></textarea></label>
+<label><input id="post-published" type="checkbox" style="width:auto"> Publicada</label>
+<div class="cms-actions">
+<button id="new-post" class="secondary">Nueva entrada</button>
+<button id="save-post">Guardar entrada</button>
+</div>
+</section>
+
+<p class="cms-status" id="status"></p>
+</main>
+</div>
+</div>
+<script type="module" src="cms.js"></script>
+</body>
+</html>

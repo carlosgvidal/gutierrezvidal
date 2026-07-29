@@ -1,0 +1,58 @@
+[
+  {
+    "id": "escritura",
+    "label": "Escritura",
+    "imageX": 1098,
+    "imageY": 495,
+    "url": "escritura.html"
+  },
+  {
+    "id": "blog",
+    "label": "Blog",
+    "imageX": 655,
+    "imageY": 470,
+    "url": "blog.html"
+  },
+  {
+    "id": "sonido",
+    "label": "Sonido",
+    "imageX": 1262,
+    "imageY": 463,
+    "url": "sonido.html"
+  },
+  {
+    "id": "sistema",
+    "label": "Sistema",
+    "imageX": 470,
+    "imageY": 450,
+    "url": "sistema.html"
+  },
+  {
+    "id": "perfil",
+    "label": "Perfil",
+    "imageX": 885,
+    "imageY": 365,
+    "url": "perfil.html"
+  },
+  {
+    "id": "materia",
+    "label": "Materia",
+    "imageX": 104,
+    "imageY": 498,
+    "url": "materia.html"
+  },
+  {
+    "id": "imagenes",
+    "label": "Imágenes",
+    "imageX": 1282,
+    "imageY": 308,
+    "url": "imagenes.html"
+  },
+  {
+    "id": "archivo",
+    "label": "Archivo",
+    "imageX": 1510,
+    "imageY": 338,
+    "url": "archivo.html"
+  }
+]

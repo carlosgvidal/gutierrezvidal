@@ -1,35 +1,27 @@
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
-const pages=["escritura.html","blog.html","sonido.html","sistema.html","materia.html","imagenes.html","archivo.html","perfil.html"];
-for(const page of pages){
-  const html=fs.readFileSync(new URL(`../${page}`,import.meta.url),"utf8");
-  assert.match(html,/data-shared-header/);
-  assert.match(html,/data-shared-footer/);
-  assert.match(html,/src\/js\/shared-shell\.js/);
-  assert.match(html,new RegExp(`data-page="${page}"`));
-}
+assert.ok(fs.existsSync(new URL("../public/assets/logo-dark.png",import.meta.url)));
+assert.ok(fs.existsSync(new URL("../public/assets/logo-light.png",import.meta.url)));
 
-const shell=fs.readFileSync(new URL("../src/js/shared-shell.js",import.meta.url),"utf8");
-assert.match(shell,/logo-mark\.png/);
-assert.match(shell,/renderHeader/);
-assert.match(shell,/renderFooter/);
-assert.match(shell,/navigationItems/);
+const site=JSON.parse(fs.readFileSync(new URL("../content/site.json",import.meta.url),"utf8"));
+assert.equal(site.siteTitle,"Carlos Adolfo Gutiérrez Vidal");
+assert.ok(Array.isArray(site.navigation)&&site.navigation.length>=9);
+assert.equal(site.copyrightYear,2026);
 
 const css=fs.readFileSync(new URL("../src/css/editorial.css",import.meta.url),"utf8");
-assert.match(css,/\.mag-header/);
-assert.match(css,/\.mag-footer/);
-assert.match(css,/\.mag-logo/);
-assert.match(css,/\.article-meta/);
-assert.match(css,/\.subpage-index/);
-
-for(const template of ["plantilla-entrada-blog.html","plantilla-subpagina.html","templates/entrada-blog.html","templates/subpagina.html"]){
-  const html=fs.readFileSync(new URL(`../${template}`,import.meta.url),"utf8");
-  assert.match(html,/data-shared-header/);
-  assert.match(html,/data-shared-footer/);
-  assert.match(html,/shared-shell\.js/);
+for(const selector of [".site-header",".site-footer",".site-logo",".page-title",".prose"]){
+  assert.ok(css.includes(selector),`Falta ${selector}`);
 }
+assert.ok(!css.includes("letter-spacing: .16em"));
 
-assert.ok(fs.existsSync(new URL("../public/assets/logo-mark.png",import.meta.url)));
+const cms=fs.readFileSync(new URL("../admin/cms.js",import.meta.url),"utf8");
+assert.ok(cms.includes("content/site.json"));
+assert.ok(cms.includes("content/pages"));
+assert.ok(cms.includes("content/blog"));
+assert.ok(cms.includes("api.github.com"));
 
-console.log("Pruebas superadas: shell compartido, logo, CSS y plantillas.");
+const workflow=fs.readFileSync(new URL("../.github/workflows/deploy.yml",import.meta.url),"utf8");
+assert.ok(workflow.includes("node tools/build.mjs"));
+
+console.log("Pruebas superadas: logo, tipografía, header/footer, CMS y despliegue.");

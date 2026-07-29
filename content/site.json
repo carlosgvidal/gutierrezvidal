@@ -1,0 +1,44 @@
+{
+  "siteTitle": "Carlos Adolfo Gutiérrez Vidal",
+  "tagline": "Lenguaje · Materia · Sistemas",
+  "description": "Sitio oficial de Carlos Adolfo Gutiérrez Vidal",
+  "copyrightYear": 2026,
+  "navigation": [
+    {
+      "label": "Inicio",
+      "url": "index.html"
+    },
+    {
+      "label": "Escritura",
+      "url": "escritura.html"
+    },
+    {
+      "label": "Blog",
+      "url": "blog.html"
+    },
+    {
+      "label": "Sonido",
+      "url": "sonido.html"
+    },
+    {
+      "label": "Sistema",
+      "url": "sistema.html"
+    },
+    {
+      "label": "Materia",
+      "url": "materia.html"
+    },
+    {
+      "label": "Imágenes",
+      "url": "imagenes.html"
+    },
+    {
+      "label": "Archivo",
+      "url": "archivo.html"
+    },
+    {
+      "label": "Perfil",
+      "url": "perfil.html"
+    }
+  ]
+}

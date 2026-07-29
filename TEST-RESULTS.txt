@@ -1,12 +1,13 @@
-$ node --check /mnt/data/gutierrezvidal-v1.2/src/js/shared-shell.js
+$ node --check /mnt/data/gutierrezvidal-v1.3/tools/build.mjs
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v1.2/src/js/viewer.js
+$ node --check /mnt/data/gutierrezvidal-v1.3/admin/cms.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v1.2/src/js/home-menu.js
+$ node /mnt/data/gutierrezvidal-v1.3/tools/build.mjs
 exit=0
+Sitio generado en dist/
 
-$ node /mnt/data/gutierrezvidal-v1.2/tests/project.test.mjs
+$ node /mnt/data/gutierrezvidal-v1.3/tests/project.test.mjs
 exit=0
-Pruebas superadas: shell compartido, logo, CSS y plantillas.
+Pruebas superadas: logo, tipografía, header/footer, CMS y despliegue.
