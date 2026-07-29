@@ -1,9 +1,12 @@
-$ node --check /mnt/data/gutierrezvidal-v1.1/src/js/viewer.js
+$ node --check /mnt/data/gutierrezvidal-v1.2/src/js/shared-shell.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v1.1/src/js/home-menu.js
+$ node --check /mnt/data/gutierrezvidal-v1.2/src/js/viewer.js
 exit=0
 
-$ node /mnt/data/gutierrezvidal-v1.1/tests/project.test.mjs
+$ node --check /mnt/data/gutierrezvidal-v1.2/src/js/home-menu.js
 exit=0
-Pruebas superadas: CSS editorial, ocho páginas, logo, navegación y home compacto.
+
+$ node /mnt/data/gutierrezvidal-v1.2/tests/project.test.mjs
+exit=0
+Pruebas superadas: shell compartido, logo, CSS y plantillas.

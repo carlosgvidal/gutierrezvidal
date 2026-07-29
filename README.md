@@ -1,23 +1,45 @@
-# gutierrezvidal v1.1
+# gutierrezvidal v1.2
 
-## Cambios
+## Header y footer compartidos
 
-- Rediseño editorial tipo revista para todas las páginas interiores.
-- CSS único aplicado a Escritura, Blog, Sonido, Sistema, Materia, Imágenes, Archivo y Perfil.
-- Nueva jerarquía editorial: masthead, navegación, portada de sección, artículo principal, columna secundaria y footer.
-- Logo integrado en el masthead y el footer.
-- La portada panorámica conserva su carácter inmersivo.
-- Se retiraron el header y el footer completos del home.
-- El home usa únicamente el logo y un índice desplegable.
-- Se conservan la paleta y los ocho hotspots.
+Todas las páginas interiores cargan el mismo header y footer desde:
 
-## Navegación del home
+```text
+src/js/shared-shell.js
+```
 
-Pulsa **Índice** en la esquina superior derecha.
+El logo se carga desde:
 
-## Ajustar hotspots
+```text
+public/assets/logo-mark.png
+```
 
-1. Abre `editor-simple.html`.
-2. Arrastra las etiquetas.
-3. Pulsa **Descargar JSON**.
-4. Sustituye `src/data/hotspots.json` por el archivo descargado.
+El estilo común se encuentra en:
+
+```text
+src/css/editorial.css
+```
+
+## Plantillas nuevas
+
+```text
+plantilla-entrada-blog.html
+plantilla-subpagina.html
+templates/entrada-blog.html
+templates/subpagina.html
+```
+
+Para crear una página nueva:
+
+1. Duplica la plantilla.
+2. Renombra el archivo.
+3. Cambia título, metadatos y contenido.
+4. Ajusta `data-page` en el `<body>` para marcar la sección activa.
+
+## Navegación
+
+La navegación compartida se edita una sola vez en:
+
+```text
+src/js/shared-shell.js
+```
