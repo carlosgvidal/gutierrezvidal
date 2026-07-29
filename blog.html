@@ -9,44 +9,62 @@
   <link rel="stylesheet" href="src/css/editorial.css">
 </head>
 <body>
-  <div class="site-shell">
-    <header class="masthead">
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="mag-header">
+  <div class="mag-header__top">
+    <a class="mag-logo" href="index.html" aria-label="Inicio">
+      <img src="public/assets/logo-mark.png" alt="">
+    </a>
+    <p class="mag-title">Carlos Adolfo Gutiérrez Vidal</p>
+    <p class="mag-issue">Archivo de autor<br>Edición digital</p>
+  </div>
+  <nav class="mag-nav" aria-label="Navegación principal"><ul><li><a href="escritura.html">Escritura</a></li><li><a href="blog.html" aria-current="page">Blog</a></li><li><a href="sonido.html">Sonido</a></li><li><a href="sistema.html">Sistema</a></li><li><a href="materia.html">Materia</a></li><li><a href="imagenes.html">Imágenes</a></li><li><a href="archivo.html">Archivo</a></li><li><a href="perfil.html">Perfil</a></li></ul></nav>
+</header>
+
+  <main class="mag-page" id="contenido">
+    <section class="section-banner">
       <div>
-        <p class="site-name">Carlos Adolfo Gutiérrez Vidal</p>
-        <p class="site-kicker">Lenguaje · Materia · Sistemas</p>
+        <p class="section-kicker">Cuaderno</p>
+        <h1 class="section-title">Blog</h1>
       </div>
-      <a class="home-link" href="index.html">Volver al estudio</a>
-    </header>
+      <p class="section-deck">Notas, artículos y publicaciones recientes.</p>
+    </section>
 
-    <nav class="site-nav" aria-label="Navegación principal"><ul><li><a href="escritura.html">Escritura</a></li><li><a href="blog.html" aria-current="page">Blog</a></li><li><a href="sonido.html">Sonido</a></li><li><a href="sistema.html">Sistema</a></li><li><a href="materia.html">Materia</a></li><li><a href="imagenes.html">Imágenes</a></li><li><a href="archivo.html">Archivo</a></li><li><a href="perfil.html">Perfil</a></li></ul></nav>
+    <div class="mag-grid">
+      <section class="mag-main">
+        <article class="article-lead">
+          <p class="article-label">Presentación</p>
+          <h2 class="article-title">Blog como archivo y práctica</h2>
+          <p class="article-deck">Un espacio para textos breves, apuntes, intervenciones y materiales en proceso.</p>
+          <p class="article-byline">Por Carlos Adolfo Gutiérrez Vidal</p>
+        </article>
 
-    <div class="page-grid">
-      <main class="page-main">
-        <p class="eyebrow">Cuaderno</p>
-        <h1 class="page-title">Blog</h1>
-        <p class="lede">Notas, artículos y publicaciones recientes.</p>
+        <div class="article-body">
+          <p>Esta sección conserva una estructura editorial preparada para incorporar textos, imágenes, fichas de obra y materiales relacionados.</p>
+          <p>El contenido podrá crecer como una revista: mediante artículos principales, piezas breves, series, archivos visuales y referencias cruzadas.</p>
+          <blockquote>Lenguaje, materia y sistemas funcionan aquí como campos conectados de una misma práctica.</blockquote>
+        </div>
+      </section>
 
-        <section class="specimen">
-          <p class="specimen-label">Sección en desarrollo</p>
-          <p class="specimen-text">Blog</p>
-        </section>
-      </main>
-
-      <aside class="page-aside">
-        <h2 class="aside-title">Índice</h2>
-        <ul class="rule-list">
-          <li>Presentación</li>
-          <li>Archivo</li>
-          <li>Selección</li>
-          <li>Referencias</li>
+      <aside class="mag-aside">
+        <h2 class="list-title">En esta sección</h2>
+        <ul class="mag-list">
+          <li><a href="#">Selección principal</a><small>Archivo editorial</small></li>
+          <li><a href="#">Publicaciones recientes</a><small>Orden cronológico</small></li>
+          <li><a href="#">Documentos relacionados</a><small>Referencias</small></li>
+          <li><a href="#">Índice completo</a><small>Explorar</small></li>
         </ul>
       </aside>
     </div>
+  </main>
 
-    <footer class="page-footer">
-      <span>Carlos Adolfo Gutiérrez Vidal</span>
-      <span>Blog</span>
-    </footer>
+  <footer class="mag-footer">
+  <div class="palette-rule" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+  <div class="mag-footer__inner">
+    <img class="mag-footer__logo" src="public/assets/logo-mark.png" alt="">
+    <p class="mag-footer__name">Carlos Adolfo Gutiérrez Vidal</p>
+    <p class="mag-footer__meta">Lenguaje · Materia · Sistemas<br>Archivo digital</p>
   </div>
+</footer>
 </body>
 </html>

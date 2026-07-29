@@ -1,18 +1,19 @@
-# gutierrezvidal v1.0
+# gutierrezvidal v1.1
 
 ## Cambios
 
-- Integrada la paleta:
-  - `#FAF9F6`
-  - `#F5EBD7`
-  - `#C4A265`
-  - `#B8B5C3`
-  - `#000000`
-- Añadidos los hotspots **Imágenes** y **Archivo**.
-- Añadidas `imagenes.html` y `archivo.html`.
-- Añadidos header, navegación principal y footer.
-- Header y footer incorporados tanto en la portada como en las páginas interiores.
-- Actualizado `editor-simple.html` con los ocho hotspots.
+- Rediseño editorial tipo revista para todas las páginas interiores.
+- CSS único aplicado a Escritura, Blog, Sonido, Sistema, Materia, Imágenes, Archivo y Perfil.
+- Nueva jerarquía editorial: masthead, navegación, portada de sección, artículo principal, columna secundaria y footer.
+- Logo integrado en el masthead y el footer.
+- La portada panorámica conserva su carácter inmersivo.
+- Se retiraron el header y el footer completos del home.
+- El home usa únicamente el logo y un índice desplegable.
+- Se conservan la paleta y los ocho hotspots.
+
+## Navegación del home
+
+Pulsa **Índice** en la esquina superior derecha.
 
 ## Ajustar hotspots
 
