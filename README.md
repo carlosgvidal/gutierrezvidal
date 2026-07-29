@@ -1,45 +1,40 @@
-# gutierrezvidal v1.2
+# gutierrezvidal v1.4
 
-## Header y footer compartidos
+## Corrección de publicación
 
-Todas las páginas interiores cargan el mismo header y footer desde:
+Esta versión funciona con cualquiera de estas configuraciones de GitHub Pages:
 
-```text
-src/js/shared-shell.js
+1. **GitHub Actions**: publica `dist/`.
+2. **Deploy from a branch / main / root**: la raíz contiene la misma versión generada.
+
+El comando:
+
+```bash
+node tools/build.mjs
 ```
 
-El logo se carga desde:
+genera `dist/` y sincroniza el resultado público con la raíz del repositorio.
+
+## CMS
+
+Dirección publicada:
 
 ```text
-public/assets/logo-mark.png
+https://carlosgvidal.github.io/gutierrezvidal/admin.html
 ```
 
-El estilo común se encuentra en:
+Valores predeterminados:
 
 ```text
-src/css/editorial.css
+Usuario: carlosgvidal
+Repositorio: gutierrezvidal
+Rama: main
 ```
 
-## Plantillas nuevas
+## Archivos corregidos
 
-```text
-plantilla-entrada-blog.html
-plantilla-subpagina.html
-templates/entrada-blog.html
-templates/subpagina.html
-```
-
-Para crear una página nueva:
-
-1. Duplica la plantilla.
-2. Renombra el archivo.
-3. Cambia título, metadatos y contenido.
-4. Ajusta `data-page` en el `<body>` para marcar la sección activa.
-
-## Navegación
-
-La navegación compartida se edita una sola vez en:
-
-```text
-src/js/shared-shell.js
-```
+- `tools/build.mjs`
+- `.github/workflows/deploy.yml`
+- `admin/index.html`
+- `content/site.json`
+- `.nojekyll`

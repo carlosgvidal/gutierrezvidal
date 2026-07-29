@@ -19,23 +19,20 @@
   }
   </script>
 </head>
-<body>
-<a class="home-mark" href="index.html" aria-label="Inicio">
-  <img src="public/assets/logo-mark.png" alt="">
-</a>
-<button class="home-menu-button" type="button" aria-expanded="false" aria-controls="home-menu">Índice</button>
-<nav class="home-menu" id="home-menu" aria-label="Navegación principal" hidden>
-  <ul>
-    <li><a href="escritura.html">Escritura</a></li>
-    <li><a href="blog.html">Blog</a></li>
-    <li><a href="sonido.html">Sonido</a></li>
-    <li><a href="sistema.html">Sistema</a></li>
-    <li><a href="materia.html">Materia</a></li>
-    <li><a href="imagenes.html">Imágenes</a></li>
-    <li><a href="archivo.html">Archivo</a></li>
-    <li><a href="perfil.html">Perfil</a></li>
-  </ul>
-</nav>
+<body class="home-shell"><header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-logo" href="index.html" aria-label="Inicio"><img src="public/assets/logo-dark.png" alt=""></a>
+      <div><p class="site-title">Carlos Adolfo Gutiérrez Vidal</p><p class="site-tagline">Lenguaje · Materia · Sistemas</p></div>
+    </div>
+    <nav class="site-nav" aria-label="Navegación principal"><ul><li><a href="index.html" aria-current="page">Inicio</a></li><li><a href="escritura.html">Escritura</a></li><li><a href="blog.html">Blog</a></li><li><a href="sonido.html">Sonido</a></li><li><a href="sistema.html">Sistema</a></li><li><a href="materia.html">Materia</a></li><li><a href="imagenes.html">Imágenes</a></li><li><a href="archivo.html">Archivo</a></li><li><a href="perfil.html">Perfil</a></li></ul></nav>
+  </header><header class="site-header">
+    <div class="site-header__inner">
+      <a class="site-logo" href="index.html" aria-label="Inicio"><img src="public/assets/logo-dark.png" alt=""></a>
+      <div><p class="site-title">Carlos Adolfo Gutiérrez Vidal</p><p class="site-tagline">Lenguaje · Materia · Sistemas</p></div>
+    </div>
+    <nav class="site-nav" aria-label="Navegación principal"><ul><li><a href="index.html" aria-current="page">Inicio</a></li><li><a href="escritura.html">Escritura</a></li><li><a href="blog.html">Blog</a></li><li><a href="sonido.html">Sonido</a></li><li><a href="sistema.html">Sistema</a></li><li><a href="materia.html">Materia</a></li><li><a href="imagenes.html">Imágenes</a></li><li><a href="archivo.html">Archivo</a></li><li><a href="perfil.html">Perfil</a></li></ul></nav>
+  </header>
+
 
   <main id="viewer" aria-label="Navegación panorámica"></main>
   <div id="identity">
@@ -43,7 +40,15 @@
     <p>Lenguaje · Materia · Sistemas</p>
   </div>
   
-  <script src="src/js/home-menu.js"></script>
+  
   <script type="module" src="src/js/viewer.js"></script>
-</body>
+<footer class="site-footer"><div class="site-footer__inner">
+    <img class="site-footer__logo" src="public/assets/logo-light.png" alt="">
+    <p class="site-footer__name">© 2026 Carlos Adolfo Gutiérrez Vidal</p>
+    <p class="site-footer__meta">Lenguaje · Materia · Sistemas</p>
+  </div></footer><footer class="site-footer"><div class="site-footer__inner">
+    <img class="site-footer__logo" src="public/assets/logo-light.png" alt="">
+    <p class="site-footer__name">© 2026 Carlos Adolfo Gutiérrez Vidal</p>
+    <p class="site-footer__meta">Lenguaje · Materia · Sistemas</p>
+  </div></footer></body>
 </html>

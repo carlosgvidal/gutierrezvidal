@@ -107,7 +107,27 @@ home=home.replace('<script src="src/js/home-menu.js"></script>',"");
 home=home.replace('</body>',`${footer()}</body>`);
 fs.writeFileSync(path.join(DIST,"index.html"),home);
 
-fs.copyFileSync(path.join(ROOT,"admin/index.html"),path.join(DIST,"admin.html"));
+let admin=fs.readFileSync(path.join(ROOT,"admin/index.html"),"utf8");
+admin=admin.replace('href="../src/css/editorial.css"','href="src/css/editorial.css"');
+admin=admin.replace('value="carlosgvidal.github.io"','value="gutierrezvidal"');
+fs.writeFileSync(path.join(DIST,"admin.html"),admin);
 fs.copyFileSync(path.join(ROOT,"admin/cms.js"),path.join(DIST,"cms.js"));
+fs.writeFileSync(path.join(DIST,".nojekyll"),"");
 
-console.log("Sitio generado en dist/");
+// Mirror the generated public site to the repository root.
+// This keeps branch-based GitHub Pages and Actions-based deployment consistent.
+for(const name of fs.readdirSync(DIST)){
+  const source=path.join(DIST,name);
+  const target=path.join(ROOT,name);
+  if(["content","tools","admin","tests",".github","templates","dist"].includes(name)) continue;
+  const stat=fs.statSync(source);
+  if(stat.isDirectory()){
+    fs.rmSync(target,{recursive:true,force:true});
+    copyDir(source,target);
+  } else {
+    fs.copyFileSync(source,target);
+  }
+}
+fs.writeFileSync(path.join(ROOT,".nojekyll"),"");
+
+console.log("Sitio generado en dist/ y sincronizado con la raíz.");
