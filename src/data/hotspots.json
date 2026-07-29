@@ -1,32 +1,32 @@
 [
   {
     "label": "Escritura",
-    "imageX": 412,
-    "imageY": 514,
+    "imageX": 1098,
+    "imageY": 495,
     "url": "escritura.html"
   },
   {
     "label": "Blog",
-    "imageX": 1282,
-    "imageY": 526,
+    "imageX": 655,
+    "imageY": 470,
     "url": "blog.html"
   },
   {
     "label": "Sonido",
-    "imageX": 690,
-    "imageY": 467,
+    "imageX": 1262,
+    "imageY": 463,
     "url": "sonido.html"
   },
   {
-    "label": "Archivo",
-    "imageX": 1040,
-    "imageY": 508,
-    "url": "archivo.html"
+    "label": "Sistema",
+    "imageX": 470,
+    "imageY": 450,
+    "url": "sistema.html"
   },
   {
     "label": "Perfil",
-    "imageX": 1016,
-    "imageY": 342,
+    "imageX": 885,
+    "imageY": 365,
     "url": "perfil.html"
   }
 ]
