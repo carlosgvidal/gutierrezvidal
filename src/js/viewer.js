@@ -21,7 +21,7 @@ function panoramaPixelToVector(imageX,imageY,radius){
 
 const viewer=document.querySelector("#viewer");
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,1100);
+const camera=new THREE.PerspectiveCamera(102,innerWidth/innerHeight,.1,1100);
 camera.position.set(0,0,.1);
 
 const renderer=new THREE.WebGLRenderer({
@@ -43,7 +43,7 @@ controls.enablePan=false;
 controls.enableDamping=true;
 controls.dampingFactor=.05;
 controls.rotateSpeed=.35;
-controls.zoomSpeed=.8;
+controls.enableZoom=false;
 controls.minDistance=.1;
 controls.maxDistance=.1;
 controls.target.copy(panoramaPixelToVector(PANORAMA_WIDTH/2,PANORAMA_HEIGHT/2,1));

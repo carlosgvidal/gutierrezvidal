@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editar enlaces · Carlos Adolfo Gutiérrez Vidal</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#eee}
+header{padding:14px 16px;background:#fff;border-bottom:1px solid #ccc;display:flex;gap:12px;align-items:center;justify-content:space-between}
+h1{font-size:18px;margin:0}
+button{font:inherit;padding:9px 12px}
+#stage{position:relative;width:100%;aspect-ratio:2/1;background:#111;overflow:hidden;touch-action:none}
+#stage img{width:100%;height:100%;display:block;object-fit:fill;pointer-events:none}
+.marker{position:absolute;transform:translate(-50%,-50%);border:1px solid #fff;border-radius:999px;background:rgba(0,0,0,.75);color:#fff;padding:7px 10px;touch-action:none}
+p{margin:0;color:#555;font-size:14px}
+</style>
+</head>
+<body>
+<header>
+<div>
+<h1>Editar enlaces</h1>
+<p>Arrastra las etiquetas y pulsa Descargar JSON.</p>
+</div>
+<button id="download">Descargar JSON</button>
+</header>
+<div id="stage">
+<img src="public/panorama/portada.jpg" alt="">
+</div>
+<script>
+const W=1774,H=887;
+const hotspots=[{"id": "escritura", "label": "Escritura", "imageX": 1098, "imageY": 495, "url": "escritura.html"}, {"id": "blog", "label": "Blog", "imageX": 655, "imageY": 470, "url": "blog.html"}, {"id": "sonido", "label": "Sonido", "imageX": 1262, "imageY": 463, "url": "sonido.html"}, {"id": "sistema", "label": "Sistema", "imageX": 470, "imageY": 450, "url": "sistema.html"}, {"id": "perfil", "label": "Perfil", "imageX": 885, "imageY": 365, "url": "perfil.html"}];
+const stage=document.querySelector('#stage');
+
+function place(el,h){
+  el.style.left=(h.imageX/W*100)+'%';
+  el.style.top=(h.imageY/H*100)+'%';
+}
+
+hotspots.forEach((h,i)=>{
+  const el=document.createElement('button');
+  el.className='marker';
+  el.textContent=h.label;
+  el.type='button';
+  place(el,h);
+  stage.appendChild(el);
+
+  el.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    const move=ev=>{
+      const r=stage.getBoundingClientRect();
+      const x=Math.max(0,Math.min(r.width,ev.clientX-r.left));
+      const y=Math.max(0,Math.min(r.height,ev.clientY-r.top));
+      h.imageX=Math.round(x/r.width*W);
+      h.imageY=Math.round(y/r.height*H);
+      place(el,h);
+    };
+    const end=()=>{
+      el.removeEventListener('pointermove',move);
+      el.removeEventListener('pointerup',end);
+      el.removeEventListener('pointercancel',end);
+    };
+    el.addEventListener('pointermove',move);
+    el.addEventListener('pointerup',end);
+    el.addEventListener('pointercancel',end);
+  });
+});
+
+document.querySelector('#download').addEventListener('click',()=>{
+  const blob=new Blob([JSON.stringify(hotspots,null,2)+'\n'],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='hotspots.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+});
+</script>
+</body>
+</html>

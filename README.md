@@ -43,3 +43,10 @@ src/data/hotspots.json
 ```bash
 npm test
 ```
+
+
+## v0.8
+
+- Campo de visión inicial ampliado para evitar el close-up.
+- Zoom desactivado para impedir acercamientos accidentales.
+- Editor simple sin terminal: abrir `editor-simple.html`, arrastrar y descargar `hotspots.json`.
