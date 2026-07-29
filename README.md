@@ -1,52 +1,22 @@
-# gutierrezvidal v0.7
+# gutierrezvidal v1.0
 
-## Editor visual de hotspots
+## Cambios
 
-1. Abre una terminal en la carpeta del proyecto.
-2. Ejecuta:
+- Integrada la paleta:
+  - `#FAF9F6`
+  - `#F5EBD7`
+  - `#C4A265`
+  - `#B8B5C3`
+  - `#000000`
+- Añadidos los hotspots **Imágenes** y **Archivo**.
+- Añadidas `imagenes.html` y `archivo.html`.
+- Añadidos header, navegación principal y footer.
+- Header y footer incorporados tanto en la portada como en las páginas interiores.
+- Actualizado `editor-simple.html` con los ocho hotspots.
 
-```bash
-npm run editor
-```
+## Ajustar hotspots
 
-3. Abre:
-
-```text
-http://127.0.0.1:4321/editor/
-```
-
-4. Arrastra las etiquetas sobre la fotografía.
-5. Pulsa **Guardar**.
-
-El editor actualizará directamente:
-
-```text
-src/data/hotspots.json
-```
-
-La portada puede revisarse en:
-
-```text
-http://127.0.0.1:4321/index.html
-```
-
-## Alternativa sin servidor de escritura
-
-El botón **Descargar JSON** genera un archivo `hotspots.json`. Puede copiarse manualmente a:
-
-```text
-src/data/hotspots.json
-```
-
-## Pruebas
-
-```bash
-npm test
-```
-
-
-## v0.8
-
-- Campo de visión inicial ampliado para evitar el close-up.
-- Zoom desactivado para impedir acercamientos accidentales.
-- Editor simple sin terminal: abrir `editor-simple.html`, arrastrar y descargar `hotspots.json`.
+1. Abre `editor-simple.html`.
+2. Arrastra las etiquetas.
+3. Pulsa **Descargar JSON**.
+4. Sustituye `src/data/hotspots.json` por el archivo descargado.

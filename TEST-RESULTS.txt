@@ -1,14 +1,6 @@
-$ node --check /mnt/data/gutierrezvidal-v0.7/src/js/viewer.js
+$ node --check /mnt/data/gutierrezvidal-v1.0/src/js/viewer.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v0.7/editor/editor.js
+$ node /mnt/data/gutierrezvidal-v1.0/tests/project.test.mjs
 exit=0
-
-$ node --check /mnt/data/gutierrezvidal-v0.7/tools/editor-server.mjs
-exit=0
-
-$ node /mnt/data/gutierrezvidal-v0.7/tests/project.test.mjs
-exit=0
-Pruebas superadas: estructura, metadatos, páginas y editor de hotspots.
-
-Servidor local: editor, JSON y portada respondieron HTTP 200.
+Pruebas superadas: paleta, hotspots, navegación, páginas, header y footer.
