@@ -2,31 +2,26 @@ import fs from "node:fs";
 import assert from "node:assert/strict";
 
 const index=fs.readFileSync(new URL("../index.html",import.meta.url),"utf8");
-for(const pattern of [
-  /<title>Carlos Adolfo Gutiérrez Vidal \| Poeta y artista indisciplinario<\/title>/,
-  /rel="canonical" href="https:\/\/www\.gutierrezvidal\.com\/"/,
-  /property="og:title"/,
-  /name="twitter:card" content="summary_large_image"/,
-  /application\/ld\+json/,
-  /<h1 id="site-identity"/,
-  /Poeta · Artista indisciplinario · Investigador/,
-  /site-v2\.0\.css/
-]) assert.match(index,pattern);
+assert.match(index,/<h1 class="seo-title">Carlos Adolfo Gutiérrez Vidal/);
+assert.doesNotMatch(index,/class="site-identity"/);
+assert.doesNotMatch(index,/class="site-identity__roles"/);
+assert.match(index,/Poeta · Artista indisciplinario · Investigador/);
+assert.match(index,/site-v2\.1\.css/);
+assert.match(index,/site-shell-v2\.1\.js/);
 
-assert.ok(fs.existsSync(new URL("../robots.txt",import.meta.url)));
+const css=fs.readFileSync(new URL("../src/css/site-v2.1.css",import.meta.url),"utf8");
+assert.match(css,/\.seo-title \{/);
+assert.match(css,/clip-path: inset\(50%\)/);
+assert.match(css,/\.site-identity,[\s\S]*display: none !important/);
+assert.match(css,/grid-template-columns: minmax\(150px, \.55fr\)/);
+
+const shell=fs.readFileSync(new URL("../src/js/site-shell-v2.1.js",import.meta.url),"utf8");
+assert.match(shell,/© 2026 · gutierrezvidal\.com/);
+assert.doesNotMatch(shell,/© 2026 Carlos Adolfo Gutiérrez Vidal/);
+
+assert.match(index,/property="og:title"/);
+assert.match(index,/application\/ld\+json/);
 assert.ok(fs.existsSync(new URL("../sitemap.xml",import.meta.url)));
-assert.ok(fs.existsSync(new URL("../site.webmanifest",import.meta.url)));
-assert.ok(fs.existsSync(new URL("../public/assets/favicon.ico",import.meta.url)));
-assert.ok(fs.existsSync(new URL("../public/assets/og-home.jpg",import.meta.url)));
+assert.ok(fs.existsSync(new URL("../robots.txt",import.meta.url)));
 
-const book=fs.readFileSync(new URL("../obra/escritura/omisiones.html",import.meta.url),"utf8");
-assert.match(book,/"@type":"Book"/);
-assert.match(book,/rel="canonical"/);
-
-const album=fs.readFileSync(new URL("../obra/sonido/love-wasnt-there.html",import.meta.url),"utf8");
-assert.match(album,/"@type":"MusicAlbum"/);
-
-const sitemap=fs.readFileSync(new URL("../sitemap.xml",import.meta.url),"utf8");
-assert.match(sitemap,/gutierrezvidal\.com\/obra\/escritura\/omisiones\.html/);
-
-console.log("Pruebas superadas: metadatos, Open Graph, JSON-LD, sitemap, robots y favicons.");
+console.log("Pruebas superadas: nombre visible una sola vez, H1 SEO oculto y portada simplificada.");

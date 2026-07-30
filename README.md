@@ -1,31 +1,14 @@
-# gutierrezvidal v2.0 — base SEO
+# gutierrezvidal v2.1
 
-## Incluye
+Correcciones de jerarquía visual y semántica:
 
-- Títulos y descripciones por página.
-- Canonical para el dominio definitivo.
-- Open Graph y Twitter Cards.
-- Imagen social 1200×630.
-- Favicon, Apple Touch Icon e iconos Android.
-- `site.webmanifest`.
-- `robots.txt`.
-- `sitemap.xml`.
-- JSON-LD genérico para:
-  - Person
-  - WebSite
-  - WebPage / CollectionPage
-  - Book
-  - MusicAlbum
-  - Blog
-  - PodcastSeries
-- H1 visible y semánticamente coherente en la portada:
-  - Carlos Adolfo Gutiérrez Vidal
-  - Poeta · Artista indisciplinario · Investigador
-- Modelo preliminar para el futuro CMS:
-  `src/data/seo-model.json`
-
-El dominio canónico configurado es:
-
-```text
-https://www.gutierrezvidal.com
-```
+- El nombre aparece visualmente una sola vez: en el header.
+- El H1 SEO permanece en el documento, pero está oculto visualmente de forma accesible.
+- El footer ya no repite el nombre; muestra únicamente:
+  `© 2026 · gutierrezvidal.com`
+- La introducción de la portada se simplificó:
+  - identidad profesional breve;
+  - declaración principal;
+  - párrafo explicativo.
+- Se eliminaron los bloques visibles redundantes añadidos en v2.0.
+- CSS y JavaScript se versionaron como v2.1 para evitar caché.
