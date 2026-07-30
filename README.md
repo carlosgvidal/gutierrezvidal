@@ -1,33 +1,6 @@
-# gutierrezvidal v1.6 — sitio estático
+# gutierrezvidal v1.7
 
-## Cambios
-
-- Tipografía unificada en Helvetica Neue / Helvetica / Arial.
-- Alineación general a la izquierda.
-- Títulos con menor espaciado y jerarquía basada en tamaño, peso y espacio.
-- Columna de lectura de 680 px.
-- Eliminadas las capitulares.
-- Hotspots convertidos en etiquetas editoriales:
-  - fondo oscuro semitransparente;
-  - borde marfil;
-  - desenfoque de fondo;
-  - icono lineal;
-  - flecha;
-  - microanimación discreta;
-  - borde dorado al pasar el cursor.
-- Cada hotspot define su icono en:
-  `src/data/hotspots.json`
-
-## Iconos disponibles
-
-```text
-document
-note
-sound
-grid
-diamond
-image
-archive
-profile
-point
-```
+- Menú con escala tipográfica reducida.
+- Texto conceptual de la portada actual entre el panorama y los testimoniales.
+- Bloques Lenguaje, Materia y Sistemas.
+- Eliminado el encabezado visible redundante de testimoniales.

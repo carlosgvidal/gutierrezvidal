@@ -266,3 +266,20 @@ html, body { overflow-x: hidden; }
     transition: none;
   }
 }
+
+.visually-hidden{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.practice-statement{width:min(calc(100% - 36px),var(--max));margin:0 auto;padding:84px 0 0}
+.practice-statement__intro{display:grid;grid-template-columns:minmax(150px,.65fr) minmax(0,2.35fr);gap:18px 42px;padding-bottom:52px}
+.practice-statement__label{grid-column:1;margin:8px 0 0;font-size:11px;font-weight:600;line-height:1.2;text-transform:uppercase}
+.practice-statement__intro h1{grid-column:2;max-width:970px;margin:0;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:clamp(38px,5.7vw,78px);font-weight:400;line-height:.99;letter-spacing:-.055em}
+.practice-statement__intro>p:last-child{grid-column:2;max-width:720px;margin:4px 0 0;font-size:clamp(18px,2vw,25px);line-height:1.42;letter-spacing:-.018em}
+.practice-statement__axes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
+.practice-statement__axes article{min-height:275px;padding:22px 24px 28px;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink)}
+.axis-number{margin:0 0 42px;font-size:10px;font-weight:500}
+.practice-statement__axes h2{margin:0 0 16px;font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;font-size:clamp(26px,3vw,39px);font-weight:400;line-height:1;letter-spacing:-.04em}
+.practice-statement__axes article>p:last-child{max-width:340px;margin:0;font-size:16px;line-height:1.48}
+.testimonials{padding-top:82px}.testimonials-header{display:none}.testimonials-grid{border-top:1px solid var(--ink)}
+@media(max-width:800px){
+.practice-statement{padding-top:58px}.practice-statement__intro{display:block;padding-bottom:40px}
+.practice-statement__label{margin:0 0 22px}.practice-statement__intro>p:last-child{margin-top:22px}
+.practice-statement__axes{grid-template-columns:1fr}.practice-statement__axes article{min-height:auto}.axis-number{margin-bottom:26px}.testimonials{padding-top:58px}}
