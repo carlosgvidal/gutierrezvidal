@@ -9,8 +9,8 @@
   --soft-rule: rgba(0,0,0,.12);
   --max: 1240px;
   --text: 720px;
-  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
-  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  --serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -346,4 +346,100 @@ img { max-width: 100%; }
   .site-footer nav {
     grid-column: 1 / -1;
   }
+}
+
+
+/* v1.6 — Helvetica editorial system */
+body,
+button,
+input,
+textarea,
+select {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+body {
+  text-align: left;
+  letter-spacing: 0;
+}
+
+.site-wordmark,
+.page-title,
+.page-deck,
+.page-header,
+.prose,
+.collection,
+.drawer-head,
+.drawer-list,
+.site-footer {
+  text-align: left;
+}
+
+.site-wordmark {
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.page-header {
+  max-width: 920px;
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.page-title {
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: .92;
+}
+
+.page-deck {
+  max-width: 720px;
+  margin-left: 0;
+  margin-right: auto;
+  line-height: 1.35;
+}
+
+.prose {
+  max-width: 680px;
+  margin-left: 0;
+  margin-right: auto;
+  font-size: 18px;
+  line-height: 1.58;
+}
+
+.prose p:first-child::first-letter {
+  float: none;
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.page-kicker,
+.menu-button,
+.drawer-close,
+.site-footer__inner {
+  letter-spacing: .01em;
+}
+
+.collection h2 {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
+.drawer-head p,
+.drawer-list--0 > li > a,
+.drawer-list--0 > li > span,
+.drawer-list--0 > li > details > summary {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+}
+
+.drawer-list--1 a,
+.drawer-list--1 span,
+.drawer-list--1 summary,
+.drawer-list--2 a {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.015em;
 }

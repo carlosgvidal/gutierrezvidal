@@ -4,55 +4,63 @@
     "label": "Escritura",
     "imageX": 1098,
     "imageY": 495,
-    "url": "escritura.html"
+    "url": "escritura.html",
+    "icon": "document"
   },
   {
     "id": "blog",
     "label": "Blog",
     "imageX": 655,
     "imageY": 470,
-    "url": "blog.html"
+    "url": "blog.html",
+    "icon": "note"
   },
   {
     "id": "sonido",
     "label": "Sonido",
     "imageX": 1262,
     "imageY": 463,
-    "url": "sonido.html"
+    "url": "sonido.html",
+    "icon": "sound"
   },
   {
     "id": "sistema",
     "label": "Sistema",
     "imageX": 470,
     "imageY": 450,
-    "url": "sistema.html"
+    "url": "sistema.html",
+    "icon": "grid"
   },
   {
     "id": "perfil",
     "label": "Perfil",
     "imageX": 885,
     "imageY": 365,
-    "url": "perfil.html"
+    "url": "perfil.html",
+    "icon": "profile"
   },
   {
     "id": "materia",
     "label": "Materia",
     "imageX": 104,
     "imageY": 498,
-    "url": "materia.html"
+    "url": "materia.html",
+    "icon": "diamond"
   },
   {
     "id": "imagenes",
     "label": "Imágenes",
     "imageX": 1282,
     "imageY": 308,
-    "url": "imagenes.html"
+    "url": "imagenes.html",
+    "icon": "image"
   },
   {
     "id": "archivo",
     "label": "Archivo",
     "imageX": 1510,
     "imageY": 338,
-    "url": "archivo.html"
+    "url": "archivo.html",
+    "icon": "archive"
   }
 ]

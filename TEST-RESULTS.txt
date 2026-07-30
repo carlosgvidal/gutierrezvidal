@@ -1,11 +1,11 @@
-$ node --check /mnt/data/gutierrezvidal-v1.5/src/js/site-shell.js
+$ node --check /mnt/data/gutierrezvidal-v1.6/src/js/viewer.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v1.5/src/js/viewer.js
+$ node --check /mnt/data/gutierrezvidal-v1.6/src/js/site-shell.js
 exit=0
 
-$ node /mnt/data/gutierrezvidal-v1.5/tests/project.test.mjs
+$ node /mnt/data/gutierrezvidal-v1.6/tests/project.test.mjs
 exit=0
-Pruebas superadas: sitio estático, navegación jerárquica, panorama, logo y testimoniales.
+Pruebas superadas: Helvetica, alineación izquierda, etiquetas e iconos de hotspots.
 
-Validación de archivos estáticos: correcta.
+Validación de archivos: correcta.

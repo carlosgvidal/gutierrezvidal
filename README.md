@@ -1,35 +1,33 @@
-# gutierrezvidal v1.5 — sitio estático
+# gutierrezvidal v1.6 — sitio estático
 
 ## Cambios
 
-- Se eliminó el CMS y toda conexión de escritura con GitHub.
-- Header compacto con logo, nombre y menú de hamburguesa.
-- Menú jerárquico y expansible desde `src/data/navigation.json`.
-- Navegación con páginas individuales para libros y proyectos sonoros.
-- Corrección del visor panorámico:
-  - FOV reducido;
-  - zoom desactivado;
-  - dimensiones tomadas del contenedor;
-  - `ResizeObserver`;
-  - hotspots posicionados dentro del visor.
-- Eliminado el nombre y el lema sobre la fotografía.
-- Sección de fragmentos críticos después del panorama.
-- Footer compacto con copyright.
-- Logo nuevo en variantes negra y blanca.
-- Sitio completamente estático.
+- Tipografía unificada en Helvetica Neue / Helvetica / Arial.
+- Alineación general a la izquierda.
+- Títulos con menor espaciado y jerarquía basada en tamaño, peso y espacio.
+- Columna de lectura de 680 px.
+- Eliminadas las capitulares.
+- Hotspots convertidos en etiquetas editoriales:
+  - fondo oscuro semitransparente;
+  - borde marfil;
+  - desenfoque de fondo;
+  - icono lineal;
+  - flecha;
+  - microanimación discreta;
+  - borde dorado al pasar el cursor.
+- Cada hotspot define su icono en:
+  `src/data/hotspots.json`
 
-## Actualizar el menú
-
-Editar:
+## Iconos disponibles
 
 ```text
-src/data/navigation.json
+document
+note
+sound
+grid
+diamond
+image
+archive
+profile
+point
 ```
-
-## Añadir una obra
-
-1. Crear la página dentro de:
-   - `obra/escritura/`
-   - `obra/sonido/`
-2. Añadir el enlace en `src/data/navigation.json`.
-3. Añadir la tarjeta correspondiente en `escritura.html` o `sonido.html`.

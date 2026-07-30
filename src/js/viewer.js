@@ -7,6 +7,22 @@ const SPHERE_RADIUS = 500;
 const HOTSPOT_RADIUS = 10;
 const viewer = document.querySelector("#viewer");
 
+function hotspotIcon(name){
+  const icons={
+    document:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h8l4 4V20.5H6z"/><path d="M14 3.5v4h4"/><path d="M9 12h6M9 15.5h6"/></svg>`,
+    note:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14v15H5z"/><path d="M8 8h8M8 11.5h8M8 15h5"/></svg>`,
+    sound:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h4l5-4v12l-5-4H4z"/><path d="M16 9c1.3 1.6 1.3 4.4 0 6M18.5 6.5c3 3.1 3 7.9 0 11"/></svg>`,
+    grid:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>`,
+    diamond:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 20.5 12 12 20.5 3.5 12z"/><path d="M7.5 8.5h9l-4.5 8z"/></svg>`,
+    image:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v14H4z"/><circle cx="9" cy="10" r="1.5"/><path d="m6 17 4.5-4 3 2.5 2-2 2.5 3.5"/></svg>`,
+    archive:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14v13H5z"/><path d="M4 4h16v3H4zM9 11h6"/></svg>`,
+    profile:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 20c.8-4.1 3-6 6.5-6s5.7 1.9 6.5 6"/></svg>`,
+    point:`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/></svg>`
+  };
+  return icons[name]||icons.point;
+}
+
+
 function panoramaPixelToVector(imageX,imageY,radius){
   const u=imageX/PANORAMA_WIDTH;
   const v=imageY/PANORAMA_HEIGHT;
@@ -84,7 +100,7 @@ const hotspots=defs.map(def=>{
   const el=document.createElement("a");
   el.className="hotspot";
   el.href=def.url;
-  el.textContent=def.label;
+  el.innerHTML=`<span class="hotspot-icon">${hotspotIcon(def.icon)}</span><span class="hotspot-label">${def.label}</span><span class="hotspot-arrow" aria-hidden="true">→</span>`;
   viewer.appendChild(el);
   return {
     element:el,
