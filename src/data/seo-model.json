@@ -1,0 +1,61 @@
+{
+  "site": {
+    "name": "Carlos Adolfo Gutiérrez Vidal",
+    "baseUrl": "https://www.gutierrezvidal.com",
+    "defaultTitleSuffix": "Carlos Adolfo Gutiérrez Vidal",
+    "defaultImage": "/public/assets/og-home.jpg",
+    "language": "es-MX"
+  },
+  "person": {
+    "name": "Carlos Adolfo Gutiérrez Vidal",
+    "roles": [
+      "Poeta",
+      "Artista indisciplinario",
+      "Investigador"
+    ]
+  },
+  "contentTypes": {
+    "book": {
+      "schemaType": "Book",
+      "required": [
+        "title",
+        "slug",
+        "description"
+      ]
+    },
+    "musicAlbum": {
+      "schemaType": "MusicAlbum",
+      "required": [
+        "title",
+        "slug",
+        "description"
+      ]
+    },
+    "blogPost": {
+      "schemaType": "BlogPosting",
+      "required": [
+        "title",
+        "slug",
+        "description",
+        "datePublished"
+      ]
+    },
+    "podcastEpisode": {
+      "schemaType": "PodcastEpisode",
+      "required": [
+        "title",
+        "slug",
+        "description",
+        "datePublished"
+      ]
+    },
+    "creativeWork": {
+      "schemaType": "CreativeWork",
+      "required": [
+        "title",
+        "slug",
+        "description"
+      ]
+    }
+  }
+}
