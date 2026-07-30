@@ -283,3 +283,41 @@ html, body { overflow-x: hidden; }
 .practice-statement{padding-top:58px}.practice-statement__intro{display:block;padding-bottom:40px}
 .practice-statement__label{margin:0 0 22px}.practice-statement__intro>p:last-child{margin-top:22px}
 .practice-statement__axes{grid-template-columns:1fr}.practice-statement__axes article{min-height:auto}.axis-number{margin-bottom:26px}.testimonials{padding-top:58px}}
+
+
+/* v1.8 — mobile panorama correction */
+#viewer {
+  touch-action: none;
+  overscroll-behavior: contain;
+  cursor: grab;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#viewer:active {
+  cursor: grabbing;
+}
+
+#viewer canvas {
+  touch-action: none !important;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.hotspot {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+@media (max-width: 800px) and (orientation: portrait) {
+  .panorama-section {
+    height: 62svh;
+    min-height: 430px;
+    max-height: 720px;
+  }
+
+  .panorama-help {
+    right: 12px;
+    bottom: 12px;
+  }
+}
