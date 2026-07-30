@@ -5,50 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="author" content="Carlos Adolfo Gutiérrez Vidal">
   <meta name="description" content="Sitio oficial de Carlos Adolfo Gutiérrez Vidal">
-  <meta property="og:title" content="Carlos Adolfo Gutiérrez Vidal">
-  <meta property="og:description" content="Lenguaje · Materia · Sistemas">
-  <meta property="og:type" content="website">
   <title>Carlos Adolfo Gutiérrez Vidal</title>
   <link rel="stylesheet" href="src/css/site.css">
   <script type="importmap">
   {
     "imports": {
-      "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
-      "OrbitControls": "https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
+      "three":"https://unpkg.com/three@0.167.1/build/three.module.js",
+      "OrbitControls":"https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
     }
   }
   </script>
 </head>
-<body class="home-shell"><header class="site-header">
-    <div class="site-header__inner">
-      <a class="site-logo" href="index.html" aria-label="Inicio"><img src="public/assets/logo-dark.png" alt=""></a>
-      <div><p class="site-title">Carlos Adolfo Gutiérrez Vidal</p><p class="site-tagline">Lenguaje · Materia · Sistemas</p></div>
-    </div>
-    <nav class="site-nav" aria-label="Navegación principal"><ul><li><a href="index.html" aria-current="page">Inicio</a></li><li><a href="escritura.html">Escritura</a></li><li><a href="blog.html">Blog</a></li><li><a href="sonido.html">Sonido</a></li><li><a href="sistema.html">Sistema</a></li><li><a href="materia.html">Materia</a></li><li><a href="imagenes.html">Imágenes</a></li><li><a href="archivo.html">Archivo</a></li><li><a href="perfil.html">Perfil</a></li></ul></nav>
-  </header><header class="site-header">
-    <div class="site-header__inner">
-      <a class="site-logo" href="index.html" aria-label="Inicio"><img src="public/assets/logo-dark.png" alt=""></a>
-      <div><p class="site-title">Carlos Adolfo Gutiérrez Vidal</p><p class="site-tagline">Lenguaje · Materia · Sistemas</p></div>
-    </div>
-    <nav class="site-nav" aria-label="Navegación principal"><ul><li><a href="index.html" aria-current="page">Inicio</a></li><li><a href="escritura.html">Escritura</a></li><li><a href="blog.html">Blog</a></li><li><a href="sonido.html">Sonido</a></li><li><a href="sistema.html">Sistema</a></li><li><a href="materia.html">Materia</a></li><li><a href="imagenes.html">Imágenes</a></li><li><a href="archivo.html">Archivo</a></li><li><a href="perfil.html">Perfil</a></li></ul></nav>
-  </header>
+<body data-root="">
+  <div data-site-header></div>
+  <main class="home-main">
+    <section class="panorama-section" aria-label="Estudio panorámico">
+      <div id="viewer"></div>
+      <p class="panorama-help">Arrastra para recorrer el estudio</p>
+    </section>
 
-
-  <main id="viewer" aria-label="Navegación panorámica"></main>
-  <div id="identity">
-    <h1>Carlos Adolfo Gutiérrez Vidal</h1>
-    <p>Lenguaje · Materia · Sistemas</p>
-  </div>
-  
-  
+    <section class="testimonials" aria-labelledby="critica-title">
+      <header class="testimonials-header">
+        <p>Lecturas críticas</p>
+        <h2 id="critica-title">Fragmentos sobre la obra</h2>
+      </header>
+      <div class="testimonials-grid">
+        <article class="testimonial"><blockquote>Una obra donde la belleza opera como contrapunto del horror.</blockquote><cite>Daniel Sada</cite></article>
+<article class="testimonial"><blockquote>Una madurez literaria que no renuncia al deseo ni a sus propias exigencias.</blockquote><cite>Francisco Segovia</cite></article>
+<article class="testimonial"><blockquote>Una poesía que transita entre lo erudito y lo coloquial, lo cerrado y lo abierto.</blockquote><cite>Brenda Ríos</cite></article>
+<article class="testimonial"><blockquote>Una escritura de ingenio crítico que observa las formas contemporáneas de la experiencia.</blockquote><cite>Gabriel Trujillo Muñoz</cite></article>
+<article class="testimonial"><blockquote>Una obra que pone en duda cualquier forma sencilla de consuelo.</blockquote><cite>Mark Weiss</cite></article>
+<article class="testimonial"><blockquote>Una escritura ingeniosa, poética, oscura y perturbadora.</blockquote><cite>Eduardo Padilla</cite></article>
+      </div>
+    </section>
+  </main>
+  <div data-site-footer></div>
+  <script src="src/js/site-shell.js"></script>
   <script type="module" src="src/js/viewer.js"></script>
-<footer class="site-footer"><div class="site-footer__inner">
-    <img class="site-footer__logo" src="public/assets/logo-light.png" alt="">
-    <p class="site-footer__name">© 2026 Carlos Adolfo Gutiérrez Vidal</p>
-    <p class="site-footer__meta">Lenguaje · Materia · Sistemas</p>
-  </div></footer><footer class="site-footer"><div class="site-footer__inner">
-    <img class="site-footer__logo" src="public/assets/logo-light.png" alt="">
-    <p class="site-footer__name">© 2026 Carlos Adolfo Gutiérrez Vidal</p>
-    <p class="site-footer__meta">Lenguaje · Materia · Sistemas</p>
-  </div></footer></body>
+</body>
 </html>

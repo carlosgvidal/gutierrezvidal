@@ -1,13 +1,11 @@
-$ node --check /mnt/data/gutierrezvidal-v1.3/tools/build.mjs
+$ node --check /mnt/data/gutierrezvidal-v1.5/src/js/site-shell.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v1.3/admin/cms.js
+$ node --check /mnt/data/gutierrezvidal-v1.5/src/js/viewer.js
 exit=0
 
-$ node /mnt/data/gutierrezvidal-v1.3/tools/build.mjs
+$ node /mnt/data/gutierrezvidal-v1.5/tests/project.test.mjs
 exit=0
-Sitio generado en dist/
+Pruebas superadas: sitio estático, navegación jerárquica, panorama, logo y testimoniales.
 
-$ node /mnt/data/gutierrezvidal-v1.3/tests/project.test.mjs
-exit=0
-Pruebas superadas: logo, tipografía, header/footer, CMS y despliegue.
+Validación de archivos estáticos: correcta.

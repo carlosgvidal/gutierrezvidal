@@ -1,0 +1,165 @@
+[
+  {
+    "label": "Inicio",
+    "url": "index.html"
+  },
+  {
+    "label": "Obra",
+    "children": [
+      {
+        "label": "Escritura",
+        "url": "escritura.html",
+        "children": [
+          {
+            "label": "Omisiones",
+            "url": "obra/escritura/omisiones.html"
+          },
+          {
+            "label": "Sonetos",
+            "url": "obra/escritura/sonetos.html"
+          },
+          {
+            "label": "Bordos",
+            "url": "obra/escritura/bordos.html"
+          },
+          {
+            "label": "Perlas",
+            "url": "obra/escritura/perlas.html"
+          },
+          {
+            "label": "Pausas",
+            "url": "obra/escritura/pausas.html"
+          },
+          {
+            "label": "Meridianos / Divergencias",
+            "url": "obra/escritura/meridianos-divergencias.html"
+          },
+          {
+            "label": "Endechas",
+            "url": "obra/escritura/endechas.html"
+          },
+          {
+            "label": "Toros",
+            "url": "obra/escritura/toros.html"
+          },
+          {
+            "label": "Befas",
+            "url": "obra/escritura/befas.html"
+          },
+          {
+            "label": "Nortes",
+            "url": "obra/escritura/nortes.html"
+          },
+          {
+            "label": "Sarcófagos",
+            "url": "obra/escritura/sarcofagos.html"
+          }
+        ]
+      },
+      {
+        "label": "Sonido",
+        "url": "sonido.html",
+        "children": [
+          {
+            "label": "Inside My Mother’s Heart",
+            "url": "obra/sonido/inside-my-mothers-heart.html"
+          },
+          {
+            "label": "Love Wasn’t There",
+            "url": "obra/sonido/love-wasnt-there.html"
+          },
+          {
+            "label": "On Birds’ Beliefs",
+            "url": "obra/sonido/on-birds-beliefs.html"
+          },
+          {
+            "label": "According to Boulevard Signs",
+            "url": "obra/sonido/according-to-boulevard-signs.html"
+          },
+          {
+            "label": "In a Scratch",
+            "url": "obra/sonido/in-a-scratch.html"
+          },
+          {
+            "label": "Since the Lack of Love",
+            "url": "obra/sonido/since-the-lack-of-love.html"
+          },
+          {
+            "label": "Rational Choice",
+            "url": "obra/sonido/rational-choice.html"
+          },
+          {
+            "label": "When the Music’s Sober",
+            "url": "obra/sonido/when-the-musics-sober.html"
+          },
+          {
+            "label": "Best in Peace",
+            "url": "obra/sonido/best-in-peace.html"
+          },
+          {
+            "label": "Harmony Road",
+            "url": "obra/sonido/harmony-road.html"
+          }
+        ]
+      },
+      {
+        "label": "Materia",
+        "url": "materia.html"
+      },
+      {
+        "label": "Imágenes",
+        "url": "imagenes.html"
+      },
+      {
+        "label": "Sistema",
+        "url": "sistema.html"
+      }
+    ]
+  },
+  {
+    "label": "Publicaciones",
+    "children": [
+      {
+        "label": "Blog",
+        "url": "blog.html"
+      },
+      {
+        "label": "Podcast",
+        "url": "podcast.html"
+      }
+    ]
+  },
+  {
+    "label": "Archivo",
+    "url": "archivo.html"
+  },
+  {
+    "label": "Perfil",
+    "url": "perfil.html"
+  },
+  {
+    "label": "Tienda",
+    "children": [
+      {
+        "label": "Joyas",
+        "url": "tienda-joyas.html"
+      },
+      {
+        "label": "Libros",
+        "url": "tienda-libros.html"
+      },
+      {
+        "label": "Cursos",
+        "url": "tienda-cursos.html"
+      }
+    ]
+  },
+  {
+    "label": "Contacto",
+    "url": "contacto.html"
+  },
+  {
+    "label": "Enlaces",
+    "url": "enlaces.html"
+  }
+]

@@ -1,10 +1,11 @@
 import * as THREE from "three";
 import {OrbitControls} from "OrbitControls";
 
-const PANORAMA_WIDTH=1774;
-const PANORAMA_HEIGHT=887;
-const SPHERE_RADIUS=500;
-const HOTSPOT_RADIUS=10;
+const PANORAMA_WIDTH = 1774;
+const PANORAMA_HEIGHT = 887;
+const SPHERE_RADIUS = 500;
+const HOTSPOT_RADIUS = 10;
+const viewer = document.querySelector("#viewer");
 
 function panoramaPixelToVector(imageX,imageY,radius){
   const u=imageX/PANORAMA_WIDTH;
@@ -19,9 +20,8 @@ function panoramaPixelToVector(imageX,imageY,radius){
   );
 }
 
-const viewer=document.querySelector("#viewer");
 const scene=new THREE.Scene();
-const camera=new THREE.PerspectiveCamera(102,innerWidth/innerHeight,.1,1100);
+const camera=new THREE.PerspectiveCamera(76,1,.1,1100);
 camera.position.set(0,0,.1);
 
 const renderer=new THREE.WebGLRenderer({
@@ -32,20 +32,16 @@ const renderer=new THREE.WebGLRenderer({
 });
 renderer.outputColorSpace=THREE.LinearSRGBColorSpace;
 renderer.toneMapping=THREE.NoToneMapping;
-renderer.toneMappingExposure=1;
 renderer.setClearColor(0x000000,1);
 renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
-renderer.setSize(innerWidth,innerHeight,false);
 viewer.appendChild(renderer.domElement);
 
 const controls=new OrbitControls(camera,renderer.domElement);
 controls.enablePan=false;
+controls.enableZoom=false;
 controls.enableDamping=true;
 controls.dampingFactor=.05;
-controls.rotateSpeed=.35;
-controls.enableZoom=false;
-controls.minDistance=.1;
-controls.maxDistance=.1;
+controls.rotateSpeed=.28;
 controls.target.copy(panoramaPixelToVector(PANORAMA_WIDTH/2,PANORAMA_HEIGHT/2,1));
 controls.update();
 
@@ -54,8 +50,6 @@ geometry.scale(-1,1,1);
 
 const texture=await new THREE.TextureLoader().loadAsync("public/panorama/portada.jpg");
 texture.colorSpace=THREE.NoColorSpace;
-texture.wrapS=THREE.ClampToEdgeWrapping;
-texture.wrapT=THREE.ClampToEdgeWrapping;
 texture.minFilter=THREE.LinearFilter;
 texture.magFilter=THREE.LinearFilter;
 texture.generateMipmaps=false;
@@ -69,10 +63,7 @@ const material=new THREE.RawShaderMaterial({
     uniform mat4 modelViewMatrix;
     uniform mat4 projectionMatrix;
     varying vec2 vUv;
-    void main(){
-      vUv=uv;
-      gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);
-    }
+    void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}
   `,
   fragmentShader:`
     precision highp float;
@@ -87,19 +78,17 @@ const material=new THREE.RawShaderMaterial({
 scene.add(new THREE.Mesh(geometry,material));
 
 const response=await fetch("src/data/hotspots.json",{cache:"no-store"});
-if(!response.ok) throw new Error(`No se pudo cargar hotspots.json: ${response.status}`);
-const definitions=await response.json();
+const defs=await response.json();
 
-const hotspots=definitions.map(definition=>{
-  const element=document.createElement("a");
-  element.className="hotspot";
-  element.href=definition.url;
-  element.textContent=definition.label;
-  element.setAttribute("aria-label",definition.label);
-  document.body.appendChild(element);
+const hotspots=defs.map(def=>{
+  const el=document.createElement("a");
+  el.className="hotspot";
+  el.href=def.url;
+  el.textContent=def.label;
+  viewer.appendChild(el);
   return {
-    element,
-    position:panoramaPixelToVector(definition.imageX,definition.imageY,HOTSPOT_RADIUS)
+    element:el,
+    position:panoramaPixelToVector(def.imageX,def.imageY,HOTSPOT_RADIUS)
   };
 });
 
@@ -107,16 +96,28 @@ const projected=new THREE.Vector3();
 const cameraDirection=new THREE.Vector3();
 const normalized=new THREE.Vector3();
 
+function resize(){
+  const rect=viewer.getBoundingClientRect();
+  camera.aspect=rect.width/rect.height;
+  camera.updateProjectionMatrix();
+  renderer.setSize(rect.width,rect.height,false);
+}
+new ResizeObserver(resize).observe(viewer);
+resize();
+
 function updateHotspots(){
+  const rect=viewer.getBoundingClientRect();
   camera.getWorldDirection(cameraDirection);
+
   for(const hotspot of hotspots){
     normalized.copy(hotspot.position).normalize();
-    const visible=cameraDirection.dot(normalized)>0;
+    const visible=cameraDirection.dot(normalized)>.08;
     hotspot.element.hidden=!visible;
     if(!visible) continue;
+
     projected.copy(hotspot.position).project(camera);
-    hotspot.element.style.left=`${(projected.x*.5+.5)*innerWidth}px`;
-    hotspot.element.style.top=`${(-projected.y*.5+.5)*innerHeight}px`;
+    hotspot.element.style.left=`${(projected.x*.5+.5)*rect.width}px`;
+    hotspot.element.style.top=`${(-projected.y*.5+.5)*rect.height}px`;
   }
 }
 
@@ -126,9 +127,4 @@ function render(){
   renderer.render(scene,camera);
   requestAnimationFrame(render);
 }
-addEventListener("resize",()=>{
-  camera.aspect=innerWidth/innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth,innerHeight,false);
-});
 render();

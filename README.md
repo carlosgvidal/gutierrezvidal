@@ -1,40 +1,35 @@
-# gutierrezvidal v1.4
+# gutierrezvidal v1.5 — sitio estático
 
-## Corrección de publicación
+## Cambios
 
-Esta versión funciona con cualquiera de estas configuraciones de GitHub Pages:
+- Se eliminó el CMS y toda conexión de escritura con GitHub.
+- Header compacto con logo, nombre y menú de hamburguesa.
+- Menú jerárquico y expansible desde `src/data/navigation.json`.
+- Navegación con páginas individuales para libros y proyectos sonoros.
+- Corrección del visor panorámico:
+  - FOV reducido;
+  - zoom desactivado;
+  - dimensiones tomadas del contenedor;
+  - `ResizeObserver`;
+  - hotspots posicionados dentro del visor.
+- Eliminado el nombre y el lema sobre la fotografía.
+- Sección de fragmentos críticos después del panorama.
+- Footer compacto con copyright.
+- Logo nuevo en variantes negra y blanca.
+- Sitio completamente estático.
 
-1. **GitHub Actions**: publica `dist/`.
-2. **Deploy from a branch / main / root**: la raíz contiene la misma versión generada.
+## Actualizar el menú
 
-El comando:
-
-```bash
-node tools/build.mjs
-```
-
-genera `dist/` y sincroniza el resultado público con la raíz del repositorio.
-
-## CMS
-
-Dirección publicada:
-
-```text
-https://carlosgvidal.github.io/gutierrezvidal/admin.html
-```
-
-Valores predeterminados:
+Editar:
 
 ```text
-Usuario: carlosgvidal
-Repositorio: gutierrezvidal
-Rama: main
+src/data/navigation.json
 ```
 
-## Archivos corregidos
+## Añadir una obra
 
-- `tools/build.mjs`
-- `.github/workflows/deploy.yml`
-- `admin/index.html`
-- `content/site.json`
-- `.nojekyll`
+1. Crear la página dentro de:
+   - `obra/escritura/`
+   - `obra/sonido/`
+2. Añadir el enlace en `src/data/navigation.json`.
+3. Añadir la tarjeta correspondiente en `escritura.html` o `sonido.html`.
