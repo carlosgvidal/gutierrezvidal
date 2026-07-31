@@ -23,6 +23,16 @@
   const homePanel = $("#home-panel");
   const homeForm = $("#home-form");
   const homeStatus = $("#home-status");
+  const heroField = $("#hero-field");
+  const asideField = $("#aside-field");
+  const heroFile = $("#hero-image-file");
+  const heroAlt = $("#hero-image-alt");
+  const heroCaption = $("#hero-image-caption");
+  const heroPreview = $("#hero-image-preview");
+  const asideFile = $("#aside-image-file");
+  const asideAlt = $("#aside-image-alt");
+  const asideCaption = $("#aside-image-caption");
+  const asidePreview = $("#aside-image-preview");
 
   let navigation = [];
   let loadedPath = null;
@@ -32,6 +42,10 @@
   let homeSource = "";
   let savedRange = null;
   let previewUrl = null;
+  let heroImagePath = "";
+  let asideImagePath = "";
+  let heroPreviewUrl = "";
+  let asidePreviewUrl = "";
 
   const esc = (value) => String(value)
     .replaceAll("&", "&amp;")
@@ -51,6 +65,7 @@
   const clean = (value) => value.trim().replace(/^\/+|\/+$/g, "").replace(/\/+/g, "/");
   const rootFor = (path) => "../".repeat(path.split("/").length - 1);
   const canonical = (path) => `https://www.gutierrezvidal.com/${path}`;
+  const absoluteImageURL = (path) => `https://www.gutierrezvidal.com/${path.replace(/^\/+/, "")}`;
 
   function flatten(items, prefix = []) {
     const out = [];
@@ -164,6 +179,7 @@
     homePanel.hidden = true;
     form.reset();
     body.innerHTML = "";
+    resetPageMedia();
     type.disabled = false;
     slug.disabled = false;
     folder.disabled = false;
@@ -181,6 +197,8 @@
     const value = type.value;
     dateField.hidden = value !== "blog";
     $("#folder-field").hidden = value === "page";
+    heroField.hidden = value === "subpage";
+    asideField.hidden = value !== "subpage";
 
     if (value === "blog") {
       folder.value = "blog";
@@ -237,6 +255,10 @@
     if (node.tagName === "IMG") {
       const src = node.getAttribute("src") || "";
       if (isSafeUrl(src, true)) cleanElement.setAttribute("src", src);
+      const sitePath = node.getAttribute("data-site-path");
+      if (sitePath && /^public\/images\/[a-z0-9._-]+$/i.test(sitePath)) {
+        cleanElement.setAttribute("data-site-path", sitePath);
+      }
       cleanElement.setAttribute("alt", node.getAttribute("alt") || "");
       cleanElement.setAttribute("loading", "lazy");
       for (const dimension of ["width", "height"]) {
@@ -268,12 +290,41 @@
     return holder.innerHTML.trim();
   }
 
-  function editorHTML() {
-    return sanitizeHTML(body.innerHTML);
+  function siteImagePathFromSource(src) {
+    if (!src) return "";
+    const match = src.match(/(?:^|\/)public\/images\/([^?#]+)(?:[?#].*)?$/i);
+    return match ? `public/images/${match[1]}` : "";
   }
 
-  function setEditorHTML(html) {
-    body.innerHTML = sanitizeHTML(html);
+  function prepareEditorHTML(html, pagePath) {
+    const parsed = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
+    const holder = parsed.body.firstElementChild;
+    holder.querySelectorAll("img").forEach((image) => {
+      const sitePath = image.getAttribute("data-site-path")
+        || siteImagePathFromSource(image.getAttribute("src") || "");
+      if (!sitePath) return;
+      image.setAttribute("data-site-path", sitePath);
+      image.setAttribute("src", new URL(`../${sitePath}`, location.href).href);
+    });
+    return sanitizeHTML(holder.innerHTML);
+  }
+
+  function editorHTML(pagePath) {
+    const cleanHTML = sanitizeHTML(body.innerHTML);
+    const parsed = new DOMParser().parseFromString(`<div>${cleanHTML}</div>`, "text/html");
+    const holder = parsed.body.firstElementChild;
+    holder.querySelectorAll("img").forEach((image) => {
+      const sitePath = image.getAttribute("data-site-path")
+        || siteImagePathFromSource(image.getAttribute("src") || "");
+      if (!sitePath) return;
+      image.setAttribute("src", `${rootFor(pagePath)}${sitePath}`);
+      image.removeAttribute("data-site-path");
+    });
+    return holder.innerHTML.trim();
+  }
+
+  function setEditorHTML(html, pagePath = loadedPath || "pagina.html") {
+    body.innerHTML = prepareEditorHTML(html, pagePath);
   }
 
   function saveSelection() {
@@ -396,7 +447,7 @@
       title: title.value.trim(),
       slug: cleanSlug,
       description: description.value.trim(),
-      body: editorHTML(),
+      body: editorHTML(path),
       date: date.value,
       path,
       parentPath,
@@ -431,6 +482,9 @@
     };
     if (data.type === "blog" && data.date) schema.datePublished = data.date;
     const kicker = data.type === "blog" && data.date ? data.date : data.kicker;
+    const socialImage = heroImagePath
+      ? absoluteImageURL(heroImagePath)
+      : "https://www.gutierrezvidal.com/public/assets/og-home.jpg";
 
     return `<!doctype html>
 <html lang="es">
@@ -451,11 +505,11 @@
   <meta property="og:title" content="${esc(data.title)}">
   <meta property="og:description" content="${esc(data.description)}">
   <meta property="og:url" content="${url}">
-  <meta property="og:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg">
+  <meta property="og:image" content="${socialImage}">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(data.title)}">
   <meta name="twitter:description" content="${esc(data.description)}">
-  <meta name="twitter:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg">
+  <meta name="twitter:image" content="${socialImage}">
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
   <title>${esc(data.title)} · Carlos Adolfo Gutiérrez Vidal</title>
   <link rel="stylesheet" href="${root}src/css/site-v2.2.css">
@@ -468,7 +522,10 @@
       <h1 class="page-title">${esc(data.title)}</h1>
       <p class="page-deck">${esc(data.description)}</p>
     </header>
-    <article class="prose">${data.body}</article>
+    ${data.type !== "subpage" && heroImagePath ? mediaFigureHTML("hero", data.path) : ""}
+    ${data.type === "subpage" && asideImagePath
+      ? `<div class="page-content-grid"><article class="prose">${data.body}</article><aside class="page-aside">${mediaFigureHTML("aside", data.path)}</aside></div>`
+      : `<article class="prose">${data.body}</article>`}
   </main>
   <div data-site-footer></div>
   <script src="${root}src/js/site-shell-v2.1.js"></script>
@@ -491,12 +548,17 @@
     pageTitle.textContent = data.title;
     pageDeck.textContent = data.description;
     article.innerHTML = data.body;
+    applyMediaToDocument(doc, data);
     doc.title = `${data.title} · Carlos Adolfo Gutiérrez Vidal`;
     updateMeta(doc, 'meta[name="description"]', data.description);
     updateMeta(doc, 'meta[property="og:title"]', data.title);
     updateMeta(doc, 'meta[property="og:description"]', data.description);
     updateMeta(doc, 'meta[name="twitter:title"]', data.title);
     updateMeta(doc, 'meta[name="twitter:description"]', data.description);
+    if (heroImagePath) {
+      updateMeta(doc, 'meta[property="og:image"]', absoluteImageURL(heroImagePath));
+      updateMeta(doc, 'meta[name="twitter:image"]', absoluteImageURL(heroImagePath));
+    }
 
     for (const schema of doc.querySelectorAll('script[type="application/ld+json"]')) {
       try {
@@ -564,6 +626,122 @@
     return xml.replace("</urlset>", entry + "</urlset>");
   }
 
+
+  function clearPreviewUrl(kind) {
+    if (kind === "hero" && heroPreviewUrl) URL.revokeObjectURL(heroPreviewUrl);
+    if (kind === "aside" && asidePreviewUrl) URL.revokeObjectURL(asidePreviewUrl);
+    if (kind === "hero") heroPreviewUrl = "";
+    if (kind === "aside") asidePreviewUrl = "";
+  }
+
+  function setMediaPreview(kind, src, alt = "", caption = "") {
+    const figure = kind === "hero" ? heroPreview : asidePreview;
+    const image = figure.querySelector("img");
+    const figcaption = figure.querySelector("figcaption");
+    image.src = src || "";
+    image.alt = alt;
+    figcaption.textContent = caption;
+    figcaption.hidden = !caption;
+    figure.hidden = !src;
+  }
+
+  function resetPageMedia() {
+    heroImagePath = "";
+    asideImagePath = "";
+    heroAlt.value = "";
+    heroCaption.value = "";
+    asideAlt.value = "";
+    asideCaption.value = "";
+    heroFile.value = "";
+    asideFile.value = "";
+    clearPreviewUrl("hero");
+    clearPreviewUrl("aside");
+    setMediaPreview("hero", "");
+    setMediaPreview("aside", "");
+  }
+
+  function extractMedia(doc, selector, kind) {
+    const figure = doc.querySelector(selector);
+    const image = figure?.querySelector("img");
+    if (!image) return;
+    const sitePath = siteImagePathFromSource(image.getAttribute("src") || "");
+    const caption = figure.querySelector("figcaption")?.textContent.trim() || "";
+    const absoluteSource = sitePath
+      ? new URL(`../${sitePath}`, location.href).href
+      : new URL(image.getAttribute("src"), new URL(`../${loadedPath}`, location.href)).href;
+
+    if (kind === "hero") {
+      heroImagePath = sitePath;
+      heroAlt.value = image.getAttribute("alt") || "";
+      heroCaption.value = caption;
+    } else {
+      asideImagePath = sitePath;
+      asideAlt.value = image.getAttribute("alt") || "";
+      asideCaption.value = caption;
+    }
+    setMediaPreview(kind, absoluteSource, image.getAttribute("alt") || "", caption);
+  }
+
+  async function handleMediaFile(kind, file) {
+    if (!file) return;
+    if (!/^image\/(png|jpeg|webp|gif|avif)$/i.test(file.type)) {
+      throw new Error("El archivo seleccionado no es una imagen admitida.");
+    }
+    const name = imageName(file);
+    const path = `public/images/${name}`;
+    await GVPatches.savePatch(path, file);
+    const previewObjectUrl = URL.createObjectURL(file);
+
+    if (kind === "hero") {
+      clearPreviewUrl("hero");
+      heroPreviewUrl = previewObjectUrl;
+      heroImagePath = path;
+      setMediaPreview("hero", previewObjectUrl, heroAlt.value, heroCaption.value);
+    } else {
+      clearPreviewUrl("aside");
+      asidePreviewUrl = previewObjectUrl;
+      asideImagePath = path;
+      setMediaPreview("aside", previewObjectUrl, asideAlt.value, asideCaption.value);
+    }
+    formStatus.textContent = `Imagen añadida: ${path}`;
+  }
+
+  function mediaFigureHTML(kind, pagePath) {
+    const isHero = kind === "hero";
+    const path = isHero ? heroImagePath : asideImagePath;
+    const alt = (isHero ? heroAlt.value : asideAlt.value).trim();
+    const caption = (isHero ? heroCaption.value : asideCaption.value).trim();
+    if (!path) return "";
+    if (!alt) throw new Error(`El texto alternativo de la imagen ${isHero ? "hero" : "lateral"} es obligatorio.`);
+    const className = isHero ? "page-hero" : "page-aside-figure";
+    return `<figure class="${className}"><img src="${rootFor(pagePath)}${path}" alt="${esc(alt)}" loading="lazy">${caption ? `<figcaption>${esc(caption)}</figcaption>` : ""}</figure>`;
+  }
+
+  function applyMediaToDocument(doc, data) {
+    doc.querySelector(".page-hero")?.remove();
+    doc.querySelector(".page-content-grid")?.replaceWith(...doc.querySelector(".page-content-grid").childNodes);
+    doc.querySelector(".page-aside")?.remove();
+
+    const header = doc.querySelector(".page-header");
+    const article = doc.querySelector("article.prose");
+    if (!header || !article) throw new Error("La página no conserva la estructura necesaria para insertar imágenes.");
+
+    if (data.type !== "subpage" && heroImagePath) {
+      header.insertAdjacentHTML("afterend", mediaFigureHTML("hero", data.path));
+    }
+
+    if (data.type === "subpage" && asideImagePath) {
+      const grid = doc.createElement("div");
+      grid.className = "page-content-grid";
+      article.replaceWith(grid);
+      grid.appendChild(article);
+      const aside = doc.createElement("aside");
+      aside.className = "page-aside";
+      aside.innerHTML = mediaFigureHTML("aside", data.path);
+      grid.appendChild(aside);
+    }
+  }
+
   async function loadPublishedPage(path) {
     treeStatus.textContent = `Cargando ${path}…`;
     try {
@@ -587,7 +765,10 @@
       slug.value = inferSlug(path);
       slug.dataset.edited = "true";
       description.value = extractDescription(doc);
-      setEditorHTML(article.innerHTML);
+      resetPageMedia();
+      setEditorHTML(article.innerHTML, path);
+      extractMedia(doc, ".page-hero", "hero");
+      extractMedia(doc, ".page-aside figure", "aside");
       folder.value = inferFolder(path);
       date.value = extractDate(doc);
       if (loadedParentPath) parent.value = JSON.stringify(loadedParentPath);
@@ -636,7 +817,8 @@
 
       const figure = document.createElement("figure");
       const image = document.createElement("img");
-      image.src = `/${path}`;
+      image.src = URL.createObjectURL(file);
+      image.setAttribute("data-site-path", path);
       image.alt = alt.trim();
       image.loading = "lazy";
       figure.appendChild(image);
@@ -666,6 +848,60 @@
     } finally {
       event.target.value = "";
     }
+  });
+
+
+  heroFile.addEventListener("change", async () => {
+    try {
+      await handleMediaFile("hero", heroFile.files?.[0]);
+    } catch (error) {
+      formStatus.textContent = error.message;
+    } finally {
+      heroFile.value = "";
+    }
+  });
+
+  asideFile.addEventListener("change", async () => {
+    try {
+      await handleMediaFile("aside", asideFile.files?.[0]);
+    } catch (error) {
+      formStatus.textContent = error.message;
+    } finally {
+      asideFile.value = "";
+    }
+  });
+
+  heroAlt.addEventListener("input", () => {
+    heroPreview.querySelector("img").alt = heroAlt.value;
+  });
+  heroCaption.addEventListener("input", () => {
+    const caption = heroPreview.querySelector("figcaption");
+    caption.textContent = heroCaption.value;
+    caption.hidden = !heroCaption.value;
+  });
+  asideAlt.addEventListener("input", () => {
+    asidePreview.querySelector("img").alt = asideAlt.value;
+  });
+  asideCaption.addEventListener("input", () => {
+    const caption = asidePreview.querySelector("figcaption");
+    caption.textContent = asideCaption.value;
+    caption.hidden = !asideCaption.value;
+  });
+
+  $("#remove-hero-image").addEventListener("click", () => {
+    heroImagePath = "";
+    heroAlt.value = "";
+    heroCaption.value = "";
+    clearPreviewUrl("hero");
+    setMediaPreview("hero", "");
+  });
+
+  $("#remove-aside-image").addEventListener("click", () => {
+    asideImagePath = "";
+    asideAlt.value = "";
+    asideCaption.value = "";
+    clearPreviewUrl("aside");
+    setMediaPreview("aside", "");
   });
 
   function requireElement(doc, selector, label) {

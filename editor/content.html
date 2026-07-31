@@ -47,6 +47,45 @@
               <label id="date-field" hidden><span>Fecha de publicación</span><input id="date-published" type="date"></label>
             </div>
 
+
+            <section class="media-fields" aria-labelledby="media-heading">
+              <h3 id="media-heading" class="subsection-title">Imagen principal</h3>
+
+              <div id="hero-field" class="media-field">
+                <div>
+                  <span class="field-label">Imagen hero</span>
+                  <p class="field-help">Para páginas principales y entradas de blog.</p>
+                </div>
+                <div class="media-controls">
+                  <input id="hero-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif">
+                  <label><span>Texto alternativo</span><input id="hero-image-alt" type="text"></label>
+                  <label><span>Pie de imagen (opcional)</span><input id="hero-image-caption" type="text"></label>
+                  <button id="remove-hero-image" type="button" class="secondary small-button">Quitar imagen hero</button>
+                  <figure id="hero-image-preview" class="media-preview" hidden>
+                    <img alt="">
+                    <figcaption></figcaption>
+                  </figure>
+                </div>
+              </div>
+
+              <div id="aside-field" class="media-field" hidden>
+                <div>
+                  <span class="field-label">Imagen lateral</span>
+                  <p class="field-help">Para subpáginas. Se presenta dentro del aside.</p>
+                </div>
+                <div class="media-controls">
+                  <input id="aside-image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif">
+                  <label><span>Texto alternativo</span><input id="aside-image-alt" type="text"></label>
+                  <label><span>Pie de imagen (opcional)</span><input id="aside-image-caption" type="text"></label>
+                  <button id="remove-aside-image" type="button" class="secondary small-button">Quitar imagen lateral</button>
+                  <figure id="aside-image-preview" class="media-preview" hidden>
+                    <img alt="">
+                    <figcaption></figcaption>
+                  </figure>
+                </div>
+              </div>
+            </section>
+
             <div class="body-field">
               <span class="field-title">Contenido</span>
               <div class="rich-toolbar" role="toolbar" aria-label="Formato de texto">

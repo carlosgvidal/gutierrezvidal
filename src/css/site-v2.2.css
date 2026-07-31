@@ -1137,3 +1137,68 @@ html, body { overflow-x: hidden; }
     min-height: auto;
   }
 }
+
+
+/* v3.7 — hero and aside media */
+.page-hero {
+  width: 100%;
+  margin: 0 0 clamp(42px, 6vw, 76px);
+}
+
+.page-hero img {
+  display: block;
+  width: 100%;
+  max-height: min(72vh, 840px);
+  object-fit: cover;
+}
+
+.page-hero figcaption,
+.page-aside figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.page-content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 680px) minmax(220px, 320px);
+  justify-content: space-between;
+  gap: clamp(42px, 6vw, 90px);
+  align-items: start;
+}
+
+.page-content-grid .prose {
+  margin: 0;
+}
+
+.page-aside {
+  position: sticky;
+  top: 28px;
+}
+
+.page-aside figure {
+  margin: 0;
+}
+
+.page-aside img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.prose figure img {
+  width: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 820px) {
+  .page-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-aside {
+    position: static;
+    max-width: 520px;
+  }
+}
