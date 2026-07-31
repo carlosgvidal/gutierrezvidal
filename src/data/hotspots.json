@@ -10,24 +10,24 @@
   {
     "id": "blog",
     "label": "Blog",
-    "imageX": 700,
-    "imageY": 614,
+    "imageX": 692,
+    "imageY": 588,
     "url": "blog.html",
     "icon": "note"
   },
   {
     "id": "sonido",
     "label": "Sonido",
-    "imageX": 1432,
-    "imageY": 509,
+    "imageX": 1363,
+    "imageY": 429,
     "url": "sonido.html",
     "icon": "sound"
   },
   {
     "id": "sistema",
     "label": "Sistema",
-    "imageX": 516,
-    "imageY": 652,
+    "imageX": 521,
+    "imageY": 639,
     "url": "sistema.html",
     "icon": "grid"
   },
@@ -50,15 +50,15 @@
   {
     "id": "imagenes",
     "label": "Imágenes",
-    "imageX": 1291,
-    "imageY": 421,
+    "imageX": 1289,
+    "imageY": 261,
     "url": "imagenes.html",
     "icon": "image"
   },
   {
     "id": "archivo",
     "label": "Archivo",
-    "imageX": 1602,
+    "imageX": 1654,
     "imageY": 448,
     "url": "archivo.html",
     "icon": "archive"
