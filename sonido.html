@@ -6,6 +6,15 @@
 <meta name="author" content="Carlos Adolfo Gutiérrez Vidal">
 <title>Sonido · Carlos Adolfo Gutiérrez Vidal</title>
 <link rel="stylesheet" href="src/css/site-v2.2.css">
+<link rel="stylesheet" href="src/css/sound-viewer.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
+    "OrbitControls": "https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
+  }
+}
+</script>
 
   <meta name="description" content="Discos, piezas, grabaciones y proyectos sonoros.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -33,16 +42,54 @@
 </head>
 <body data-root="">
 <div data-site-header></div>
-<main class="page">
-<header class="page-header">
-<p class="page-kicker">Escucha</p>
-<h1 class="page-title">Sonido</h1>
-<p class="page-deck">Discos, piezas, grabaciones y proyectos sonoros.</p>
-</header>
-<article class="prose"><p>Índice de proyectos sonoros y páginas individuales de cada obra.</p></article>
-<section class="collection" aria-label="Índice de Sonido"><article><h2><a href="obra/sonido/inside-my-mothers-heart.html">Inside My Mother’s Heart</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/love-wasnt-there.html">Love Wasn’t There</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/on-birds-beliefs.html">On Birds’ Beliefs</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/according-to-boulevard-signs.html">According to Boulevard Signs</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/in-a-scratch.html">In a Scratch</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/since-the-lack-of-love.html">Since the Lack of Love</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/rational-choice.html">Rational Choice</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/when-the-musics-sober.html">When the Music’s Sober</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/best-in-peace.html">Best in Peace</a></h2><p>Ficha individual.</p></article><article><h2><a href="obra/sonido/harmony-road.html">Harmony Road</a></h2><p>Ficha individual.</p></article></section>
+
+<main class="page sound-page">
+  <header class="page-header">
+    <p class="page-kicker">Escucha</p>
+    <h1 class="page-title">Sonido</h1>
+    <p class="page-deck">Discos, piezas, grabaciones y proyectos sonoros.</p>
+  </header>
+
+  <section class="sound-panorama" id="sound-viewer" aria-label="Panorama sonoro interactivo">
+    <p class="sound-help">Arrastra para recorrer el estudio · Selecciona un hotspot para escuchar</p>
+  </section>
 </main>
+
+<section class="sound-archive" aria-labelledby="sound-archive-title">
+  <div class="sound-archive__inner">
+    <header class="sound-archive__header">
+      <h2 id="sound-archive-title">Archivo sonoro</h2>
+      <p>Lista accesible de las piezas y grabaciones disponibles en el panorama.</p>
+    </header>
+    <div class="sound-list" id="sound-list">
+      <article class="sound-item"><div><h3>Inside My Mother’s Heart</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/inside-my-mothers-heart.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>Love Wasn’t There</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/love-wasnt-there.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>On Birds’ Beliefs</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/on-birds-beliefs.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>According to Boulevard Signs</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/according-to-boulevard-signs.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>In a Scratch</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/in-a-scratch.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>Since the Lack of Love</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/since-the-lack-of-love.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>Rational Choice</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/rational-choice.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>When the Music’s Sober</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/when-the-musics-sober.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>Best in Peace</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/best-in-peace.html">Abrir ficha</a></article>
+      <article class="sound-item"><div><h3>Harmony Road</h3><p>Ficha individual.</p></div><a class="secondary" href="obra/sonido/harmony-road.html">Abrir ficha</a></article>
+    </div>
+  </div>
+</section>
+
+<dialog class="sound-dialog" id="sound-dialog" aria-labelledby="sound-dialog-title">
+  <header class="sound-dialog__header">
+    <h2 id="sound-dialog-title">Escuchar</h2>
+    <button class="sound-dialog__close" id="sound-dialog-close" type="button" aria-label="Cerrar">×</button>
+  </header>
+  <div class="sound-dialog__body">
+    <p class="sound-dialog__description" id="sound-dialog-description"></p>
+    <div class="sound-embed" id="sound-embed"></div>
+    <a class="sound-source-link" id="sound-source-link" href="#" target="_blank" rel="noopener noreferrer">Abrir en la plataforma original</a>
+  </div>
+</dialog>
+
 <div data-site-footer></div>
 <script src="src/js/site-shell-v2.1.js"></script>
+<script type="module" src="src/js/sound-viewer.js"></script>
 </body>
 </html>

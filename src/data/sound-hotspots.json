@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "panorama": {
+    "src": "public/panorama/sonido-360.jpg",
+    "width": 1536,
+    "height": 768,
+    "alt": "Carlos Adolfo Gutiérrez Vidal en un estudio de sonido iluminado en rojo",
+    "initialView": {
+      "imageX": 768,
+      "imageY": 390
+    },
+    "fov": 82
+  },
+  "hotspots": []
+}

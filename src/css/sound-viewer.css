@@ -1,0 +1,238 @@
+
+.sound-page {
+  padding-bottom: 0;
+}
+
+.sound-page .page-header {
+  margin-bottom: clamp(28px, 5vw, 56px);
+}
+
+.sound-panorama {
+  position: relative;
+  width: 100%;
+  height: min(72vh, 760px);
+  min-height: 460px;
+  overflow: hidden;
+  background: #080000;
+  color: #fff;
+}
+
+.sound-panorama canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.sound-help {
+  position: absolute;
+  left: 18px;
+  bottom: 16px;
+  z-index: 3;
+  margin: 0;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,.35);
+  background: rgba(0,0,0,.55);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: .04em;
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.sound-hotspot {
+  position: absolute;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: min(240px, 42vw);
+  transform: translate(-50%, -50%);
+  padding: 9px 12px;
+  border: 1px solid rgba(255,255,255,.72);
+  border-radius: 999px;
+  background: rgba(8,0,0,.72);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  line-height: 1.15;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,.28);
+  backdrop-filter: blur(8px);
+}
+
+.sound-hotspot:hover,
+.sound-hotspot:focus-visible {
+  background: #fff;
+  color: #111;
+  outline: none;
+}
+
+.sound-hotspot__icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+}
+
+.sound-hotspot__icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sound-archive {
+  padding: clamp(52px, 8vw, 100px) var(--page-gutter, 5vw);
+  background: var(--paper, #faf9f6);
+}
+
+.sound-archive__inner {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+.sound-archive__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, .7fr);
+  gap: 36px;
+  align-items: end;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--rule, #cfcac1);
+}
+
+.sound-archive__header h2 {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 70px);
+  font-weight: 400;
+  line-height: .95;
+}
+
+.sound-archive__header p {
+  margin: 0;
+  color: var(--muted, #68645d);
+}
+
+.sound-list {
+  display: grid;
+}
+
+.sound-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--rule, #cfcac1);
+}
+
+.sound-item h3 {
+  margin: 0 0 7px;
+  font-size: clamp(20px, 2.5vw, 31px);
+  font-weight: 400;
+}
+
+.sound-item p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--muted, #68645d);
+}
+
+.sound-item button,
+.sound-item a {
+  white-space: nowrap;
+}
+
+.sound-empty {
+  padding: 30px 0;
+  color: var(--muted, #68645d);
+}
+
+.sound-dialog {
+  width: min(920px, calc(100vw - 28px));
+  max-height: calc(100vh - 28px);
+  padding: 0;
+  border: 0;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 24px 90px rgba(0,0,0,.55);
+}
+
+.sound-dialog::backdrop {
+  background: rgba(0,0,0,.76);
+  backdrop-filter: blur(5px);
+}
+
+.sound-dialog__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(255,255,255,.16);
+}
+
+.sound-dialog__header h2 {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 400;
+}
+
+.sound-dialog__close {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.sound-dialog__body {
+  padding: 18px;
+}
+
+.sound-dialog__description {
+  margin: 0 0 16px;
+  color: rgba(255,255,255,.72);
+}
+
+.sound-embed {
+  min-height: 160px;
+  background: #000;
+}
+
+.sound-embed iframe {
+  display: block;
+  width: 100%;
+  min-height: 166px;
+  border: 0;
+  background: #000;
+}
+
+.sound-source-link {
+  display: inline-block;
+  margin-top: 15px;
+  color: #fff;
+}
+
+@media (max-width: 760px) {
+  .sound-panorama {
+    height: 62vh;
+    min-height: 420px;
+  }
+
+  .sound-archive__header,
+  .sound-item {
+    grid-template-columns: 1fr;
+  }
+
+  .sound-item {
+    gap: 15px;
+  }
+
+  .sound-hotspot {
+    max-width: 54vw;
+    padding: 8px 10px;
+  }
+}
