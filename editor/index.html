@@ -2,60 +2,70 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Editor de enlaces · Carlos Adolfo Gutiérrez Vidal</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Editor local · Gutiérrez Vidal</title>
   <link rel="stylesheet" href="editor.css">
-
-  <meta name="description" content="Sitio oficial de Carlos Adolfo Gutiérrez Vidal, poeta, artista indisciplinario e investigador. Escritura, sonido, imagen, materia, sistemas, archivo y publicaciones.">
-  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-  <meta name="theme-color" content="#FAF9F6">
-  <link rel="canonical" href="https://www.gutierrezvidal.com/editor/index.html">
-  <link rel="icon" href="../public/assets/favicon.ico" sizes="any">
-  <link rel="icon" type="image/png" sizes="32x32" href="../public/assets/favicon-32x32.png">
-  <link rel="apple-touch-icon" href="../public/assets/apple-touch-icon.png">
-  <link rel="manifest" href="../site.webmanifest">
-  <meta property="og:locale" content="es_MX">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Carlos Adolfo Gutiérrez Vidal">
-  <meta property="og:title" content="Editor de enlaces · Carlos Adolfo Gutiérrez Vidal">
-  <meta property="og:description" content="Sitio oficial de Carlos Adolfo Gutiérrez Vidal, poeta, artista indisciplinario e investigador. Escritura, sonido, imagen, materia, sistemas, archivo y publicaciones.">
-  <meta property="og:url" content="https://www.gutierrezvidal.com/editor/index.html">
-  <meta property="og:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Carlos Adolfo Gutiérrez Vidal — poeta, artista indisciplinario e investigador">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Editor de enlaces · Carlos Adolfo Gutiérrez Vidal">
-  <meta name="twitter:description" content="Sitio oficial de Carlos Adolfo Gutiérrez Vidal, poeta, artista indisciplinario e investigador. Escritura, sonido, imagen, materia, sistemas, archivo y publicaciones.">
-  <meta name="twitter:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg">
-  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://www.gutierrezvidal.com/#person","name":"Carlos Adolfo Gutiérrez Vidal","url":"https://www.gutierrezvidal.com/","jobTitle":["Poeta","Artista indisciplinario","Investigador"],"image":"https://www.gutierrezvidal.com/public/assets/og-home.jpg"},{"@type":"WebSite","@id":"https://www.gutierrezvidal.com/#website","url":"https://www.gutierrezvidal.com/","name":"Carlos Adolfo Gutiérrez Vidal","inLanguage":"es-MX","publisher":{"@id":"https://www.gutierrezvidal.com/#person"}},{"@type":"WebSite","@id":"https://www.gutierrezvidal.com/editor/index.html#webpage","url":"https://www.gutierrezvidal.com/editor/index.html","name":"Editor de enlaces · Carlos Adolfo Gutiérrez Vidal","description":"Sitio oficial de Carlos Adolfo Gutiérrez Vidal, poeta, artista indisciplinario e investigador. Escritura, sonido, imagen, materia, sistemas, archivo y publicaciones.","inLanguage":"es-MX","isPartOf":{"@id":"https://www.gutierrezvidal.com/#website"},"about":{"@id":"https://www.gutierrezvidal.com/#person"},"author":{"@id":"https://www.gutierrezvidal.com/#person"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://www.gutierrezvidal.com/public/assets/og-home.jpg"}}]}</script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
-  <header>
-    <div>
-      <h1>Editor de enlaces</h1>
-      <p>Arrastra cada etiqueta hasta el objeto correspondiente.</p>
-    </div>
-    <div class="actions">
-      <button id="reset" type="button">Recargar</button>
-      <button id="save" type="button">Guardar</button>
-      <button id="download" type="button">Descargar JSON</button>
-    </div>
+<main class="editor">
+  <header class="editor-header">
+    <div><p class="eyebrow">Editor local</p><h1>Generador de contenido</h1></div>
+    <p class="privacy">Todo se procesa en el navegador. No utiliza GitHub, contraseñas ni servidores propios.</p>
   </header>
 
-  <main>
-    <section id="stage" aria-label="Panorama editable">
-      <img id="panorama" src="../public/panorama/portada.jpg" alt="">
-      <div id="markers"></div>
-    </section>
+  <section class="panel">
+    <div class="step-number">01</div>
+    <div>
+      <h2>Cargar el sitio actual</h2>
+      <p>Selecciona el ZIP completo del sitio. El editor lo abrirá localmente y generará otro ZIP con los cambios.</p>
+      <label class="file-button"><input id="site-zip" type="file" accept=".zip,application/zip"><span>Seleccionar ZIP</span></label>
+      <p id="zip-status" class="status" role="status">Ningún archivo cargado.</p>
+    </div>
+  </section>
 
-    <aside>
-      <h2>Enlaces</h2>
-      <div id="fields"></div>
-      <output id="status" aria-live="polite"></output>
-    </aside>
-  </main>
+  <form id="content-form" class="panel" hidden>
+    <div class="step-number">02</div>
+    <div class="form-content">
+      <h2>Crear contenido</h2>
+      <div class="field-grid">
+        <label><span>Tipo</span><select id="content-type" required>
+          <option value="page">Página principal</option>
+          <option value="subpage">Subpágina</option>
+          <option value="blog">Entrada de blog</option>
+        </select></label>
+        <label><span>Título</span><input id="title" required autocomplete="off"></label>
+        <label><span>Slug</span><input id="slug" required inputmode="url"><small>Ejemplo: nueva-publicacion</small></label>
+        <label><span>Descripción SEO</span><textarea id="description" rows="3" maxlength="180" required></textarea></label>
+        <label id="parent-field"><span>Menú o sección padre</span><select id="parent-menu"></select></label>
+        <label id="folder-field"><span>Carpeta de destino</span><input id="folder" placeholder="obra/escritura"><small>Sin diagonal inicial ni final.</small></label>
+        <label id="date-field" hidden><span>Fecha de publicación</span><input id="date-published" type="date"></label>
+      </div>
 
-  <script type="module" src="editor.js"></script>
+      <label class="body-field"><span>Contenido</span>
+        <textarea id="body" rows="14" required placeholder="Separa los párrafos con una línea en blanco.&#10;&#10;Para subtítulos, comienza una línea con ##."></textarea>
+      </label>
+
+      <fieldset>
+        <legend>Navegación</legend>
+        <label class="check"><input id="add-menu" type="checkbox" checked><span>Añadir al menú</span></label>
+        <label class="check"><input id="add-index" type="checkbox" checked><span>Añadir al índice de la sección</span></label>
+      </fieldset>
+
+      <div class="actions">
+        <button id="preview-button" type="button" class="secondary">Vista previa</button>
+        <button type="submit" class="primary">Generar ZIP actualizado</button>
+      </div>
+      <p id="form-status" class="status" role="status"></p>
+    </div>
+  </form>
+
+  <section id="preview-panel" class="preview-panel" hidden>
+    <header><h2>Vista previa</h2><button id="close-preview" type="button">Cerrar</button></header>
+    <iframe id="preview-frame" title="Vista previa"></iframe>
+  </section>
+</main>
+<script src="editor.js"></script>
 </body>
 </html>
