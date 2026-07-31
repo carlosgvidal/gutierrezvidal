@@ -1,14 +1,9 @@
-# gutierrezvidal v2.1
+# gutierrezvidal v2.2
 
-Correcciones de jerarquía visual y semántica:
-
-- El nombre aparece visualmente una sola vez: en el header.
-- El H1 SEO permanece en el documento, pero está oculto visualmente de forma accesible.
-- El footer ya no repite el nombre; muestra únicamente:
-  `© 2026 · gutierrezvidal.com`
-- La introducción de la portada se simplificó:
-  - identidad profesional breve;
-  - declaración principal;
-  - párrafo explicativo.
-- Se eliminaron los bloques visibles redundantes añadidos en v2.0.
-- CSS y JavaScript se versionaron como v2.1 para evitar caché.
+- Panorama centrado en el retrato.
+- Retícula conceptual y testimoniales con el mismo ancho, márgenes y gutters.
+- Tres columnas iguales en escritorio, dos en tableta y una en móvil.
+- Todos los testimoniales tienen el mismo tamaño.
+- Eliminado el testimonial destacado de dos filas.
+- Restaurado el borde izquierdo de la retícula.
+- Recursos versionados como v2.2.

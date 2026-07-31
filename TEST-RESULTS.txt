@@ -1,11 +1,11 @@
-$ node --check /mnt/data/gutierrezvidal-v2.1/src/js/viewer-v1.9.js
+$ node --check /mnt/data/gutierrezvidal-v2.2/src/js/viewer-v2.2.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v2.1/src/js/site-shell-v2.1.js
+$ node --check /mnt/data/gutierrezvidal-v2.2/src/js/site-shell-v2.1.js
 exit=0
 
-$ node /mnt/data/gutierrezvidal-v2.1/tests/project.test.mjs
+$ node /mnt/data/gutierrezvidal-v2.2/tests/project.test.mjs
 exit=0
-Pruebas superadas: nombre visible una sola vez, H1 SEO oculto y portada simplificada.
+Pruebas superadas: panorama centrado y retículas unificadas.
 
-Regresión visual estructural: header con nombre; H1 oculto; footer sin nombre.
+Preflight estructural: 38 páginas públicas verificadas con site-v2.2.css; portada con viewer-v2.2.js.
