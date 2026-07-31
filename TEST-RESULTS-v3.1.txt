@@ -1,0 +1,9 @@
+Pruebas ejecutadas:
+- Sintaxis de editor/editor.js: correcta.
+- Sintaxis de editor/hotspots.js: correcta.
+- /editor/ enlaza explícitamente a contenido y hotspots.
+- El editor de contenido conserva carga de ZIP y generación de ZIP.
+- El editor de hotspots carga src/data/hotspots.json.
+- Arrastre por Pointer Events presente.
+- Descarga de hotspots.json presente.
+- Panorama y archivo de hotspots presentes.

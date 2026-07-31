@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Editor local · Gutiérrez Vidal</title>
+  <link rel="stylesheet" href="editor.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+</head>
+<body>
+<main class="editor">
+  <nav class="editor-nav"><a href="index.html">← Herramientas</a><a href="hotspots.html">Editar hotspots</a></nav>
+  <header class="editor-header">
+    <div><p class="eyebrow">Editor local</p><h1>Generador de contenido</h1></div>
+    <p class="privacy">Primero carga el ZIP completo del sitio. Después aparecerá el formulario de creación.</p>
+  </header>
+
+  <section class="panel">
+    <div class="step-number">01</div>
+    <div>
+      <h2>Cargar el sitio actual</h2>
+      <p>Selecciona el ZIP completo del sitio. El editor lo abrirá localmente y generará otro ZIP con los cambios.</p>
+      <label class="file-button"><input id="site-zip" type="file" accept=".zip,application/zip"><span>Seleccionar ZIP</span></label>
+      <p id="zip-status" class="status status-box" role="status">Paso pendiente: selecciona el ZIP del sitio para habilitar el formulario.</p>
+    </div>
+  </section>
+
+  <form id="content-form" class="panel" hidden>
+    <div class="step-number">02</div>
+    <div class="form-content">
+      <h2>Crear contenido</h2>
+      <div class="field-grid">
+        <label><span>Tipo</span><select id="content-type" required>
+          <option value="page">Página principal</option>
+          <option value="subpage">Subpágina</option>
+          <option value="blog">Entrada de blog</option>
+        </select></label>
+        <label><span>Título</span><input id="title" required autocomplete="off"></label>
+        <label><span>Slug</span><input id="slug" required inputmode="url"><small>Ejemplo: nueva-publicacion</small></label>
+        <label><span>Descripción SEO</span><textarea id="description" rows="3" maxlength="180" required></textarea></label>
+        <label id="parent-field"><span>Menú o sección padre</span><select id="parent-menu"></select></label>
+        <label id="folder-field"><span>Carpeta de destino</span><input id="folder" placeholder="obra/escritura"><small>Sin diagonal inicial ni final.</small></label>
+        <label id="date-field" hidden><span>Fecha de publicación</span><input id="date-published" type="date"></label>
+      </div>
+
+      <label class="body-field"><span>Contenido</span>
+        <textarea id="body" rows="14" required placeholder="Separa los párrafos con una línea en blanco.&#10;&#10;Para subtítulos, comienza una línea con ##."></textarea>
+      </label>
+
+      <fieldset>
+        <legend>Navegación</legend>
+        <label class="check"><input id="add-menu" type="checkbox" checked><span>Añadir al menú</span></label>
+        <label class="check"><input id="add-index" type="checkbox" checked><span>Añadir al índice de la sección</span></label>
+      </fieldset>
+
+      <div class="actions">
+        <button id="preview-button" type="button" class="secondary">Vista previa</button>
+        <button type="submit" class="primary">Generar ZIP actualizado</button>
+      </div>
+      <p id="form-status" class="status" role="status"></p>
+    </div>
+  </form>
+
+  <section id="preview-panel" class="preview-panel" hidden>
+    <header><h2>Vista previa</h2><button id="close-preview" type="button">Cerrar</button></header>
+    <iframe id="preview-frame" title="Vista previa"></iframe>
+  </section>
+</main>
+<script src="editor.js"></script>
+</body>
+</html>
