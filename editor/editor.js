@@ -1,45 +1,863 @@
 (() => {
-"use strict";
-const $=s=>document.querySelector(s), esc=v=>String(v).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-const clean=v=>v.trim().replace(/^\/+|\/+$/g,"").replace(/\/+/g,"/"), slugify=v=>v.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
-const form=$("#content-form"),homeForm=$("#home-form"),tree=$("#site-tree"),loadStatus=$("#load-status"),formStatus=$("#form-status"),homeStatus=$("#home-status"),editor=$("#body-editor");
-const type=$("#content-type"),title=$("#title"),slug=$("#slug"),description=$("#description"),parent=$("#parent-menu"),folder=$("#folder"),date=$("#date-published"),addMenu=$("#add-menu"),addIndex=$("#add-index");
-const preview=$("#preview-panel"),frame=$("#preview-frame");
-let navigation=[],mode="existing",loadedPath=null,loadedOriginalTitle=null,loadedParentPath=null,homeDocument=null,imageCounter=0;
+  "use strict";
 
-function flatten(items,prefix=[]){const out=[];for(const item of items){const path=[...prefix,item.label];out.push({item,path,label:path.join(" › ")});if(item.children)out.push(...flatten(item.children,path))}return out}
-function findNode(items,labels){let list=items,current=null;for(const label of labels){current=list.find(x=>x.label===label);if(!current)return null;list=current.children||[]}return current}
-function findItemByUrl(items,url){for(const item of items){if(item.url===url)return item;if(item.children){const found=findItemByUrl(item.children,url);if(found)return found}}return null}
-function findParentOfUrl(items,url,path=[]){for(const item of items){if(item.children){if(item.children.some(x=>x.url===url))return [...path,item.label];const nested=findParentOfUrl(item.children,url,[...path,item.label]);if(nested)return nested}}return null}
-function renderParents(){parent.innerHTML="";for(const opt of flatten(navigation)){const el=document.createElement("option");el.value=JSON.stringify(opt.path);el.textContent=opt.label;parent.appendChild(el)}}
-function renderTree(){tree.innerHTML="";const home=document.createElement("button");home.type="button";home.className="tree-item tree-home";home.dataset.path="index.html";home.textContent="⌂ Portada";tree.append(home);const list=document.createElement("ul");list.className="tree-root";list.append(...navigation.filter(x=>x.url!=="index.html").map(node=>treeNode(node)));tree.append(list)}
-function treeNode(node){const li=document.createElement("li"),row=document.createElement(node.url?"button":"span");row.className="tree-item";if(node.url){row.type="button";row.dataset.path=node.url}row.textContent=node.label;li.append(row);if(node.children?.length){const ul=document.createElement("ul");ul.append(...node.children.map(treeNode));li.append(ul)}return li}
-function showOnly(which){form.hidden=which!=="page";homeForm.hidden=which!=="home"}
-function setActive(path){document.querySelectorAll(".tree-item.active").forEach(x=>x.classList.remove("active"));document.querySelector(`.tree-item[data-path="${CSS.escape(path)}"]`)?.classList.add("active")}
-function updateType(){const value=type.value;$("#date-field").hidden=value!=="blog";$("#folder-field").hidden=value==="page";if(value==="blog"){folder.value="blog";const blog=flatten(navigation).find(x=>x.item.label==="Blog");if(blog)parent.value=JSON.stringify(blog.path)}else if(value==="page")folder.value=""}
-function sanitizeHTML(raw){const doc=new DOMParser().parseFromString(`<div>${raw}</div>`,"text/html"),root=doc.body.firstElementChild,allowed=new Set(["P","BR","H2","H3","STRONG","EM","A","UL","OL","LI","BLOCKQUOTE","FIGURE","IMG","FIGCAPTION","SPAN"]);[...root.querySelectorAll("*")].forEach(el=>{if(!allowed.has(el.tagName)){el.replaceWith(...el.childNodes);return} [...el.attributes].forEach(a=>{const ok=(el.tagName==="A"&&["href","target","rel"].includes(a.name))||(el.tagName==="IMG"&&["src","alt","loading","width","height"].includes(a.name))||(el.tagName==="SPAN"&&a.name==="class"&&a.value==="small-caps");if(!ok)el.removeAttribute(a.name)});if(el.tagName==="A"){el.setAttribute("rel","noopener");if(/^https?:/i.test(el.getAttribute("href")||""))el.setAttribute("target","_blank")}if(el.tagName==="IMG")el.setAttribute("loading","lazy")});return root.innerHTML.trim()}
-function buildData(){const contentType=type.value,s=clean(slug.value),f=clean(folder.value),path=contentType==="page"?`${s}.html`:contentType==="blog"?`blog/${s}.html`:`${f}/${s}.html`,parentPath=JSON.parse(parent.value);return{type:contentType,title:title.value.trim(),slug:s,description:description.value.trim(),body:sanitizeHTML(editor.innerHTML),date:date.value,path,parentPath,kicker:contentType==="blog"?"Blog":parentPath.at(-1)}}
-function validate(d){if(!d.title)throw new Error("El título es obligatorio.");if(!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(d.slug))throw new Error("El slug sólo admite minúsculas, números y guiones.");if(d.description.length<40)throw new Error("La descripción SEO necesita al menos 40 caracteres.");if(!d.body)throw new Error("El contenido no puede quedar vacío.");if(d.type==="subpage"&&!clean(folder.value))throw new Error("Indica la carpeta de destino.");if(mode==="existing"&&d.path!==loadedPath)throw new Error("La ruta de una página publicada permanece bloqueada.")}
-const rootFor=path=>"../".repeat(path.split("/").length-1),canonical=path=>`https://www.gutierrezvidal.com/${path}`;
-function pageHTML(d){const root=rootFor(d.path),url=canonical(d.path),schema={"@context":"https://schema.org","@type":d.type==="blog"?"BlogPosting":"WebPage",headline:d.title,description:d.description,url,inLanguage:"es-MX",author:{"@type":"Person",name:"Carlos Adolfo Gutiérrez Vidal"}};if(d.type==="blog"&&d.date)schema.datePublished=d.date;const kicker=d.type==="blog"&&d.date?d.date:d.kicker;return `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="author" content="Carlos Adolfo Gutiérrez Vidal"><meta name="description" content="${esc(d.description)}"><meta name="robots" content="index,follow,max-image-preview:large"><link rel="canonical" href="${url}"><link rel="icon" href="${root}public/assets/favicon.ico" sizes="any"><meta property="og:type" content="${d.type==="blog"?"article":"website"}"><meta property="og:title" content="${esc(d.title)}"><meta property="og:description" content="${esc(d.description)}"><meta property="og:url" content="${url}"><meta property="og:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg"><script type="application/ld+json">${JSON.stringify(schema)}</script><title>${esc(d.title)} · Carlos Adolfo Gutiérrez Vidal</title><link rel="stylesheet" href="${root}src/css/site-v2.2.css"></head><body data-root="${root}"><div data-site-header></div><main class="page"><header class="page-header"><p class="page-kicker">${esc(kicker)}</p><h1 class="page-title">${esc(d.title)}</h1><p class="page-deck">${esc(d.description)}</p></header><article class="prose">${d.body}</article></main><div data-site-footer></div><script src="${root}src/js/site-shell-v2.1.js"></script></body></html>`}
-function inferType(path){return path.startsWith("blog/")?"blog":path.includes("/")?"subpage":"page"}
-function inferFolder(path){const p=path.split("/");return p.length>1?p.slice(0,-1).join("/"):""}
-function extractDescription(doc){return doc.querySelector('meta[name="description"]')?.content?.trim()||doc.querySelector(".page-deck")?.textContent?.trim()||""}
-function extractDate(doc){for(const n of doc.querySelectorAll('script[type="application/ld+json"]')){try{const x=JSON.parse(n.textContent);if(x.datePublished)return x.datePublished}catch{}}return""}
-async function loadPage(path){setActive(path);loadStatus.textContent=`Cargando ${path}…`;if(path==="index.html")return loadHome();try{const html=await GVPatches.getFile(path),doc=new DOMParser().parseFromString(html,"text/html"),article=doc.querySelector("article.prose"),pageTitle=doc.querySelector(".page-title")?.textContent?.trim();if(!article||!pageTitle)throw new Error("La página no usa la estructura editable esperada.");mode="existing";loadedPath=path;loadedOriginalTitle=pageTitle;loadedParentPath=findParentOfUrl(navigation,path);type.value=inferType(path);updateType();title.value=pageTitle;slug.value=path.split("/").at(-1).replace(/\.html$/,"");description.value=extractDescription(doc);editor.innerHTML=article.innerHTML;folder.value=inferFolder(path);date.value=extractDate(doc);if(loadedParentPath)parent.value=JSON.stringify(loadedParentPath);type.disabled=slug.disabled=folder.disabled=true;addMenu.checked=addIndex.checked=false;$("#navigation-options").hidden=true;$("#editor-mode-label").textContent="Página publicada";$("#editor-heading").textContent=pageTitle;$("#path-badge").textContent=path;showOnly("page");loadStatus.textContent=`Página cargada: ${path}`;formStatus.textContent=""}catch(e){loadStatus.textContent=e.message}}
-async function loadHome(){try{const html=await GVPatches.getFile("index.html");homeDocument=new DOMParser().parseFromString(html,"text/html");$("#home-title").value=homeDocument.title;$("#home-description").value=homeDocument.querySelector('meta[name="description"]')?.content||"";$("#home-label").value=homeDocument.querySelector(".practice-statement__label")?.textContent.trim()||"";$("#home-headline").value=homeDocument.querySelector("#practice-title")?.textContent.trim()||"";$("#home-intro").value=homeDocument.querySelector(".practice-statement__intro > p:last-child")?.textContent.trim()||"";const axes=[...homeDocument.querySelectorAll(".practice-statement__axes article")];$("#home-axes").innerHTML=axes.map((a,i)=>`<fieldset><legend>Eje ${i+1}</legend><label><span>Título</span><input data-axis-title value="${esc(a.querySelector("h2")?.textContent.trim()||"")}"></label><label><span>Texto</span><textarea data-axis-text rows="3">${esc(a.querySelector("p:last-child")?.textContent.trim()||"")}</textarea></label></fieldset>`).join("");showOnly("home");loadStatus.textContent="Portada cargada. El panorama, hotspots y scripts permanecerán intactos."}catch(e){loadStatus.textContent=e.message}}
-function newPage(){mode="new";loadedPath=null;form.reset();editor.innerHTML="<p></p>";type.disabled=slug.disabled=folder.disabled=false;type.value="page";updateType();addMenu.checked=addIndex.checked=true;$("#navigation-options").hidden=false;$("#editor-mode-label").textContent="Página nueva";$("#editor-heading").textContent="Crear contenido";$("#path-badge").textContent="Sin guardar";showOnly("page");loadStatus.textContent="Nueva página preparada."}
-function addToMenu(d){const node=findNode(navigation,d.parentPath);if(!node)throw new Error("No se encontró el menú padre.");node.children=node.children||[];if(node.children.some(x=>x.url===d.path))throw new Error("La ruta ya existe en el menú.");node.children.push({label:d.title,url:d.path})}
-async function pathAlreadyExists(path){const patches=await GVPatches.listPatches();if(Object.hasOwn(patches,path))return true;try{await GVPatches.getFile(path);return true}catch{return false}}
-async function updatedSitemap(d){const xml=await GVPatches.getFile("sitemap.xml"),url=canonical(d.path);if(xml.includes(`<loc>${url}</loc>`))return xml;return xml.replace("</urlset>",`  <url><loc>${url}</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>\n</urlset>`)}
-async function insertImage(file){if(!file)return;const base=slugify(file.name.replace(/\.[^.]+$/, ""))||`imagen-${++imageCounter}`,ext=(file.name.match(/\.[a-z0-9]+$/i)||[".jpg"])[0].toLowerCase(),name=`${base}-${Date.now()}${ext}`,path=`public/images/${name}`,alt=window.prompt("Texto alternativo de la imagen:",base.replaceAll("-"," "));if(alt===null)return;const caption=window.prompt("Pie de foto (opcional):","")||"";await GVPatches.savePatch(path,file);const figure=document.createElement("figure");figure.innerHTML=`<img src="/${path}" alt="${esc(alt)}" loading="lazy">${caption?`<figcaption>${esc(caption)}</figcaption>`:""}`;const sel=getSelection();if(sel.rangeCount){const range=sel.getRangeAt(0);range.deleteContents();range.insertNode(figure);range.setStartAfter(figure);range.collapse(true);sel.removeAllRanges();sel.addRange(range)}else editor.append(figure);formStatus.textContent=`Imagen añadida: ${path}`}
-function command(button){const cmd=button.dataset.command,value=button.dataset.value||null;editor.focus();if(cmd==="smallcaps"){document.execCommand("styleWithCSS",false,false);document.execCommand("insertHTML",false,`<span class="small-caps">${esc(getSelection().toString()||"versalitas")}</span>`)}else if(cmd==="link"){const href=window.prompt("URL del enlace:","https://");if(href)document.execCommand("createLink",false,href)}else document.execCommand(cmd,false,value)}
-function updateHomeDocument(){const doc=homeDocument;doc.title=$("#home-title").value.trim();const desc=$("#home-description").value.trim();doc.querySelector('meta[name="description"]')?.setAttribute("content",desc);doc.querySelector('meta[property="og:description"]')?.setAttribute("content",desc);doc.querySelector('meta[name="twitter:description"]')?.setAttribute("content",desc);doc.querySelector(".practice-statement__label").textContent=$("#home-label").value.trim();doc.querySelector("#practice-title").textContent=$("#home-headline").value.trim();doc.querySelector(".practice-statement__intro > p:last-child").textContent=$("#home-intro").value.trim();const fields=[...$("#home-axes").querySelectorAll("fieldset")],axes=[...doc.querySelectorAll(".practice-statement__axes article")];fields.forEach((f,i)=>{axes[i].querySelector("h2").textContent=f.querySelector("[data-axis-title]").value.trim();axes[i].querySelector("p:last-child").textContent=f.querySelector("[data-axis-text]").value.trim()});return "<!doctype html>\n"+doc.documentElement.outerHTML}
-function showPreview(html){frame.src=URL.createObjectURL(new Blob([html],{type:"text/html"}));preview.hidden=false}
+  const $ = (selector) => document.querySelector(selector);
+  const form = $("#content-form");
+  const formStatus = $("#form-status");
+  const type = $("#content-type");
+  const title = $("#title");
+  const slug = $("#slug");
+  const description = $("#description");
+  const body = $("#body");
+  const parent = $("#parent-menu");
+  const folder = $("#folder");
+  const dateField = $("#date-field");
+  const date = $("#date-published");
+  const addMenu = $("#add-menu");
+  const addIndex = $("#add-index");
+  const preview = $("#preview-panel");
+  const frame = $("#preview-frame");
+  const siteTree = $("#site-tree");
+  const treeStatus = $("#tree-status");
+  const pagePanel = $("#page-panel");
+  const homePanel = $("#home-panel");
+  const homeForm = $("#home-form");
+  const homeStatus = $("#home-status");
 
-tree.addEventListener("click",e=>{const b=e.target.closest("[data-path]");if(b)loadPage(b.dataset.path)});$("#new-page").addEventListener("click",newPage);type.addEventListener("change",updateType);title.addEventListener("input",()=>{if(mode==="new")slug.value=slugify(title.value)});slug.addEventListener("input",()=>slug.value=slugify(slug.value));document.querySelectorAll(".rich-toolbar [data-command]").forEach(b=>b.addEventListener("click",()=>command(b)));$("#insert-image").addEventListener("click",()=>$("#image-file").click());$("#image-file").addEventListener("change",e=>insertImage(e.target.files[0]));
-$("#preview-button").addEventListener("click",()=>{try{const d=buildData();validate(d);showPreview(pageHTML(d))}catch(e){formStatus.textContent=e.message}});$("#home-preview").addEventListener("click",()=>showPreview(updateHomeDocument()));$("#close-preview").addEventListener("click",()=>{preview.hidden=true;frame.src="about:blank"});
-form.addEventListener("submit",async e=>{e.preventDefault();try{const d=buildData();validate(d);if(mode==="new"){if(await pathAlreadyExists(d.path))throw new Error(`La ruta ${d.path} ya existe.`);await GVPatches.savePatch(d.path,pageHTML(d));if(addMenu.checked){addToMenu(d);await GVPatches.savePatch("src/data/navigation.json",JSON.stringify(navigation,null,2)+"\n");renderTree()}await GVPatches.savePatch("sitemap.xml",await updatedSitemap(d));formStatus.textContent=`Página nueva guardada: ${d.path}`}else{await GVPatches.savePatch(loadedPath,pageHTML(d));if(d.title!==loadedOriginalTitle){const item=findItemByUrl(navigation,loadedPath);if(item)item.label=d.title;await GVPatches.savePatch("src/data/navigation.json",JSON.stringify(navigation,null,2)+"\n");loadedOriginalTitle=d.title;renderTree()}formStatus.textContent=`Página actualizada: ${loadedPath}`}}catch(err){formStatus.textContent=err.message}});
-homeForm.addEventListener("submit",async e=>{e.preventDefault();try{const html=updateHomeDocument();await GVPatches.savePatch("index.html",html);homeStatus.textContent="Portada guardada en la actualización. El visor panorámico y sus scripts no fueron reemplazados."}catch(err){homeStatus.textContent=err.message}});
-(async()=>{navigation=JSON.parse(await GVPatches.getFile("src/data/navigation.json"));renderParents();renderTree();updateType()})().catch(e=>loadStatus.textContent=e.message);
+  let navigation = [];
+  let loadedPath = null;
+  let loadedOriginalTitle = null;
+  let loadedParentPath = null;
+  let loadedSource = "";
+  let homeSource = "";
+  let savedRange = null;
+  let previewUrl = null;
+
+  const esc = (value) => String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+
+  const slugify = (value) => value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  const clean = (value) => value.trim().replace(/^\/+|\/+$/g, "").replace(/\/+/g, "/");
+  const rootFor = (path) => "../".repeat(path.split("/").length - 1);
+  const canonical = (path) => `https://www.gutierrezvidal.com/${path}`;
+
+  function flatten(items, prefix = []) {
+    const out = [];
+    for (const item of items) {
+      const path = [...prefix, item.label];
+      out.push({ item, path, label: path.join(" › ") });
+      if (item.children) out.push(...flatten(item.children, path));
+    }
+    return out;
+  }
+
+  function findNode(items, labels) {
+    let list = items;
+    let current = null;
+    for (const label of labels) {
+      current = list.find((item) => item.label === label);
+      if (!current) return null;
+      list = current.children || [];
+    }
+    return current;
+  }
+
+  function findParentOfUrl(items, url, path = []) {
+    for (const item of items) {
+      if (!item.children) continue;
+      for (const child of item.children) {
+        if (child.url === url) return [...path, item.label];
+      }
+      const nested = findParentOfUrl(item.children, url, [...path, item.label]);
+      if (nested) return nested;
+    }
+    return null;
+  }
+
+  function findItemByUrl(items, url) {
+    for (const item of items) {
+      if (item.url === url) return item;
+      if (item.children) {
+        const found = findItemByUrl(item.children, url);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+
+  function renderParents() {
+    parent.innerHTML = "";
+    const candidates = flatten(navigation).filter(({ item }) => item.children?.length || item.url === "blog.html");
+    for (const option of candidates) {
+      const element = document.createElement("option");
+      element.value = JSON.stringify(option.path);
+      element.textContent = option.label;
+      parent.appendChild(element);
+    }
+  }
+
+  function treeBranch(items) {
+    const list = document.createElement("ul");
+    for (const item of items) {
+      const listItem = document.createElement("li");
+      const row = document.createElement("div");
+      row.className = "tree-row";
+
+      if (item.url && item.url !== "index.html") {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tree-page";
+        button.textContent = item.label;
+        button.dataset.path = item.url;
+        button.addEventListener("click", () => loadPublishedPage(item.url));
+        row.appendChild(button);
+      } else if (item.label !== "Inicio") {
+        const label = document.createElement("span");
+        label.className = "tree-group";
+        label.textContent = item.label;
+        row.appendChild(label);
+      }
+
+      if (row.childNodes.length) listItem.appendChild(row);
+      if (item.children?.length) listItem.appendChild(treeBranch(item.children));
+      if (listItem.childNodes.length) list.appendChild(listItem);
+    }
+    return list;
+  }
+
+  function renderTree() {
+    siteTree.innerHTML = "";
+    const home = document.createElement("button");
+    home.type = "button";
+    home.className = "tree-page tree-home";
+    home.textContent = "⌂ Portada";
+    home.dataset.path = "index.html";
+    home.addEventListener("click", loadHomepage);
+    siteTree.appendChild(home);
+    siteTree.appendChild(treeBranch(navigation));
+  }
+
+  function activateTree(path) {
+    siteTree.querySelectorAll(".tree-page").forEach((element) => {
+      element.classList.toggle("active", element.dataset.path === path);
+    });
+  }
+
+  function newPage() {
+    loadedPath = null;
+    loadedOriginalTitle = null;
+    loadedParentPath = null;
+    loadedSource = "";
+    savedRange = null;
+    pagePanel.hidden = false;
+    homePanel.hidden = true;
+    form.reset();
+    body.innerHTML = "";
+    type.disabled = false;
+    slug.disabled = false;
+    folder.disabled = false;
+    slug.dataset.edited = "";
+    type.value = "page";
+    updateType();
+    $("#mode-label").textContent = "Página nueva";
+    $("#path-label").textContent = "";
+    $("#form-heading").textContent = "Crear contenido";
+    formStatus.textContent = "";
+    activateTree("");
+  }
+
+  function updateType() {
+    const value = type.value;
+    dateField.hidden = value !== "blog";
+    $("#folder-field").hidden = value === "page";
+
+    if (value === "blog") {
+      folder.value = "blog";
+      if (!loadedPath) addMenu.checked = false;
+      const blog = flatten(navigation).find(({ item }) => item.label === "Blog");
+      if (blog) parent.value = JSON.stringify(blog.path);
+    } else if (value === "subpage") {
+      if (!folder.value || folder.value === "blog") folder.value = "obra/escritura";
+      if (!loadedPath) addMenu.checked = true;
+    } else {
+      folder.value = "";
+      if (!loadedPath) addMenu.checked = true;
+    }
+  }
+
+  const allowedTags = new Set([
+    "P", "BR", "H2", "H3", "STRONG", "EM", "A", "UL", "OL", "LI",
+    "BLOCKQUOTE", "FIGURE", "IMG", "FIGCAPTION", "SPAN"
+  ]);
+
+  function isSafeUrl(value, allowImageData = false) {
+    const normalized = value.trim().replace(/[\u0000-\u001F\u007F\s]+/g, "");
+    if (!normalized) return true;
+    if (normalized.startsWith("#") || normalized.startsWith("/") || normalized.startsWith("./") || normalized.startsWith("../")) return true;
+    if (/^(https?:|mailto:|tel:)/i.test(normalized)) return true;
+    if (allowImageData && /^data:image\/(png|jpeg|gif|webp|avif);base64,/i.test(normalized)) return true;
+    return false;
+  }
+
+  function sanitizeNode(node, outputDocument) {
+    if (node.nodeType === Node.TEXT_NODE) return outputDocument.createTextNode(node.nodeValue || "");
+    if (node.nodeType !== Node.ELEMENT_NODE) return null;
+
+    if (!allowedTags.has(node.tagName)) {
+      const fragment = outputDocument.createDocumentFragment();
+      for (const child of [...node.childNodes]) {
+        const cleanChild = sanitizeNode(child, outputDocument);
+        if (cleanChild) fragment.appendChild(cleanChild);
+      }
+      return fragment;
+    }
+
+    const cleanElement = outputDocument.createElement(node.tagName.toLowerCase());
+
+    if (node.tagName === "A") {
+      const href = node.getAttribute("href") || "";
+      if (isSafeUrl(href)) cleanElement.setAttribute("href", href);
+      if (/^https?:/i.test(href)) {
+        cleanElement.setAttribute("target", "_blank");
+        cleanElement.setAttribute("rel", "noopener noreferrer");
+      }
+    }
+
+    if (node.tagName === "IMG") {
+      const src = node.getAttribute("src") || "";
+      if (isSafeUrl(src, true)) cleanElement.setAttribute("src", src);
+      cleanElement.setAttribute("alt", node.getAttribute("alt") || "");
+      cleanElement.setAttribute("loading", "lazy");
+      for (const dimension of ["width", "height"]) {
+        const value = node.getAttribute(dimension);
+        if (value && /^\d+$/.test(value)) cleanElement.setAttribute(dimension, value);
+      }
+    }
+
+    if (node.tagName === "SPAN" && node.classList.contains("small-caps")) {
+      cleanElement.className = "small-caps";
+    }
+
+    for (const child of [...node.childNodes]) {
+      const cleanChild = sanitizeNode(child, outputDocument);
+      if (cleanChild) cleanElement.appendChild(cleanChild);
+    }
+    return cleanElement;
+  }
+
+  function sanitizeHTML(html) {
+    const parsed = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
+    const sourceRoot = parsed.body.firstElementChild;
+    const output = document.implementation.createHTMLDocument("");
+    const holder = output.createElement("div");
+    for (const child of [...sourceRoot.childNodes]) {
+      const cleanChild = sanitizeNode(child, output);
+      if (cleanChild) holder.appendChild(cleanChild);
+    }
+    return holder.innerHTML.trim();
+  }
+
+  function editorHTML() {
+    return sanitizeHTML(body.innerHTML);
+  }
+
+  function setEditorHTML(html) {
+    body.innerHTML = sanitizeHTML(html);
+  }
+
+  function saveSelection() {
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+    const range = selection.getRangeAt(0);
+    if (body.contains(range.commonAncestorContainer)) savedRange = range.cloneRange();
+  }
+
+  function restoreSelection() {
+    if (!savedRange) return false;
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(savedRange);
+    return true;
+  }
+
+  function command(name, value = null) {
+    restoreSelection();
+    body.focus({ preventScroll: true });
+    document.execCommand(name, false, value);
+    saveSelection();
+  }
+
+  document.querySelectorAll(".rich-toolbar button").forEach((button) => {
+    button.addEventListener("mousedown", (event) => event.preventDefault());
+  });
+
+  document.querySelectorAll(".rich-toolbar [data-command]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const name = button.dataset.command;
+      if (name === "link") {
+        const href = prompt("URL del enlace:", "https://");
+        if (href && isSafeUrl(href)) command("createLink", href);
+        else if (href) formStatus.textContent = "La URL indicada no es válida.";
+        return;
+      }
+      if (name === "smallcaps") {
+        restoreSelection();
+        const selection = window.getSelection();
+        if (!selection.rangeCount || selection.isCollapsed) {
+          formStatus.textContent = "Selecciona el texto al que deseas aplicar versalitas.";
+          return;
+        }
+        const range = selection.getRangeAt(0);
+        const span = document.createElement("span");
+        span.className = "small-caps";
+        span.appendChild(range.extractContents());
+        range.insertNode(span);
+        selection.removeAllRanges();
+        const next = document.createRange();
+        next.selectNodeContents(span);
+        selection.addRange(next);
+        saveSelection();
+        return;
+      }
+      command(name);
+    });
+  });
+
+  document.querySelectorAll(".rich-toolbar [data-block]").forEach((button) => {
+    button.addEventListener("click", () => command("formatBlock", button.dataset.block));
+  });
+
+  ["keyup", "mouseup", "input"].forEach((eventName) => body.addEventListener(eventName, saveSelection));
+
+  function inferType(path) {
+    if (path.startsWith("blog/")) return "blog";
+    if (path.includes("/")) return "subpage";
+    return "page";
+  }
+
+  function inferFolder(path) {
+    const parts = path.split("/");
+    return parts.length > 1 ? parts.slice(0, -1).join("/") : "";
+  }
+
+  function inferSlug(path) {
+    return path.split("/").at(-1).replace(/\.html$/, "");
+  }
+
+  function extractDescription(doc) {
+    return doc.querySelector('meta[name="description"]')?.content?.trim()
+      || doc.querySelector(".page-deck")?.textContent?.trim()
+      || "";
+  }
+
+  function extractDate(doc) {
+    const schemas = [...doc.querySelectorAll('script[type="application/ld+json"]')];
+    for (const schema of schemas) {
+      try {
+        const data = JSON.parse(schema.textContent);
+        if (data?.datePublished) return data.datePublished;
+        if (Array.isArray(data?.["@graph"])) {
+          const dated = data["@graph"].find((node) => node.datePublished);
+          if (dated) return dated.datePublished;
+        }
+      } catch {
+        // El JSON-LD ajeno al editor se conserva sin impedir la edición.
+      }
+    }
+    return "";
+  }
+
+  function buildData() {
+    const contentType = type.value;
+    const cleanSlug = clean(slug.value);
+    const cleanFolder = clean(folder.value);
+    const parentPath = JSON.parse(parent.value);
+    const path = loadedPath || (
+      contentType === "page"
+        ? `${cleanSlug}.html`
+        : contentType === "blog"
+          ? `blog/${cleanSlug}.html`
+          : `${cleanFolder}/${cleanSlug}.html`
+    );
+
+    return {
+      type: contentType,
+      title: title.value.trim(),
+      slug: cleanSlug,
+      description: description.value.trim(),
+      body: editorHTML(),
+      date: date.value,
+      path,
+      parentPath,
+      kicker: contentType === "blog" ? "Blog" : parentPath.at(-1)
+    };
+  }
+
+  function validate(data) {
+    if (!data.title) throw new Error("El título es obligatorio.");
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(data.slug)) throw new Error("El slug sólo admite minúsculas, números y guiones.");
+    if (data.description.length < 40) throw new Error("La descripción SEO necesita al menos 40 caracteres.");
+    if (!data.body) throw new Error("El contenido no puede quedar vacío.");
+    if (data.type === "subpage" && !clean(folder.value)) throw new Error("Indica la carpeta de destino.");
+    if (loadedPath && data.path !== loadedPath) throw new Error("La ruta de una página publicada no puede cambiarse desde este editor.");
+  }
+
+  function pageHTML(data) {
+    const root = rootFor(data.path);
+    const url = canonical(data.path);
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": data.type === "blog" ? "BlogPosting" : "WebPage",
+      headline: data.title,
+      description: data.description,
+      url,
+      inLanguage: "es-MX",
+      author: {
+        "@type": "Person",
+        name: "Carlos Adolfo Gutiérrez Vidal",
+        jobTitle: ["Poeta", "Artista indisciplinario", "Investigador"]
+      }
+    };
+    if (data.type === "blog" && data.date) schema.datePublished = data.date;
+    const kicker = data.type === "blog" && data.date ? data.date : data.kicker;
+
+    return `<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="author" content="Carlos Adolfo Gutiérrez Vidal">
+  <meta name="description" content="${esc(data.description)}">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="theme-color" content="#FAF9F6">
+  <link rel="canonical" href="${url}">
+  <link rel="icon" href="${root}public/assets/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="${root}public/assets/apple-touch-icon.png">
+  <link rel="manifest" href="${root}site.webmanifest">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:type" content="${data.type === "blog" ? "article" : "website"}">
+  <meta property="og:site_name" content="Carlos Adolfo Gutiérrez Vidal">
+  <meta property="og:title" content="${esc(data.title)}">
+  <meta property="og:description" content="${esc(data.description)}">
+  <meta property="og:url" content="${url}">
+  <meta property="og:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${esc(data.title)}">
+  <meta name="twitter:description" content="${esc(data.description)}">
+  <meta name="twitter:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg">
+  <script type="application/ld+json">${JSON.stringify(schema)}</script>
+  <title>${esc(data.title)} · Carlos Adolfo Gutiérrez Vidal</title>
+  <link rel="stylesheet" href="${root}src/css/site-v2.2.css">
+</head>
+<body data-root="${root}">
+  <div data-site-header></div>
+  <main class="page">
+    <header class="page-header">
+      <p class="page-kicker">${esc(kicker)}</p>
+      <h1 class="page-title">${esc(data.title)}</h1>
+      <p class="page-deck">${esc(data.description)}</p>
+    </header>
+    <article class="prose">${data.body}</article>
+  </main>
+  <div data-site-footer></div>
+  <script src="${root}src/js/site-shell-v2.1.js"></script>
+</body>
+</html>`;
+  }
+
+  function updateMeta(doc, selector, value) {
+    const element = doc.querySelector(selector);
+    if (element) element.setAttribute("content", value);
+  }
+
+  function updateExistingPage(data) {
+    const doc = new DOMParser().parseFromString(loadedSource, "text/html");
+    const pageTitle = doc.querySelector(".page-title");
+    const pageDeck = doc.querySelector(".page-deck");
+    const article = doc.querySelector("article.prose");
+    if (!pageTitle || !pageDeck || !article) throw new Error("La página ya no contiene la estructura editable esperada.");
+
+    pageTitle.textContent = data.title;
+    pageDeck.textContent = data.description;
+    article.innerHTML = data.body;
+    doc.title = `${data.title} · Carlos Adolfo Gutiérrez Vidal`;
+    updateMeta(doc, 'meta[name="description"]', data.description);
+    updateMeta(doc, 'meta[property="og:title"]', data.title);
+    updateMeta(doc, 'meta[property="og:description"]', data.description);
+    updateMeta(doc, 'meta[name="twitter:title"]', data.title);
+    updateMeta(doc, 'meta[name="twitter:description"]', data.description);
+
+    for (const schema of doc.querySelectorAll('script[type="application/ld+json"]')) {
+      try {
+        const value = JSON.parse(schema.textContent);
+        if (value && !Array.isArray(value)) {
+          if ("headline" in value) value.headline = data.title;
+          if ("name" in value && value["@type"] === "WebPage") value.name = data.title;
+          if ("description" in value) value.description = data.description;
+          if (data.type === "blog" && data.date && "datePublished" in value) value.datePublished = data.date;
+          schema.textContent = JSON.stringify(value);
+        }
+      } catch {
+        // Se conserva JSON-LD no interpretable.
+      }
+    }
+
+    return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+  }
+
+  function addToMenu(data) {
+    const node = findNode(navigation, data.parentPath);
+    if (!node) throw new Error("No se encontró el menú padre.");
+    node.children = node.children || [];
+    if (node.children.find((item) => item.url === data.path || item.label === data.title)) {
+      throw new Error("Ya existe una entrada igual en ese menú.");
+    }
+    node.children.push({ label: data.title, url: data.path });
+  }
+
+  function updateMenuItem(data) {
+    const item = findItemByUrl(navigation, loadedPath);
+    if (item) item.label = data.title;
+  }
+
+  async function pathAlreadyExists(path) {
+    const patches = await GVPatches.listPatches();
+    if (Object.prototype.hasOwnProperty.call(patches, path)) return true;
+    try {
+      await GVPatches.getFile(path);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async function updatedIndex(data) {
+    if (!addIndex.checked) return null;
+    const node = findNode(navigation, data.parentPath);
+    if (!node?.url) return null;
+    const current = await GVPatches.getFile(node.url);
+    const start = current.indexOf('<section class="collection"');
+    if (start < 0) return null;
+    const close = current.indexOf("</section>", start);
+    if (close < 0) return null;
+    const link = rootFor(node.url) + data.path;
+    const card = `\n<article><h2><a href="${link}">${esc(data.title)}</a></h2><p>${esc(data.description)}</p></article>\n`;
+    return { path: node.url, content: current.slice(0, close) + card + current.slice(close) };
+  }
+
+  async function updatedSitemap(data) {
+    const xml = await GVPatches.getFile("sitemap.xml");
+    const url = canonical(data.path);
+    if (xml.includes(`<loc>${url}</loc>`)) return xml;
+    const entry = `  <url><loc>${url}</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>\n`;
+    return xml.replace("</urlset>", entry + "</urlset>");
+  }
+
+  async function loadPublishedPage(path) {
+    treeStatus.textContent = `Cargando ${path}…`;
+    try {
+      const html = await GVPatches.getFile(path);
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      const article = doc.querySelector("article.prose");
+      const pageTitle = doc.querySelector(".page-title")?.textContent?.trim();
+      if (!article || !pageTitle) throw new Error("La página no usa la estructura editable esperada.");
+
+      loadedPath = path;
+      loadedOriginalTitle = pageTitle;
+      loadedParentPath = findParentOfUrl(navigation, path);
+      loadedSource = html;
+      savedRange = null;
+
+      pagePanel.hidden = false;
+      homePanel.hidden = true;
+      type.value = inferType(path);
+      updateType();
+      title.value = pageTitle;
+      slug.value = inferSlug(path);
+      slug.dataset.edited = "true";
+      description.value = extractDescription(doc);
+      setEditorHTML(article.innerHTML);
+      folder.value = inferFolder(path);
+      date.value = extractDate(doc);
+      if (loadedParentPath) parent.value = JSON.stringify(loadedParentPath);
+
+      type.disabled = true;
+      slug.disabled = true;
+      folder.disabled = true;
+      addMenu.checked = false;
+      addIndex.checked = false;
+      $("#mode-label").textContent = "Editar página";
+      $("#path-label").textContent = path;
+      $("#form-heading").textContent = "Editar contenido";
+      treeStatus.textContent = "";
+      formStatus.textContent = "";
+      activateTree(path);
+    } catch (error) {
+      treeStatus.textContent = error.message;
+    }
+  }
+
+  function imageName(file) {
+    const rawExtension = file.name.split(".").pop() || "jpg";
+    const extension = rawExtension.toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+    const base = slugify(file.name.replace(/\.[^.]+$/, "")) || "imagen";
+    const suffix = crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : String(Date.now());
+    return `${base}-${suffix}.${extension}`;
+  }
+
+  $("#insert-image").addEventListener("click", () => {
+    saveSelection();
+    $("#image-file").click();
+  });
+
+  $("#image-file").addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      if (!/^image\/(png|jpeg|webp|gif|avif)$/i.test(file.type)) throw new Error("El archivo seleccionado no es una imagen admitida.");
+      const alt = prompt("Texto alternativo de la imagen:", "");
+      if (alt === null) return;
+      if (!alt.trim()) throw new Error("El texto alternativo es obligatorio.");
+      const caption = prompt("Pie de foto (opcional):", "") || "";
+      const name = imageName(file);
+      const path = `public/images/${name}`;
+      await GVPatches.savePatch(path, file);
+
+      const figure = document.createElement("figure");
+      const image = document.createElement("img");
+      image.src = `/${path}`;
+      image.alt = alt.trim();
+      image.loading = "lazy";
+      figure.appendChild(image);
+      if (caption.trim()) {
+        const figcaption = document.createElement("figcaption");
+        figcaption.textContent = caption.trim();
+        figure.appendChild(figcaption);
+      }
+
+      restoreSelection();
+      const selection = window.getSelection();
+      if (selection.rangeCount && body.contains(selection.getRangeAt(0).commonAncestorContainer)) {
+        const range = selection.getRangeAt(0);
+        range.deleteContents();
+        range.insertNode(figure);
+        range.setStartAfter(figure);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        saveSelection();
+      } else {
+        body.appendChild(figure);
+      }
+      formStatus.textContent = `Imagen añadida: ${path}`;
+    } catch (error) {
+      formStatus.textContent = error.message;
+    } finally {
+      event.target.value = "";
+    }
+  });
+
+  function requireElement(doc, selector, label) {
+    const element = doc.querySelector(selector);
+    if (!element) throw new Error(`No se encontró ${label} en la portada.`);
+    return element;
+  }
+
+  async function loadHomepage() {
+    treeStatus.textContent = "Cargando portada…";
+    try {
+      homeSource = await GVPatches.getFile("index.html");
+      const doc = new DOMParser().parseFromString(homeSource, "text/html");
+      const label = requireElement(doc, ".practice-statement__label", "la identidad");
+      const thesis = requireElement(doc, "#practice-title", "la tesis principal");
+      const intro = requireElement(doc, ".practice-statement__intro > p:last-child", "la introducción");
+      const axes = [...doc.querySelectorAll(".practice-statement__axes article")];
+      if (!axes.length) throw new Error("No se encontraron los ejes editoriales de la portada.");
+
+      $("#home-seo-title").value = doc.title;
+      $("#home-description").value = doc.querySelector('meta[name="description"]')?.content || "";
+      $("#home-label").value = label.textContent.trim();
+      $("#home-title").value = thesis.textContent.trim();
+      $("#home-intro").value = intro.textContent.trim();
+      $("#home-axes").innerHTML = axes.map((axis, index) => `
+        <fieldset>
+          <legend>Eje ${index + 1}</legend>
+          <label><span>Título</span><input class="axis-title" value="${esc(axis.querySelector("h2")?.textContent.trim() || "")}"></label>
+          <label><span>Texto</span><textarea class="axis-text" rows="4">${esc(axis.querySelector("p:last-child")?.textContent.trim() || "")}</textarea></label>
+        </fieldset>`).join("");
+
+      pagePanel.hidden = true;
+      homePanel.hidden = false;
+      treeStatus.textContent = "";
+      homeStatus.textContent = "";
+      activateTree("index.html");
+    } catch (error) {
+      treeStatus.textContent = error.message;
+    }
+  }
+
+  function buildHomepage() {
+    if (!homeSource) throw new Error("Primero carga la portada.");
+    const doc = new DOMParser().parseFromString(homeSource, "text/html");
+    const seoTitle = $("#home-seo-title").value.trim();
+    const seoDescription = $("#home-description").value.trim();
+    if (!seoTitle) throw new Error("El título SEO es obligatorio.");
+    if (seoDescription.length < 40) throw new Error("La descripción SEO necesita al menos 40 caracteres.");
+
+    doc.title = seoTitle;
+    updateMeta(doc, 'meta[name="description"]', seoDescription);
+    updateMeta(doc, 'meta[property="og:title"]', seoTitle);
+    updateMeta(doc, 'meta[property="og:description"]', seoDescription);
+    updateMeta(doc, 'meta[name="twitter:title"]', seoTitle);
+    updateMeta(doc, 'meta[name="twitter:description"]', seoDescription);
+
+    requireElement(doc, ".practice-statement__label", "la identidad").textContent = $("#home-label").value.trim();
+    requireElement(doc, "#practice-title", "la tesis principal").textContent = $("#home-title").value.trim();
+    requireElement(doc, ".practice-statement__intro > p:last-child", "la introducción").textContent = $("#home-intro").value.trim();
+
+    const axes = [...doc.querySelectorAll(".practice-statement__axes article")];
+    const fields = [...document.querySelectorAll("#home-axes fieldset")];
+    if (axes.length !== fields.length) throw new Error("La estructura de ejes de la portada cambió; no se guardó nada.");
+    fields.forEach((field, index) => {
+      requireElement(axes[index], "h2", `el título del eje ${index + 1}`).textContent = field.querySelector(".axis-title").value.trim();
+      requireElement(axes[index], "p:last-child", `el texto del eje ${index + 1}`).textContent = field.querySelector(".axis-text").value.trim();
+    });
+
+    for (const schema of doc.querySelectorAll('script[type="application/ld+json"]')) {
+      try {
+        const data = JSON.parse(schema.textContent);
+        if (Array.isArray(data?.["@graph"])) {
+          for (const node of data["@graph"]) {
+            if (node["@id"]?.endsWith("#webpage")) {
+              node.name = seoTitle;
+              node.description = seoDescription;
+            }
+          }
+          schema.textContent = JSON.stringify(data);
+        }
+      } catch {
+        // Se conserva JSON-LD no interpretable.
+      }
+    }
+
+    return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+  }
+
+  function showPreview(html) {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = URL.createObjectURL(new Blob([html], { type: "text/html" }));
+    frame.src = previewUrl;
+    preview.hidden = false;
+  }
+
+  $("#preview-button").addEventListener("click", () => {
+    try {
+      const data = buildData();
+      validate(data);
+      showPreview(loadedPath ? updateExistingPage(data) : pageHTML(data));
+    } catch (error) {
+      formStatus.textContent = error.message;
+    }
+  });
+
+  $("#home-preview").addEventListener("click", () => {
+    try {
+      showPreview(buildHomepage());
+    } catch (error) {
+      homeStatus.textContent = error.message;
+    }
+  });
+
+  $("#close-preview").addEventListener("click", () => {
+    preview.hidden = true;
+    frame.src = "about:blank";
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    previewUrl = null;
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    formStatus.textContent = "Preparando la actualización…";
+    try {
+      const data = buildData();
+      validate(data);
+
+      if (!loadedPath) {
+        if (await pathAlreadyExists(data.path)) {
+          throw new Error(`La ruta ${data.path} ya existe. Selecciónala en el explorador para editarla.`);
+        }
+        await GVPatches.savePatch(data.path, pageHTML(data));
+        if (addMenu.checked) {
+          addToMenu(data);
+          await GVPatches.savePatch("src/data/navigation.json", JSON.stringify(navigation, null, 2) + "\n");
+          renderTree();
+        }
+        const indexPatch = await updatedIndex(data);
+        if (indexPatch) await GVPatches.savePatch(indexPatch.path, indexPatch.content);
+        await GVPatches.savePatch("sitemap.xml", await updatedSitemap(data));
+        formStatus.textContent = `Página nueva guardada: ${data.path}`;
+      } else {
+        const updated = updateExistingPage(data);
+        await GVPatches.savePatch(loadedPath, updated);
+        loadedSource = updated;
+        if (data.title !== loadedOriginalTitle) {
+          updateMenuItem(data);
+          await GVPatches.savePatch("src/data/navigation.json", JSON.stringify(navigation, null, 2) + "\n");
+          loadedOriginalTitle = data.title;
+          renderTree();
+          activateTree(loadedPath);
+        }
+        formStatus.textContent = `Página actualizada: ${loadedPath}`;
+      }
+    } catch (error) {
+      formStatus.textContent = error.message;
+    }
+  });
+
+  homeForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    homeStatus.textContent = "Guardando portada…";
+    try {
+      const html = buildHomepage();
+      await GVPatches.savePatch("index.html", html);
+      homeSource = html;
+      homeStatus.textContent = "Portada guardada en la actualización: index.html";
+    } catch (error) {
+      homeStatus.textContent = error.message;
+    }
+  });
+
+  $("#new-page").addEventListener("click", newPage);
+  title.addEventListener("input", () => {
+    if (!slug.dataset.edited && !loadedPath) slug.value = slugify(title.value);
+  });
+  slug.addEventListener("input", () => {
+    slug.dataset.edited = "true";
+    slug.value = slugify(slug.value);
+  });
+  type.addEventListener("change", updateType);
+
+  async function initialize() {
+    navigation = JSON.parse(await GVPatches.getFile("src/data/navigation.json"));
+    renderParents();
+    renderTree();
+    newPage();
+    form.hidden = false;
+  }
+
+  initialize().catch((error) => {
+    form.hidden = true;
+    treeStatus.textContent = error.message;
+  });
 })();

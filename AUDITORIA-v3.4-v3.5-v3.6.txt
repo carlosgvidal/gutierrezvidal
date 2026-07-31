@@ -1,0 +1,41 @@
+AUDITORÍA DE VERSIONES 3.4 Y 3.5
+Corrección consolidada: 3.6
+
+BASE DE RECUPERACIÓN
+- La versión 3.6 fue reconstruida a partir de la versión 3.4.
+- Todos los archivos públicos del sitio se conservaron sin cambios respecto de 3.4.
+- Las únicas adiciones fuera del editor son public/images/.gitkeep y este informe.
+
+ERRORES CRÍTICOS DETECTADOS EN 3.5
+1. La carpeta de páginas anidadas se reconstruía sin diagonales:
+   obra/escritura se convertía en obraescritura.
+2. Al editar una página publicada, el editor regeneraba el HTML completo desde una plantilla.
+   Eso podía eliminar estructura, metadatos, scripts o elementos particulares de la página original.
+3. La selección del editor enriquecido podía perderse al pulsar botones de bloque o al insertar imágenes.
+4. El sanitizador podía dejar nodos no permitidos al desenvolver elementos anidados.
+5. La inserción de imágenes no exigía texto alternativo y tenía manejo insuficiente de errores.
+6. El selector de secciones padre incluía destinos que no eran contenedores válidos.
+7. Las pruebas de 3.5 verificaban principalmente presencia de cadenas y no cubrían las regresiones anteriores.
+
+CORRECCIONES EN 3.6
+- inferFolder conserva correctamente las diagonales.
+- La edición de páginas existentes parte del HTML publicado y modifica únicamente:
+  título, descripción, contenido editorial y metadatos relacionados.
+- Se conserva el resto del documento existente.
+- La portada parte del index.html original y valida la presencia de panorama, bloques y ejes antes de guardar.
+- El editor enriquecido conserva la selección en todos los botones.
+- Sanitización recursiva de etiquetas, atributos y URLs.
+- Imágenes guardadas por defecto en public/images/.
+- Texto alternativo obligatorio.
+- Imágenes binarias conservadas en IndexedDB y exportadas en el ZIP parcial.
+- Secciones padre limitadas a contenedores válidos.
+- Vista previa de páginas existentes usa el HTML parcheado, no una plantilla nueva.
+- URLs temporales de vista previa se liberan correctamente.
+
+VERIFICACIONES
+- Sintaxis de editor/editor.js: correcta.
+- Sintaxis de editor/workspace.js: correcta.
+- 9 archivos de pruebas ejecutados sin errores.
+- Archivos públicos comparados contra 3.4: sin cambios, salvo la nueva carpeta public/images/.
+- Panorama y viewer-v2.2.js conservados.
+- Hotspots conservados.
