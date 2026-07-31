@@ -1,10 +1,9 @@
 
 .sound-page {
-  padding-bottom: 0;
-}
-
-.sound-page .page-header {
-  margin-bottom: clamp(28px, 5vw, 56px);
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .sound-panorama {

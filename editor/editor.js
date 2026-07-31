@@ -135,7 +135,14 @@
         button.className = "tree-page";
         button.textContent = item.label;
         button.dataset.path = item.url;
-        button.addEventListener("click", () => loadPublishedPage(item.url));
+        if (item.url === "sonido.html") {
+          button.title = "Abrir el editor especializado de Sonido 360";
+          button.addEventListener("click", () => {
+            location.href = "sound.html";
+          });
+        } else {
+          button.addEventListener("click", () => loadPublishedPage(item.url));
+        }
         row.appendChild(button);
       } else if (item.label !== "Inicio") {
         const label = document.createElement("span");
