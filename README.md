@@ -1,26 +1,28 @@
-# gutierrezvidal v3.3 — actualizaciones parciales
+# gutierrezvidal v3.4 — creación y edición de páginas publicadas
 
-## No requiere importar el sitio
+## Crear una página nueva
 
-El editor lee directamente del sitio publicado:
+El editor comprueba primero si la ruta ya existe. Si existe, bloquea la creación y pide usar el modo de edición.
 
-- `src/data/navigation.json`
-- `src/data/hotspots.json`
-- `sitemap.xml`
-- el índice de la sección que corresponda
+## Editar una página publicada
 
-Al crear una página o editar hotspots, conserva localmente sólo los archivos nuevos o modificados.
+1. Abre `/editor/content.html`.
+2. Selecciona **Editar página publicada**.
+3. Elige una página de la navegación.
+4. Pulsa **Cargar página**.
+5. Modifica título, descripción, fecha o cuerpo.
+6. Guarda los cambios.
 
-## Exportación
+La ruta del archivo permanece bloqueada para evitar mover o duplicar páginas por accidente.
 
-Desde `/editor/`, el botón **Descargar actualización ZIP** genera un ZIP pequeño para copiar sobre la raíz del sitio existente.
+Si cambia el título, también se actualiza la etiqueta correspondiente en `src/data/navigation.json`.
 
-El ZIP no contiene el sitio completo y no reemplaza archivos que no hayan cambiado.
+## Limitación estructural
 
-## Archivos posibles
+Sólo se cargan automáticamente páginas que conserven esta estructura:
 
-- Página HTML nueva
-- `src/data/navigation.json`
-- Índice de la sección correspondiente
-- `src/data/hotspots.json`
-- `sitemap.xml`
+- `.page-title`
+- `.page-deck`
+- `article.prose`
+
+Las páginas que no tengan esa estructura no se sobrescriben y muestran un error.

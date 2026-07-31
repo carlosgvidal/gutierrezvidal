@@ -17,7 +17,32 @@
   </header>
 
 
-  <form id="content-form" class="panel">
+  
+  <section class="panel">
+    <div class="step-number">02</div>
+    <div>
+      <h2>Modo de trabajo</h2>
+      <div class="field-grid">
+        <label>
+          Acción
+          <select id="edit-mode">
+            <option value="new">Crear página nueva</option>
+            <option value="existing">Editar página publicada</option>
+          </select>
+        </label>
+        <label id="existing-page-field" hidden>
+          Página publicada
+          <select id="existing-page"></select>
+        </label>
+      </div>
+      <div class="actions actions-left">
+        <button id="load-existing" class="secondary" type="button" hidden>Cargar página</button>
+      </div>
+      <p id="load-status" class="status"></p>
+    </div>
+  </section>
+
+<form id="content-form" class="panel">
     <div class="step-number">01</div>
     <div class="form-content">
       <h2>Crear contenido</h2>
@@ -47,7 +72,7 @@
 
       <div class="actions">
         <button id="preview-button" type="button" class="secondary">Vista previa</button>
-        <button type="submit" class="primary">Guardar página en la actualización</button>
+        <button type="submit" class="primary">Guardar cambios en la actualización</button>
       </div>
       <p id="form-status" class="status" role="status"></p>
     </div>
