@@ -1,0 +1,8 @@
+ACTUALIZACIÓN PARCIAL DEL SITIO
+
+Copia el contenido sobre la raíz del sitio existente.
+
+Archivos incluidos:
+- index.html
+- obra/escritura/sarcofagos.html
+- src/data/hotspots.json
