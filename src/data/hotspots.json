@@ -10,56 +10,56 @@
   {
     "id": "blog",
     "label": "Blog",
-    "imageX": 692,
-    "imageY": 588,
+    "imageX": 655,
+    "imageY": 470,
     "url": "blog.html",
     "icon": "note"
   },
   {
     "id": "sonido",
     "label": "Sonido",
-    "imageX": 1363,
-    "imageY": 429,
+    "imageX": 1262,
+    "imageY": 463,
     "url": "sonido.html",
     "icon": "sound"
   },
   {
     "id": "sistema",
     "label": "Sistema",
-    "imageX": 521,
-    "imageY": 639,
+    "imageX": 470,
+    "imageY": 450,
     "url": "sistema.html",
     "icon": "grid"
   },
   {
     "id": "perfil",
     "label": "Perfil",
-    "imageX": 892,
-    "imageY": 292,
+    "imageX": 885,
+    "imageY": 365,
     "url": "perfil.html",
     "icon": "profile"
   },
   {
     "id": "materia",
     "label": "Materia",
-    "imageX": 168,
-    "imageY": 580,
+    "imageX": 104,
+    "imageY": 498,
     "url": "materia.html",
     "icon": "diamond"
   },
   {
     "id": "imagenes",
     "label": "Imágenes",
-    "imageX": 1289,
-    "imageY": 261,
+    "imageX": 1282,
+    "imageY": 308,
     "url": "imagenes.html",
     "icon": "image"
   },
   {
     "id": "archivo",
     "label": "Archivo",
-    "imageX": 1654,
-    "imageY": 448,
+    "imageX": 1510,
+    "imageY": 338,
     "url": "archivo.html",
     "icon": "archive"
   }

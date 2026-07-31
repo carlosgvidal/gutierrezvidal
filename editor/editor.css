@@ -39,3 +39,8 @@ textarea{resize:vertical}small{display:block;margin-top:5px;font-size:12px}.body
   .hotspot-header{display:grid;align-items:start}
   .hotspot-header .primary{width:100%}
 }
+
+.actions-left{justify-content:flex-start;flex-wrap:wrap}
+.is-disabled{opacity:.35;pointer-events:none}
+.workspace-panel .file-button{margin-top:0}
+button:disabled{opacity:.35;cursor:not-allowed}

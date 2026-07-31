@@ -1,29 +1,26 @@
-# gutierrezvidal v3.0 — editor local para iPad
+# gutierrezvidal v3.3 — actualizaciones parciales
 
-## Funcionamiento
+## No requiere importar el sitio
 
-1. Publica esta versión del sitio.
-2. Abre `/editor/` en Safari desde el iPad.
-3. Selecciona el ZIP completo de la versión actual.
-4. Elige:
-   - Página principal
-   - Subpágina
-   - Entrada de blog
-5. Captura título, slug, descripción SEO y contenido.
-6. Decide si debe añadirse al menú y al índice de su sección.
-7. Pulsa **Generar ZIP actualizado**.
+El editor lee directamente del sitio publicado:
 
-El editor procesa el ZIP dentro del navegador. No utiliza GitHub, tokens, contraseñas ni base de datos.
+- `src/data/navigation.json`
+- `src/data/hotspots.json`
+- `sitemap.xml`
+- el índice de la sección que corresponda
 
-## Actualizaciones automáticas
+Al crear una página o editar hotspots, conserva localmente sólo los archivos nuevos o modificados.
 
-- Crea la página HTML.
-- Añade metadatos SEO, Open Graph y JSON-LD.
-- Actualiza `src/data/navigation.json` si se solicita.
-- Añade una tarjeta al índice de la sección si se solicita.
-- Actualiza `sitemap.xml`.
-- Descarga un ZIP completo actualizado.
+## Exportación
 
-## Dependencia
+Desde `/editor/`, el botón **Descargar actualización ZIP** genera un ZIP pequeño para copiar sobre la raíz del sitio existente.
 
-La compresión usa JSZip desde jsDelivr. El editor necesita conexión al abrirse, pero el ZIP y el contenido no se envían a un servidor.
+El ZIP no contiene el sitio completo y no reemplaza archivos que no hayan cambiado.
+
+## Archivos posibles
+
+- Página HTML nueva
+- `src/data/navigation.json`
+- Índice de la sección correspondiente
+- `src/data/hotspots.json`
+- `sitemap.xml`

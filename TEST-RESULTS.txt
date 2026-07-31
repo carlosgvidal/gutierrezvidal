@@ -1,14 +1,15 @@
-$ node --check /mnt/data/gutierrezvidal-v3.0/editor/editor.js
+$ node --check /mnt/data/gutierrezvidal-v3.3/editor/workspace.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v3.0/src/js/viewer-v2.2.js
+$ node --check /mnt/data/gutierrezvidal-v3.3/editor/panel.js
 exit=0
 
-$ node --check /mnt/data/gutierrezvidal-v3.0/src/js/site-shell-v2.1.js
+$ node --check /mnt/data/gutierrezvidal-v3.3/editor/editor.js
 exit=0
 
-$ node /mnt/data/gutierrezvidal-v3.0/tests/editor.test.mjs
+$ node --check /mnt/data/gutierrezvidal-v3.3/editor/hotspots.js
 exit=0
-Pruebas superadas: editor local, ZIP, menú, índices, SEO y sitemap.
 
-Preflight: editor, navegación, sitemap y generación ZIP verificados estructuralmente.
+$ node /mnt/data/gutierrezvidal-v3.3/tests/editor-patch.test.mjs
+exit=0
+Pruebas superadas: sin importación del sitio y exportación de actualización parcial.

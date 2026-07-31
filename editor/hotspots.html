@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Editar hotspots · Gutiérrez Vidal</title>
   <link rel="stylesheet" href="editor.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
   <main class="hotspot-editor">
@@ -18,9 +19,9 @@
       <div>
         <p class="eyebrow">Panorama</p>
         <h1>Editar hotspots</h1>
-        <p class="privacy">Arrastra las etiquetas. El botón descarga el archivo que sustituye a <code>src/data/hotspots.json</code>.</p>
+        <p class="privacy">Arrastra las etiquetas. El botón guarda únicamente el archivo modificado dentro del paquete de actualización que sustituye a <code>src/data/hotspots.json</code>.</p>
       </div>
-      <button id="download-hotspots" class="primary" type="button">Descargar hotspots.json</button>
+      <button id="download-hotspots" class="primary" type="button">Guardar hotspots</button>
     </header>
 
     <p id="hotspot-status" class="status status-box" role="status">Cargando hotspots actuales…</p>
@@ -29,6 +30,7 @@
       <img src="../public/panorama/portada.jpg" alt="Panorama de la biblioteca y estudio">
     </section>
   </main>
-  <script src="hotspots.js"></script>
+  <script src="workspace.js"></script>
+<script src="hotspots.js"></script>
 </body>
 </html>

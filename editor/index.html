@@ -6,32 +6,47 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Panel editorial · Gutiérrez Vidal</title>
   <link rel="stylesheet" href="editor.css">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 </head>
 <body>
-  <main class="editor editor-home">
-    <header class="editor-header">
-      <div>
-        <p class="eyebrow">Panel editorial</p>
-        <h1>Herramientas del sitio</h1>
+<main class="editor editor-home">
+  <header class="editor-header">
+    <div><p class="eyebrow">Panel editorial</p><h1>Herramientas del sitio</h1></div>
+    <p class="privacy">El editor lee la navegación y los archivos actuales directamente del sitio publicado. Sólo guarda los archivos nuevos o modificados.</p>
+  </header>
+
+  <section class="panel workspace-panel">
+    <div class="step-number">Cambios</div>
+    <div>
+      <h2>Paquete de actualización</h2>
+      <p id="patch-status" class="status status-box">Comprobando cambios pendientes…</p>
+      <div class="actions actions-left">
+        <button id="export-patch" class="primary" type="button" disabled>Descargar actualización ZIP</button>
+        <button id="clear-patches" class="secondary" type="button" disabled>Descartar cambios pendientes</button>
       </div>
-      <p class="privacy">Elige la tarea. El editor de hotspots y el generador de contenido permanecen separados para no alterar sus flujos.</p>
-    </header>
+      <details id="patch-details" hidden>
+        <summary>Archivos incluidos</summary>
+        <ul id="patch-list"></ul>
+      </details>
+    </div>
+  </section>
 
-    <section class="tool-grid" aria-label="Herramientas disponibles">
-      <article class="tool-card">
-        <p class="step-number">01</p>
-        <h2>Editar hotspots</h2>
-        <p>Mueve las etiquetas sobre el panorama y descarga el archivo <code>hotspots.json</code>.</p>
-        <a class="primary tool-link" href="hotspots.html">Abrir editor de hotspots</a>
-      </article>
-
-      <article class="tool-card">
-        <p class="step-number">02</p>
-        <h2>Crear contenido</h2>
-        <p>Carga el ZIP del sitio, crea una página, subpágina o entrada de blog y descarga el ZIP actualizado.</p>
-        <a class="primary tool-link" href="content.html">Abrir generador de contenido</a>
-      </article>
-    </section>
-  </main>
+  <section class="tool-grid" aria-label="Herramientas disponibles">
+    <article class="tool-card">
+      <p class="step-number">01</p>
+      <h2>Editar hotspots</h2>
+      <p>Lee los hotspots publicados y guarda únicamente el archivo JSON modificado.</p>
+      <a class="primary tool-link" href="hotspots.html">Abrir editor de hotspots</a>
+    </article>
+    <article class="tool-card">
+      <p class="step-number">02</p>
+      <h2>Crear contenido</h2>
+      <p>Genera páginas nuevas y los archivos de navegación necesarios sin importar el sitio completo.</p>
+      <a class="primary tool-link" href="content.html">Abrir generador de contenido</a>
+    </article>
+  </section>
+</main>
+<script src="workspace.js"></script>
+<script src="panel.js"></script>
 </body>
 </html>

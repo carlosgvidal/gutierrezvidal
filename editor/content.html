@@ -13,21 +13,12 @@
   <nav class="editor-nav"><a href="index.html">← Herramientas</a><a href="hotspots.html">Editar hotspots</a></nav>
   <header class="editor-header">
     <div><p class="eyebrow">Editor local</p><h1>Generador de contenido</h1></div>
-    <p class="privacy">Primero carga el ZIP completo del sitio. Después aparecerá el formulario de creación.</p>
+    <p class="privacy">La navegación y los índices se leen directamente del sitio publicado. Se generará únicamente una actualización parcial.</p>
   </header>
 
-  <section class="panel">
-    <div class="step-number">01</div>
-    <div>
-      <h2>Cargar el sitio actual</h2>
-      <p>Selecciona el ZIP completo del sitio. El editor lo abrirá localmente y generará otro ZIP con los cambios.</p>
-      <label class="file-button"><input id="site-zip" type="file" accept=".zip,application/zip"><span>Seleccionar ZIP</span></label>
-      <p id="zip-status" class="status status-box" role="status">Paso pendiente: selecciona el ZIP del sitio para habilitar el formulario.</p>
-    </div>
-  </section>
 
-  <form id="content-form" class="panel" hidden>
-    <div class="step-number">02</div>
+  <form id="content-form" class="panel">
+    <div class="step-number">01</div>
     <div class="form-content">
       <h2>Crear contenido</h2>
       <div class="field-grid">
@@ -56,7 +47,7 @@
 
       <div class="actions">
         <button id="preview-button" type="button" class="secondary">Vista previa</button>
-        <button type="submit" class="primary">Generar ZIP actualizado</button>
+        <button type="submit" class="primary">Guardar página en la actualización</button>
       </div>
       <p id="form-status" class="status" role="status"></p>
     </div>
@@ -67,6 +58,7 @@
     <iframe id="preview-frame" title="Vista previa"></iframe>
   </section>
 </main>
+<script src="workspace.js"></script>
 <script src="editor.js"></script>
 </body>
 </html>

@@ -1,91 +1,48 @@
 (() => {
   "use strict";
+  const IMAGE_WIDTH=1774,IMAGE_HEIGHT=887;
+  const stage=document.querySelector("#hotspot-stage"),status=document.querySelector("#hotspot-status");
+  const saveButton=document.querySelector("#download-hotspots");
+  let hotspots=[],dirty=false;
+  const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 
-  const IMAGE_WIDTH = 1774;
-  const IMAGE_HEIGHT = 887;
-  const stage = document.querySelector("#hotspot-stage");
-  const status = document.querySelector("#hotspot-status");
-  const downloadButton = document.querySelector("#download-hotspots");
-  let hotspots = [];
-
-  function clamp(value, min, max) {
-    return Math.max(min, Math.min(max, value));
-  }
-
-  function place(element, hotspot) {
-    element.style.left = `${hotspot.imageX / IMAGE_WIDTH * 100}%`;
-    element.style.top = `${hotspot.imageY / IMAGE_HEIGHT * 100}%`;
-  }
-
-  function attachDrag(element, hotspot) {
-    element.addEventListener("pointerdown", event => {
-      event.preventDefault();
-      element.setPointerCapture(event.pointerId);
-
-      const move = moveEvent => {
-        const rect = stage.getBoundingClientRect();
-        const x = clamp(moveEvent.clientX - rect.left, 0, rect.width);
-        const y = clamp(moveEvent.clientY - rect.top, 0, rect.height);
-        hotspot.imageX = Math.round(x / rect.width * IMAGE_WIDTH);
-        hotspot.imageY = Math.round(y / rect.height * IMAGE_HEIGHT);
-        place(element, hotspot);
-        status.textContent = `${hotspot.label}: x ${hotspot.imageX}, y ${hotspot.imageY}`;
+  function place(el,h){el.style.left=`${h.imageX/IMAGE_WIDTH*100}%`;el.style.top=`${h.imageY/IMAGE_HEIGHT*100}%`}
+  function attach(el,h){
+    el.addEventListener("pointerdown",event=>{
+      event.preventDefault();el.setPointerCapture(event.pointerId);
+      const move=e=>{
+        const rect=stage.getBoundingClientRect();
+        h.imageX=Math.round(clamp(e.clientX-rect.left,0,rect.width)/rect.width*IMAGE_WIDTH);
+        h.imageY=Math.round(clamp(e.clientY-rect.top,0,rect.height)/rect.height*IMAGE_HEIGHT);
+        place(el,h);dirty=true;status.textContent=`${h.label}: x ${h.imageX}, y ${h.imageY}. Cambios sin guardar.`;
       };
-
-      const end = () => {
-        element.removeEventListener("pointermove", move);
-        element.removeEventListener("pointerup", end);
-        element.removeEventListener("pointercancel", end);
-      };
-
-      element.addEventListener("pointermove", move);
-      element.addEventListener("pointerup", end);
-      element.addEventListener("pointercancel", end);
+      const end=()=>{el.removeEventListener("pointermove",move);el.removeEventListener("pointerup",end);el.removeEventListener("pointercancel",end)};
+      el.addEventListener("pointermove",move);el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
     });
   }
-
-  function render() {
-    stage.querySelectorAll(".hotspot-marker").forEach(node => node.remove());
-    hotspots.forEach(hotspot => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "hotspot-marker";
-      button.textContent = hotspot.label;
-      button.setAttribute("aria-label", `Mover hotspot ${hotspot.label}`);
-      place(button, hotspot);
-      attachDrag(button, hotspot);
-      stage.appendChild(button);
+  function render(){
+    stage.querySelectorAll(".hotspot-marker").forEach(n=>n.remove());
+    hotspots.forEach(h=>{
+      const b=document.createElement("button");b.type="button";b.className="hotspot-marker";b.textContent=h.label;
+      b.setAttribute("aria-label",`Mover hotspot ${h.label}`);place(b,h);attach(b,h);stage.appendChild(b);
     });
-    status.textContent = `${hotspots.length} hotspots cargados. Arrastra una etiqueta para cambiar su posición.`;
+    status.textContent=`${hotspots.length} hotspots cargados del sitio actual.`;
   }
-
-  async function load() {
-    try {
-      const response = await fetch("../src/data/hotspots.json", { cache: "no-store" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json();
-      if (!Array.isArray(data)) throw new Error("Formato inválido");
-      hotspots = data;
+  async function load(){
+    try{
+      hotspots=JSON.parse(await GVPatches.getFile("src/data/hotspots.json"));
+      if(!Array.isArray(hotspots))throw new Error("Formato de hotspots inválido.");
       render();
-    } catch (error) {
-      status.textContent = `No se pudieron cargar los hotspots: ${error.message}`;
-      downloadButton.disabled = true;
-    }
+    }catch(e){status.textContent=e.message;saveButton.disabled=true}
   }
-
-  downloadButton.addEventListener("click", () => {
-    if (!hotspots.length) return;
-    const blob = new Blob([`${JSON.stringify(hotspots, null, 2)}\n`], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = "hotspots.json";
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status.textContent = "hotspots.json descargado.";
+  saveButton.addEventListener("click",async()=>{
+    saveButton.disabled=true;status.textContent="Guardando hotspots en la actualización…";
+    try{
+      await GVPatches.savePatch("src/data/hotspots.json",JSON.stringify(hotspots,null,2)+"\n");
+      dirty=false;status.textContent="Hotspots añadidos al paquete de actualización.";
+    }catch(e){status.textContent=e.message}
+    finally{saveButton.disabled=false}
   });
-
+  window.addEventListener("beforeunload",event=>{if(!dirty)return;event.preventDefault();event.returnValue=""});
   load();
 })();
