@@ -26,3 +26,13 @@ Sólo se cargan automáticamente páginas que conserven esta estructura:
 - `article.prose`
 
 Las páginas que no tengan esa estructura no se sobrescriben y muestran un error.
+
+
+## Editor v3.5
+
+- Explorador jerárquico del sitio, con la portada como primer nodo.
+- Editor específico de `index.html` que conserva el panorama, hotspots y scripts.
+- Editor enriquecido para negritas, cursivas, versalitas, enlaces, encabezados, citas y listas.
+- Inserción de imágenes con texto alternativo y pie opcional.
+- Todas las imágenes nuevas se guardan por defecto en `public/images/`.
+- El ZIP de actualización incluye únicamente HTML, JSON, XML e imágenes modificados.
