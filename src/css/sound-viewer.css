@@ -235,3 +235,22 @@
     padding: 8px 10px;
   }
 }
+
+.sound-embed > iframe,
+.sound-embed > object,
+.sound-embed > embed,
+.sound-embed > video,
+.sound-embed > audio,
+.sound-embed > div > iframe,
+.sound-embed > div > object,
+.sound-embed > div > embed,
+.sound-embed > div > video,
+.sound-embed > div > audio {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 0;
+}
+
+.sound-embed audio { min-height: 54px; }
+.sound-embed video { height: auto; }

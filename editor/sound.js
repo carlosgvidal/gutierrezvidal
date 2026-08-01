@@ -87,27 +87,25 @@
 
     item.title = cleanText(fields.title.value) || "Nuevo material";
     item.description = cleanText(fields.description.value);
-    item.platform = fields.platform.value || "archive";
     item.sourceUrl = cleanText(fields.source.value);
     item.published = fields.published.checked;
 
     const embedInput = cleanText(fields.embed.value);
     if (!embedInput) {
+      item.embedCode = "";
       item.embedUrl = "";
       if (normalize && item.published) item.published = false;
       return item;
     }
 
     if (normalize) {
-      const normalized = GVEmbeds.normalize(embedInput, item.platform);
-      item.embedUrl = normalized.src;
-      item.platform = normalized.provider;
-      item.sourceUrl = item.sourceUrl || normalized.sourceUrl;
-      fields.platform.value = item.platform;
-      fields.embed.value = item.embedUrl;
-      fields.source.value = item.sourceUrl;
+      const sanitized = GVEmbeds.sanitize(embedInput, {title: item.title});
+      item.embedCode = sanitized.html;
+      item.embedUrl = sanitized.primaryUrl || "";
+      item.platform = "generic";
+      fields.embed.value = item.embedCode;
     } else {
-      item.embedUrl = embedInput;
+      item.embedCode = embedInput;
     }
     return item;
   }
@@ -125,19 +123,22 @@
       item.title = cleanText(item.title) || "Nuevo material";
       item.description = cleanText(item.description);
       item.sourceUrl = cleanText(item.sourceUrl);
+      const rawEmbed = cleanText(item.embedCode || item.embedUrl);
 
-      if (!cleanText(item.embedUrl)) {
+      if (!rawEmbed) {
+        item.embedCode = "";
+        item.embedUrl = "";
         if (item.published !== false) {
           item.published = false;
-          warnings.push(`“${item.title}” se guardó como borrador porque no tiene reproductor.`);
+          warnings.push(`“${item.title}” se guardó como borrador porque no tiene código incrustado.`);
         }
         continue;
       }
 
-      const normalized = GVEmbeds.normalize(item.embedUrl, item.platform);
-      item.embedUrl = normalized.src;
-      item.platform = normalized.provider;
-      item.sourceUrl = item.sourceUrl || normalized.sourceUrl;
+      const sanitized = GVEmbeds.sanitize(rawEmbed, {title: item.title});
+      item.embedCode = sanitized.html;
+      item.embedUrl = sanitized.primaryUrl || "";
+      item.platform = "generic";
     }
     return warnings;
   }
@@ -172,8 +173,8 @@
     fields.id.value = item.id;
     fields.title.value = item.title || "";
     fields.description.value = item.description || "";
-    fields.platform.value = item.platform || "archive";
-    fields.embed.value = item.embedUrl || "";
+    fields.platform.value = item.platform || "generic";
+    fields.embed.value = item.embedCode || item.embedUrl || "";
     fields.source.value = item.sourceUrl || "";
     fields.published.checked = item.published !== false;
     fields.x.value = Math.round(Number(item.imageX) || 0);
@@ -310,7 +311,8 @@
       id: uid(),
       title: "Nuevo material",
       description: "",
-      platform: "archive",
+      platform: "generic",
+      embedCode: "",
       embedUrl: "",
       sourceUrl: "",
       imageX: Math.round(data.panorama.width / 2),
@@ -486,6 +488,8 @@
         item.imageX = Number(item.imageX) || 0;
         item.imageY = Number(item.imageY) || 0;
         item.published = item.published !== false;
+        item.embedCode = item.embedCode || item.embedUrl || "";
+        item.platform = item.platform || "generic";
       });
 
       panoramaAlt.value = data.panorama.alt || "";

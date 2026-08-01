@@ -71,21 +71,10 @@
           <span>Descripción</span>
           <textarea id="sound-hotspot-description" rows="4"></textarea>
         </label>
+        <input id="sound-hotspot-platform" type="hidden" value="generic">
         <label>
-          <span>Plataforma</span>
-          <select id="sound-hotspot-platform">
-            <option value="archive">Archive.org</option>
-            <option value="youtube">YouTube</option>
-            <option value="vimeo">Vimeo</option>
-            <option value="soundcloud">SoundCloud</option>
-            <option value="spotify">Spotify</option>
-            <option value="bandcamp">Bandcamp</option>
-            <option value="mixcloud">Mixcloud</option>
-          </select>
-        </label>
-        <label>
-          <span>URL o código iframe</span>
-          <textarea id="sound-hotspot-embed" rows="5" required placeholder="https://archive.org/details/… o código <iframe>…"></textarea>
+          <span>Código incrustado o URL</span>
+          <textarea id="sound-hotspot-embed" rows="5" required placeholder="Pega iframe, object, embed, audio, video o una URL HTTPS"></textarea>
         </label>
         <label>
           <span>Enlace a la ficha original</span>

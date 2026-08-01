@@ -80,3 +80,15 @@
 .rich-editor figure.embed-player iframe {
   display: none !important;
 }
+
+.rich-editor figure.embed-player--generic {
+  min-height: 84px;
+}
+
+.rich-editor figure.embed-player--generic .embed-placeholder-label {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  font-weight: 600;
+}

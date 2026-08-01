@@ -1,6 +1,7 @@
 
 import * as THREE from "three";
 import {OrbitControls} from "OrbitControls";
+import {sanitizeEmbeddedHTML} from "./embed-runtime.js";
 
 const viewer = document.querySelector("#sound-viewer");
 const list = document.querySelector("#sound-list");
@@ -12,37 +13,6 @@ const sourceLink = document.querySelector("#sound-source-link");
 const closeButton = document.querySelector("#sound-dialog-close");
 
 const icon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h4l5-4v12l-5-4H4z"/><path d="M16 9c1.3 1.6 1.3 4.4 0 6M18.5 6.5c3 3.1 3 7.9 0 11"/></svg>`;
-
-function normalizeEmbedURL(value, platform = "") {
-  const input = String(value || "").trim();
-  if (!input) return "";
-
-  const iframeMatch = input.match(/<iframe[^>]+src=["']([^"']+)["']/i);
-  const candidate = iframeMatch ? iframeMatch[1] : input;
-
-  let url;
-  try { url = new URL(candidate, location.href); }
-  catch { return ""; }
-
-  if (platform === "archive" || url.hostname.endsWith("archive.org")) {
-    const parts = url.pathname.split("/").filter(Boolean);
-    const identifier = parts[0] === "details" || parts[0] === "embed" ? parts[1] : "";
-    return identifier ? `https://archive.org/embed/${encodeURIComponent(identifier)}` : "";
-  }
-
-  const allowed = [
-    "www.youtube.com", "youtube.com", "www.youtube-nocookie.com",
-    "player.vimeo.com", "vimeo.com",
-    "w.soundcloud.com", "soundcloud.com",
-    "open.spotify.com",
-    "bandcamp.com",
-    "www.mixcloud.com", "mixcloud.com"
-  ];
-  if (url.protocol !== "https:" || !allowed.some(host => url.hostname === host || url.hostname.endsWith(`.${host}`))) {
-    return "";
-  }
-  return url.href;
-}
 
 function panoramaPixelToVector(x, y, width, height, radius = 10) {
   const phi = (x / width) * Math.PI * 2;
@@ -56,7 +26,6 @@ function panoramaPixelToVector(x, y, width, height, radius = 10) {
 }
 
 function openPlayer(item) {
-  const embedURL = normalizeEmbedURL(item.embedUrl, item.platform);
   dialogTitle.textContent = item.title || "Escuchar";
   dialogDescription.textContent = item.description || "";
   dialogDescription.hidden = !item.description;
@@ -64,18 +33,17 @@ function openPlayer(item) {
   if (item.sourceUrl) sourceLink.href = item.sourceUrl;
 
   embedHost.replaceChildren();
-  if (embedURL) {
-    const iframe = document.createElement("iframe");
-    iframe.src = embedURL;
-    iframe.title = `Reproductor: ${item.title || "material sonoro"}`;
-    iframe.loading = "eager";
-    iframe.allow = "autoplay; fullscreen; encrypted-media; picture-in-picture";
-    iframe.referrerPolicy = "strict-origin-when-cross-origin";
-    iframe.setAttribute("allowfullscreen", "");
-    embedHost.appendChild(iframe);
-  } else {
+  try {
+    const rawEmbed = item.embedCode || item.embedUrl || "";
+    const sanitized = sanitizeEmbeddedHTML(rawEmbed, {
+      title: `Contenido: ${item.title || "material sonoro"}`
+    });
+    const template = document.createElement("template");
+    template.innerHTML = sanitized;
+    embedHost.appendChild(template.content.cloneNode(true));
+  } catch {
     const message = document.createElement("p");
-    message.textContent = "No se pudo cargar este reproductor.";
+    message.textContent = "No se pudo cargar este contenido incrustado.";
     embedHost.appendChild(message);
   }
   dialog.showModal();

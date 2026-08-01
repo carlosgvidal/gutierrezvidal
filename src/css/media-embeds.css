@@ -30,3 +30,22 @@
     min-height: 190px;
   }
 }
+
+.embed-player--generic > iframe,
+.embed-player--generic > object,
+.embed-player--generic > embed,
+.embed-player--generic > video,
+.embed-player--generic > audio {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 0;
+}
+
+.embed-player--generic > audio {
+  min-height: 54px;
+}
+
+.embed-player--generic > video {
+  height: auto;
+}

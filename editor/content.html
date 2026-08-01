@@ -99,7 +99,7 @@
                 <button type="button" data-command="insertUnorderedList">Lista</button>
                 <button type="button" data-block="blockquote">Cita</button>
                 <button type="button" id="insert-image">Imagen</button>
-                <button type="button" id="insert-embed">Reproductor</button>
+                <button type="button" id="insert-embed">Incrustar</button>
                 <button type="button" data-command="removeFormat">Limpiar</button>
               </div>
               <div id="body" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí el contenido…"></div>
@@ -156,25 +156,25 @@
 <dialog id="embed-dialog" class="embed-dialog" aria-labelledby="embed-dialog-title">
   <form id="embed-form" method="dialog">
     <header>
-      <h2 id="embed-dialog-title">Insertar reproductor</h2>
+      <h2 id="embed-dialog-title">Insertar contenido incrustado</h2>
       <button id="embed-close" type="button" aria-label="Cerrar">×</button>
     </header>
     <label>
-      <span>URL o código iframe</span>
-      <textarea id="embed-code" rows="7" required placeholder="Pega una URL de Archive.org, Spotify, YouTube, SoundCloud… o el código iframe completo."></textarea>
+      <span>Código incrustado o URL</span>
+      <textarea id="embed-code" rows="7" required placeholder="Pega cualquier bloque iframe, object, embed, audio o video; también puedes pegar una URL HTTPS."></textarea>
     </label>
     <label>
-      <span>Título accesible</span>
-      <input id="embed-title" type="text" required placeholder="Reproductor del álbum…">
+      <span>Título accesible del contenido</span>
+      <input id="embed-title" type="text" required placeholder="Contenido del álbum…">
     </label>
     <label>
-      <span>Pie del reproductor (opcional)</span>
+      <span>Pie del contenido (opcional)</span>
       <input id="embed-caption" type="text">
     </label>
     <p id="embed-status" class="status" role="status"></p>
     <div class="actions actions-left">
       <button id="embed-cancel" type="button" class="secondary">Cancelar</button>
-      <button type="submit" class="primary">Insertar reproductor</button>
+      <button type="submit" class="primary">Insertar contenido incrustado</button>
     </div>
   </form>
 </dialog>

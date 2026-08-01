@@ -1,193 +1,191 @@
 (() => {
   "use strict";
 
-  const DEFAULT_BASE = "https://www.gutierrezvidal.com/";
+  const EMBED_ROOTS = new Set(["IFRAME", "OBJECT", "EMBED", "AUDIO", "VIDEO"]);
+  const ALLOWED_TAGS = new Set([
+    "IFRAME", "OBJECT", "EMBED", "AUDIO", "VIDEO", "SOURCE", "TRACK", "PARAM",
+    "A", "P", "SPAN", "DIV", "FIGURE", "FIGCAPTION", "BR"
+  ]);
+  const URL_ATTRIBUTES = new Set(["src", "data", "poster", "href"]);
+  const GLOBAL_ATTRIBUTES = new Set([
+    "title", "width", "height", "class", "id", "role", "aria-label", "aria-describedby"
+  ]);
+  const TAG_ATTRIBUTES = {
+    IFRAME: new Set(["src", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy", "sandbox", "name"]),
+    OBJECT: new Set(["data", "type", "name", "width", "height", "title", "aria-label"]),
+    EMBED: new Set(["src", "type", "width", "height", "title"]),
+    AUDIO: new Set(["src", "controls", "autoplay", "loop", "muted", "preload", "crossorigin"]),
+    VIDEO: new Set(["src", "poster", "controls", "autoplay", "loop", "muted", "preload", "playsinline", "crossorigin", "width", "height"]),
+    SOURCE: new Set(["src", "type", "media", "sizes"]),
+    TRACK: new Set(["src", "kind", "srclang", "label", "default"]),
+    PARAM: new Set(["name", "value"]),
+    A: new Set(["href", "target", "rel", "title"]),
+    FIGURE: new Set(["class"]),
+    FIGCAPTION: new Set(["class"]),
+    DIV: new Set(["class"]),
+    P: new Set(["class"]),
+    SPAN: new Set(["class"])
+  };
+  const BOOLEAN_ATTRIBUTES = new Set([
+    "allowfullscreen", "controls", "autoplay", "loop", "muted", "playsinline", "default"
+  ]);
 
-  function iframeAttribute(input, name) {
-    const pattern = new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, "i");
-    const match = String(input || "").match(pattern);
-    return match ? (match[1] ?? match[2] ?? match[3] ?? "") : "";
-  }
-
-  function extractCandidate(input) {
-    const value = String(input || "").trim();
-    if (!value) throw new Error("Pega una URL o un código iframe.");
-    if (/<iframe\b/i.test(value)) {
-      const src = iframeAttribute(value, "src");
-      if (!src) throw new Error("El iframe no contiene un atributo src.");
-      return {
-        src,
-        title: iframeAttribute(value, "title"),
-        height: Number.parseInt(iframeAttribute(value, "height"), 10) || 0,
-      };
+  function cleanURL(value, base = location.href) {
+    const text = String(value || "").trim();
+    if (!text) return "";
+    if (text.startsWith("#") || text.startsWith("./") || text.startsWith("../") || text.startsWith("/")) {
+      return text;
     }
-    return {src: value, title: "", height: 0};
-  }
-
-  function safeURL(value, base = DEFAULT_BASE) {
     let url;
     try {
-      url = new URL(value, base);
+      url = new URL(text, base);
     } catch {
-      throw new Error("La URL del reproductor no es válida.");
+      throw new Error(`URL no válida: ${text}`);
     }
     if (url.protocol === "http:") url.protocol = "https:";
-    if (url.protocol !== "https:") {
-      throw new Error("El reproductor debe usar una URL HTTPS.");
+    if (!["https:", "blob:"].includes(url.protocol)) {
+      throw new Error(`Protocolo no permitido: ${url.protocol}`);
     }
-    return url;
+    return url.href;
   }
 
-  function hostIs(url, host) {
-    return url.hostname === host || url.hostname.endsWith(`.${host}`);
+  function cleanDimension(value) {
+    const text = String(value || "").trim();
+    if (!text) return "";
+    if (/^\d{1,5}(?:\.\d+)?(?:px|%|vw|vh)?$/i.test(text)) return text;
+    return "";
   }
 
-  function result(provider, src, sourceUrl, options = {}) {
+  function sanitizeClass(value) {
+    return String(value || "")
+      .split(/\s+/)
+      .filter(name => /^[a-z0-9_-]{1,64}$/i.test(name))
+      .slice(0, 12)
+      .join(" ");
+  }
+
+  function sanitizeElement(node, outputDocument, base) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return outputDocument.createTextNode(node.nodeValue || "");
+    }
+    if (node.nodeType !== Node.ELEMENT_NODE) return null;
+    if (["SCRIPT", "STYLE", "LINK", "META", "FORM", "INPUT", "BUTTON", "TEXTAREA", "SELECT"].includes(node.tagName)) {
+      return null;
+    }
+    if (!ALLOWED_TAGS.has(node.tagName)) {
+      const fragment = outputDocument.createDocumentFragment();
+      for (const child of [...node.childNodes]) {
+        const clean = sanitizeElement(child, outputDocument, base);
+        if (clean) fragment.appendChild(clean);
+      }
+      return fragment;
+    }
+
+    const clean = outputDocument.createElement(node.tagName.toLowerCase());
+    const allowed = TAG_ATTRIBUTES[node.tagName] || new Set();
+
+    for (const attribute of [...node.attributes]) {
+      const name = attribute.name.toLowerCase();
+      if (name.startsWith("on") || name === "srcdoc" || name === "style") continue;
+      if (!allowed.has(name) && !GLOBAL_ATTRIBUTES.has(name) && !name.startsWith("aria-")) continue;
+
+      let value = attribute.value;
+      if (URL_ATTRIBUTES.has(name)) {
+        try {
+          value = cleanURL(value, base);
+        } catch {
+          continue;
+        }
+      } else if (["width", "height"].includes(name)) {
+        value = cleanDimension(value);
+        if (!value) continue;
+      } else if (name === "class") {
+        value = sanitizeClass(value);
+        if (!value) continue;
+      } else if (name === "target") {
+        value = value === "_blank" ? "_blank" : "_self";
+      } else if (name === "rel") {
+        value = "noopener noreferrer";
+      } else if (name === "sandbox") {
+        value = String(value || "")
+          .split(/\s+/)
+          .filter(token => [
+            "allow-forms", "allow-modals", "allow-orientation-lock", "allow-pointer-lock",
+            "allow-popups", "allow-popups-to-escape-sandbox", "allow-presentation",
+            "allow-same-origin", "allow-scripts", "allow-top-navigation-by-user-activation",
+            "allow-downloads"
+          ].includes(token))
+          .join(" ");
+      }
+
+      if (BOOLEAN_ATTRIBUTES.has(name)) clean.setAttribute(name, "");
+      else clean.setAttribute(name, value);
+    }
+
+    if (node.tagName === "IFRAME") {
+      clean.setAttribute("loading", clean.getAttribute("loading") || "lazy");
+      clean.setAttribute("referrerpolicy", clean.getAttribute("referrerpolicy") || "strict-origin-when-cross-origin");
+      if (!clean.getAttribute("title")) clean.setAttribute("title", "Contenido incrustado");
+    }
+    if (node.tagName === "A" && clean.getAttribute("target") === "_blank") {
+      clean.setAttribute("rel", "noopener noreferrer");
+    }
+
+    for (const child of [...node.childNodes]) {
+      const cleanChild = sanitizeElement(child, outputDocument, base);
+      if (cleanChild) clean.appendChild(cleanChild);
+    }
+    return clean;
+  }
+
+  function firstEmbedRoot(root) {
+    if (root.nodeType === Node.ELEMENT_NODE && EMBED_ROOTS.has(root.tagName)) return root;
+    return root.querySelector?.("iframe, object, embed, audio, video") || null;
+  }
+
+  function sanitize(input, options = {}) {
+    const raw = String(input || "").trim();
+    if (!raw) throw new Error("Pega un código incrustado o una URL.");
+    const base = options.base || location.href;
+    const markup = /<\s*[a-z][\s\S]*>/i.test(raw)
+      ? raw
+      : `<iframe src="${cleanURL(raw, base)}" title="${options.title || "Contenido incrustado"}" loading="lazy"></iframe>`;
+
+    const parsed = new DOMParser().parseFromString(`<div>${markup}</div>`, "text/html");
+    const source = parsed.body.firstElementChild;
+    const output = document.implementation.createHTMLDocument("");
+    const holder = output.createElement("div");
+
+    for (const child of [...source.childNodes]) {
+      const clean = sanitizeElement(child, output, base);
+      if (clean) holder.appendChild(clean);
+    }
+
+    const root = firstEmbedRoot(holder);
+    if (!root) {
+      throw new Error("El código no contiene iframe, object, embed, audio o video.");
+    }
+
+    const title = options.title || root.getAttribute("title") || root.getAttribute("aria-label") || "Contenido incrustado";
+    if (["IFRAME", "OBJECT", "EMBED"].includes(root.tagName) && !root.getAttribute("title")) {
+      root.setAttribute("title", title);
+    }
+    const primaryUrl = root.getAttribute("src") || root.getAttribute("data") || "";
+    const height = cleanDimension(root.getAttribute("height")) || "";
+
     return {
-      provider,
-      src,
-      sourceUrl: sourceUrl || src,
-      title: options.title || "",
-      height: Math.max(120, Math.min(Number(options.height) || 0, 1200))
-        || ({archive: 384, spotify: 352, soundcloud: 166, bandcamp: 470, mixcloud: 180}[provider] || 480),
-      allow: options.allow || "autoplay; fullscreen; encrypted-media; picture-in-picture",
-      video: Boolean(options.video),
+      html: holder.innerHTML.trim(),
+      title,
+      kind: root.tagName.toLowerCase(),
+      primaryUrl,
+      height
     };
   }
 
-  function archive(url, meta) {
-    const parts = url.pathname.split("/").filter(Boolean);
-    if (!["details", "embed"].includes(parts[0]) || !parts[1]) {
-      throw new Error("Archive.org requiere una URL /details/IDENTIFICADOR o /embed/IDENTIFICADOR.");
-    }
-    const id = encodeURIComponent(decodeURIComponent(parts[1]));
-    return result(
-      "archive",
-      `https://archive.org/embed/${id}${url.search}`,
-      `https://archive.org/details/${id}`,
-      {title: meta.title, height: meta.height || 384}
-    );
+  function placeholderLabel(result, explicitTitle = "") {
+    const title = explicitTitle || result.title || "Contenido incrustado";
+    return `${title} · ${result.kind}`;
   }
 
-  function youtube(url, meta) {
-    let id = "";
-    if (hostIs(url, "youtu.be")) id = url.pathname.split("/").filter(Boolean)[0] || "";
-    if (hostIs(url, "youtube.com") || hostIs(url, "youtube-nocookie.com")) {
-      if (url.pathname === "/watch") id = url.searchParams.get("v") || "";
-      const match = url.pathname.match(/^\/(?:embed|shorts)\/([^/?#]+)/);
-      if (match) id = match[1];
-    }
-    if (!/^[A-Za-z0-9_-]{6,}$/.test(id)) {
-      throw new Error("No se pudo identificar el video de YouTube.");
-    }
-    return result(
-      "youtube",
-      `https://www.youtube-nocookie.com/embed/${id}`,
-      `https://www.youtube.com/watch?v=${id}`,
-      {title: meta.title, height: meta.height || 480, video: true}
-    );
-  }
-
-  function vimeo(url, meta) {
-    const match = url.pathname.match(/(?:\/video)?\/(\d+)/);
-    if (!match) throw new Error("No se pudo identificar el video de Vimeo.");
-    return result(
-      "vimeo",
-      `https://player.vimeo.com/video/${match[1]}`,
-      `https://vimeo.com/${match[1]}`,
-      {title: meta.title, height: meta.height || 480, video: true}
-    );
-  }
-
-  function spotify(url, meta) {
-    const match = url.pathname.match(/^\/(?:embed\/)?(album|track|playlist|episode|show)\/([A-Za-z0-9]+)/);
-    if (!match) throw new Error("La URL de Spotify no corresponde a un álbum, pista, lista, episodio o programa.");
-    const [, type, id] = match;
-    return result(
-      "spotify",
-      `https://open.spotify.com/embed/${type}/${id}`,
-      `https://open.spotify.com/${type}/${id}`,
-      {title: meta.title, height: meta.height || (type === "track" ? 152 : 352)}
-    );
-  }
-
-  function soundcloud(url, meta) {
-    if (url.hostname === "w.soundcloud.com" && url.pathname.startsWith("/player")) {
-      const original = url.searchParams.get("url") || "";
-      return result("soundcloud", url.href, original || url.href, {
-        title: meta.title,
-        height: meta.height || 166
-      });
-    }
-    if (!hostIs(url, "soundcloud.com")) throw new Error("La URL no corresponde a SoundCloud.");
-    return result(
-      "soundcloud",
-      `https://w.soundcloud.com/player/?url=${encodeURIComponent(url.href)}`,
-      url.href,
-      {title: meta.title, height: meta.height || 166}
-    );
-  }
-
-  function bandcamp(url, meta, rawInput) {
-    if (url.hostname === "bandcamp.com" && url.pathname.startsWith("/EmbeddedPlayer/")) {
-      return result("bandcamp", url.href, "", {
-        title: meta.title,
-        height: meta.height || 470
-      });
-    }
-    if (/<iframe\b/i.test(rawInput) && hostIs(url, "bandcamp.com")) {
-      return result("bandcamp", url.href, "", {
-        title: meta.title,
-        height: meta.height || 470
-      });
-    }
-    throw new Error("Para Bandcamp pega el código iframe de «Share / Embed».");
-  }
-
-  function mixcloud(url, meta) {
-    if (hostIs(url, "mixcloud.com") && url.pathname.startsWith("/widget/iframe")) {
-      return result("mixcloud", url.href, "", {
-        title: meta.title,
-        height: meta.height || 180
-      });
-    }
-    if (!hostIs(url, "mixcloud.com")) throw new Error("La URL no corresponde a Mixcloud.");
-    return result(
-      "mixcloud",
-      `https://www.mixcloud.com/widget/iframe/?hide_cover=1&feed=${encodeURIComponent(url.pathname)}`,
-      url.href,
-      {title: meta.title, height: meta.height || 180}
-    );
-  }
-
-  function normalize(input, platformHint = "", base = (typeof location !== "undefined" ? location.href : DEFAULT_BASE)) {
-    const meta = extractCandidate(input);
-    const url = safeURL(meta.src, base);
-    const hint = String(platformHint || "").toLowerCase();
-
-    let normalized;
-    if (hostIs(url, "archive.org")) normalized = archive(url, meta);
-    else if (hostIs(url, "youtube.com") || hostIs(url, "youtu.be") || hostIs(url, "youtube-nocookie.com")) normalized = youtube(url, meta);
-    else if (hostIs(url, "vimeo.com")) normalized = vimeo(url, meta);
-    else if (url.hostname === "open.spotify.com") normalized = spotify(url, meta);
-    else if (hostIs(url, "soundcloud.com")) normalized = soundcloud(url, meta);
-    else if (hostIs(url, "bandcamp.com")) normalized = bandcamp(url, meta, String(input || ""));
-    else if (hostIs(url, "mixcloud.com")) normalized = mixcloud(url, meta);
-    else throw new Error("La plataforma del reproductor no está permitida.");
-
-    if (hint && hint !== normalized.provider) {
-      throw new Error(`La URL corresponde a ${normalized.provider}, no a ${hint}.`);
-    }
-    return normalized;
-  }
-
-  function className(normalized) {
-    return [
-      "embed-player",
-      `embed-player--${normalized.provider}`,
-      normalized.video ? "embed-player--video" : "embed-player--audio"
-    ].join(" ");
-  }
-
-  window.GVEmbeds = {normalize, className};
+  window.GVEmbeds = {sanitize, placeholderLabel, cleanURL};
 })();
