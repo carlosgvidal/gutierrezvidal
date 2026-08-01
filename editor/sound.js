@@ -85,6 +85,38 @@
     return data?.hotspots.find(item => item.id === selectedId) || null;
   }
 
+  function syncSelectedFromForm({normalize = false} = {}) {
+    const item = selectedItem();
+    if (!item) return null;
+
+    const title = cleanText(fields.title.value);
+    if (!title) throw new Error("El título es obligatorio.");
+
+    item.title = title;
+    item.description = cleanText(fields.description.value);
+    item.platform = fields.platform.value;
+    item.sourceUrl = cleanText(fields.source.value);
+    item.published = fields.published.checked;
+
+    const embedInput = cleanText(fields.embed.value);
+    if (normalize) {
+      if (!embedInput) {
+        if (item.published) throw new Error(`Falta el reproductor de “${title}”.`);
+        item.embedUrl = "";
+      } else {
+        const normalized = normalizeEmbed(embedInput, item.platform);
+        item.embedUrl = normalized.embedUrl;
+        item.sourceUrl = item.sourceUrl || normalized.sourceUrl;
+        fields.embed.value = item.embedUrl;
+        fields.source.value = item.sourceUrl;
+      }
+    } else {
+      item.embedUrl = embedInput;
+    }
+
+    return item;
+  }
+
   function markDirty(message = "Cambios sin guardar.") {
     dirty = true;
     status.textContent = message;
@@ -237,26 +269,36 @@
 
   form.addEventListener("submit", event => {
     event.preventDefault();
-    const item = selectedItem();
-    if (!item) return;
-
     try {
-      const title = cleanText(fields.title.value);
-      if (!title) throw new Error("El título es obligatorio.");
-      const normalized = normalizeEmbed(fields.embed.value, fields.platform.value);
-
-      item.title = title;
-      item.description = cleanText(fields.description.value);
-      item.platform = fields.platform.value;
-      item.embedUrl = normalized.embedUrl;
-      item.sourceUrl = cleanText(fields.source.value) || normalized.sourceUrl;
-      item.published = fields.published.checked;
-
+      const item = syncSelectedFromForm({normalize: true});
+      if (!item) return;
       render();
       select(item.id);
-      markDirty(`Datos de “${title}” aplicados. Falta guardar la actualización.`);
+      markDirty(`Datos de “${item.title}” aplicados. Falta guardar la actualización.`);
     } catch (error) {
       status.textContent = error.message;
+    }
+  });
+
+  form.addEventListener("input", () => {
+    if (!selectedItem()) return;
+    try {
+      syncSelectedFromForm();
+      markDirty();
+      const marker = stage.querySelector(`.sound-marker[data-id="${CSS.escape(selectedId)}"]`);
+      if (marker) marker.textContent = fields.title.value.trim() || "Sin título";
+    } catch {
+      markDirty();
+    }
+  });
+
+  form.addEventListener("change", () => {
+    if (!selectedItem()) return;
+    try {
+      syncSelectedFromForm();
+      markDirty();
+    } catch {
+      markDirty();
     }
   });
 
@@ -277,21 +319,45 @@
       data.panorama.alt = cleanText(panoramaAlt.value);
       if (!data.panorama.alt) throw new Error("El texto alternativo del panorama es obligatorio.");
 
+      // El botón principal también recoge los datos que siguen visibles en el
+      // formulario. Ya no es necesario pulsar antes «Aplicar datos».
+      if (selectedItem()) syncSelectedFromForm({normalize: true});
+
       for (const item of data.hotspots) {
-        if (!cleanText(item.title)) throw new Error("Todos los hotspots deben tener título.");
-        if (!cleanText(item.embedUrl)) throw new Error(`Falta el reproductor de “${item.title}”.`);
-        normalizeEmbed(item.embedUrl, item.platform);
+        item.title = cleanText(item.title);
+        item.description = cleanText(item.description);
+        item.sourceUrl = cleanText(item.sourceUrl);
+        if (!item.title) throw new Error("Todos los hotspots deben tener título.");
+
+        const rawEmbed = cleanText(item.embedUrl);
+        if (!rawEmbed) {
+          if (item.published !== false) throw new Error(`Falta el reproductor de “${item.title}”.`);
+          continue;
+        }
+
+        const normalized = normalizeEmbed(rawEmbed, item.platform);
+        item.embedUrl = normalized.embedUrl;
+        item.sourceUrl = item.sourceUrl || normalized.sourceUrl;
       }
 
-      await GVPatches.savePatch("src/data/sound-hotspots.json", JSON.stringify(data, null, 2) + "\n");
+      const serialized = JSON.stringify(data, null, 2) + "\n";
+      await GVPatches.savePatch("src/data/sound-hotspots.json", serialized);
       if (panoramaBlob) {
         await GVPatches.savePatch("public/panorama/sonido-360.jpg", panoramaBlob);
       }
 
+      // Comprobación real contra el mismo espacio IndexedDB que exporta el ZIP.
+      const stored = await GVPatches.getFile("src/data/sound-hotspots.json");
+      const verified = JSON.parse(stored);
+      if (!Array.isArray(verified.hotspots) || verified.hotspots.length !== data.hotspots.length) {
+        throw new Error("La comprobación posterior al guardado no coincidió con los hotspots editados.");
+      }
+
       dirty = false;
-      status.textContent = "Sonido 360 añadido al paquete de actualización. Descárgalo desde Herramientas.";
+      const count = data.hotspots.length;
+      status.textContent = `${count} hotspot${count === 1 ? "" : "s"} guardado${count === 1 ? "" : "s"} en el paquete de actualización. Descárgalo desde Herramientas.`;
     } catch (error) {
-      status.textContent = error.message;
+      status.textContent = `No se guardó: ${error.message}`;
     } finally {
       saveButton.disabled = false;
     }
