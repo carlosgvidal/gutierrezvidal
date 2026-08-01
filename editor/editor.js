@@ -23,6 +23,9 @@
   const homePanel = $("#home-panel");
   const homeForm = $("#home-form");
   const homeStatus = $("#home-status");
+  const blogPanel = $("#blog-panel");
+  const blogForm = $("#blog-form");
+  const blogStatus = $("#blog-status");
   const heroField = $("#hero-field");
   const asideField = $("#aside-field");
   const heroFile = $("#hero-image-file");
@@ -46,6 +49,7 @@
   let loadedParentPath = null;
   let loadedSource = "";
   let homeSource = "";
+  let blogSource = "";
   let savedRange = null;
   let previewUrl = null;
   let heroImagePath = "";
@@ -146,6 +150,9 @@
           button.addEventListener("click", () => {
             location.href = "sound.html";
           });
+        } else if (item.url === "blog.html") {
+          button.title = "Editar la página y el archivo del blog";
+          button.addEventListener("click", loadBlogPage);
         } else {
           button.addEventListener("click", () => loadPublishedPage(item.url));
         }
@@ -190,6 +197,7 @@
     savedRange = null;
     pagePanel.hidden = false;
     homePanel.hidden = true;
+    blogPanel.hidden = true;
     form.reset();
     body.innerHTML = "";
     resetPageMedia();
@@ -215,7 +223,7 @@
 
     if (value === "blog") {
       folder.value = "blog";
-      if (!loadedPath) addMenu.checked = false;
+      if (!loadedPath) addMenu.checked = true;
       const blog = flatten(navigation).find(({ item }) => item.label === "Blog");
       if (blog) parent.value = JSON.stringify(blog.path);
     } else if (value === "subpage") {
@@ -802,6 +810,372 @@
     return {path: "sonido.html", content: `<!doctype html>\n${doc.documentElement.outerHTML}`};
   }
 
+
+  function ensureStylesheet(doc, href, marker) {
+    let link = doc.querySelector(`link[data-${marker}], link[href$="${href.split("/").at(-1)}"]`);
+    if (!link) {
+      link = doc.createElement("link");
+      link.rel = "stylesheet";
+      link.setAttribute(`data-${marker}`, "true");
+      doc.head.appendChild(link);
+    }
+    link.href = href;
+  }
+
+  function sitePathFromURL(pagePath, source) {
+    const value = String(source || "").trim();
+    if (!value) return "";
+    try {
+      const base = new URL(pagePath, "https://www.gutierrezvidal.com/");
+      const url = new URL(value, base);
+      if (url.hostname !== "www.gutierrezvidal.com" && url.hostname !== "gutierrezvidal.com") return "";
+      return decodeURIComponent(url.pathname.replace(/^\/+/, ""));
+    } catch {
+      return "";
+    }
+  }
+
+  function publishedDate(doc) {
+    for (const schema of doc.querySelectorAll('script[type="application/ld+json"]')) {
+      try {
+        const value = JSON.parse(schema.textContent);
+        const candidates = Array.isArray(value?.["@graph"]) ? value["@graph"] : [value];
+        const dated = candidates.find(item => item?.datePublished);
+        if (dated?.datePublished) return String(dated.datePublished).slice(0, 10);
+      } catch {
+        // Se continúa con los elementos visibles.
+      }
+    }
+    const visible = doc.querySelector(".page-kicker")?.textContent.trim() || "";
+    return /^\d{4}-\d{2}-\d{2}/.test(visible) ? visible.slice(0, 10) : "";
+  }
+
+  function formatBlogDate(value) {
+    if (!value) return "";
+    const dateValue = new Date(`${value}T12:00:00`);
+    if (Number.isNaN(dateValue.getTime())) return value;
+    return new Intl.DateTimeFormat("es-MX", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }).format(dateValue);
+  }
+
+  function blogUrls() {
+    const blog = findItemByUrl(navigation, "blog.html")
+      || flatten(navigation).find(({item}) => item.label === "Blog")?.item;
+    const urls = [];
+    const walk = items => {
+      for (const item of items || []) {
+        if (item.url?.startsWith("blog/") && item.url.endsWith(".html")) urls.push(item.url);
+        if (item.children) walk(item.children);
+      }
+    };
+    walk(blog?.children || []);
+    return [...new Set(urls)];
+  }
+
+  async function readBlogEntry(path) {
+    const source = await GVPatches.getFile(path);
+    const doc = new DOMParser().parseFromString(source, "text/html");
+    const title = doc.querySelector(".page-title")?.textContent.trim()
+      || doc.title.replace(/\s*·.*$/, "").trim();
+    const description = doc.querySelector('meta[name="description"]')?.content?.trim()
+      || doc.querySelector(".page-deck")?.textContent.trim()
+      || doc.querySelector("article.prose p")?.textContent.trim()
+      || "";
+    const date = publishedDate(doc);
+    const image = doc.querySelector(".page-hero img");
+    return {
+      path,
+      title,
+      description,
+      date,
+      dateLabel: formatBlogDate(date),
+      imagePath: sitePathFromURL(path, image?.getAttribute("src") || ""),
+      imageAlt: image?.getAttribute("alt") || title
+    };
+  }
+
+  async function collectBlogEntries(extraData = null) {
+    const urls = blogUrls();
+    if (extraData?.path?.startsWith("blog/") && !urls.includes(extraData.path)) {
+      urls.push(extraData.path);
+    }
+
+    const entries = [];
+    for (const path of urls) {
+      if (extraData && path === extraData.path) {
+        entries.push({
+          path,
+          title: extraData.title,
+          description: extraData.description,
+          date: extraData.date || "",
+          dateLabel: formatBlogDate(extraData.date || ""),
+          imagePath: heroImagePath || "",
+          imageAlt: heroAlt.value.trim() || extraData.title
+        });
+        continue;
+      }
+      try {
+        entries.push(await readBlogEntry(path));
+      } catch {
+        // Una entrada inaccesible no impide actualizar las demás.
+      }
+    }
+
+    return entries
+      .filter(entry => entry.title && entry.path)
+      .sort((a, b) => {
+        const byDate = String(b.date || "").localeCompare(String(a.date || ""));
+        return byDate || a.title.localeCompare(b.title, "es");
+      });
+  }
+
+  function blogCard(doc, entry, className = "blog-card") {
+    const article = doc.createElement("article");
+    article.className = className;
+    article.dataset.pageUrl = entry.path;
+
+    if (entry.imagePath) {
+      const link = doc.createElement("a");
+      link.className = "blog-card__image";
+      link.href = entry.path;
+      const image = doc.createElement("img");
+      image.src = entry.imagePath;
+      image.alt = entry.imageAlt || entry.title;
+      image.loading = "lazy";
+      link.appendChild(image);
+      article.appendChild(link);
+    }
+
+    const content = doc.createElement("div");
+    content.className = "blog-card__content";
+    if (entry.dateLabel) {
+      const time = doc.createElement("time");
+      time.dateTime = entry.date;
+      time.textContent = entry.dateLabel;
+      content.appendChild(time);
+    }
+    const heading = doc.createElement("h2");
+    const link = doc.createElement("a");
+    link.href = entry.path;
+    link.textContent = entry.title;
+    heading.appendChild(link);
+    content.appendChild(heading);
+
+    if (entry.description) {
+      const paragraph = doc.createElement("p");
+      paragraph.textContent = entry.description;
+      content.appendChild(paragraph);
+    }
+
+    const read = doc.createElement("a");
+    read.className = "blog-card__read";
+    read.href = entry.path;
+    read.textContent = "Leer entrada";
+    content.appendChild(read);
+    article.appendChild(content);
+    return article;
+  }
+
+  function applyBlogFields(doc) {
+    const seoTitle = $("#blog-seo-title").value.trim();
+    const seoDescription = $("#blog-seo-description").value.trim();
+    if (!seoTitle) throw new Error("El título SEO del blog es obligatorio.");
+    if (seoDescription.length < 40) throw new Error("La descripción SEO del blog necesita al menos 40 caracteres.");
+
+    doc.title = seoTitle;
+    updateMeta(doc, 'meta[name="description"]', seoDescription);
+    updateMeta(doc, 'meta[property="og:title"]', seoTitle);
+    updateMeta(doc, 'meta[property="og:description"]', seoDescription);
+    updateMeta(doc, 'meta[name="twitter:title"]', seoTitle);
+    updateMeta(doc, 'meta[name="twitter:description"]', seoDescription);
+
+    for (const schema of doc.querySelectorAll('script[type="application/ld+json"]')) {
+      try {
+        const value = JSON.parse(schema.textContent);
+        const update = item => {
+          if (!item || typeof item !== "object") return;
+          const types = Array.isArray(item["@type"]) ? item["@type"] : [item["@type"]];
+          if (types.includes("Blog") || String(item["@id"] || "").includes("blog.html")) {
+            item.name = seoTitle;
+            item.headline = seoTitle;
+            item.description = seoDescription;
+          }
+          Object.values(item).forEach(child => {
+            if (Array.isArray(child)) child.forEach(update);
+            else if (child && typeof child === "object") update(child);
+          });
+        };
+        update(value);
+        schema.textContent = JSON.stringify(value);
+      } catch {
+        // Se conserva JSON-LD que no pueda interpretarse.
+      }
+    }
+
+    requireElement(doc, ".page-kicker", "el antetítulo del blog").textContent = $("#blog-kicker").value.trim();
+    requireElement(doc, ".page-title", "el título del blog").textContent = $("#blog-title").value.trim();
+    requireElement(doc, ".page-deck", "la bajada del blog").textContent = $("#blog-deck").value.trim();
+  }
+
+  function rebuildBlogDocument(source, entries, applyFields = false) {
+    const doc = new DOMParser().parseFromString(source, "text/html");
+    if (applyFields) applyBlogFields(doc);
+    ensureStylesheet(doc, "src/css/blog.css", "gv-blog");
+
+    const main = requireElement(doc, "main", "el contenido principal del blog");
+    let editorial = doc.querySelector(".blog-editorial");
+    if (!editorial) {
+      editorial = doc.createElement("section");
+      editorial.className = "blog-editorial";
+      editorial.innerHTML = `<div><h2>Archivo</h2><p>Archivo cronológico de publicaciones.</p></div>`;
+    }
+    editorial.querySelector("h2").textContent = $("#blog-archive-title")?.value.trim() || editorial.querySelector("h2")?.textContent || "Archivo";
+    editorial.querySelector("p").textContent = $("#blog-archive-intro")?.value.trim() || editorial.querySelector("p")?.textContent || "Archivo cronológico de publicaciones.";
+
+    doc.querySelector("article.prose")?.remove();
+    doc.querySelector(".blog-editorial")?.remove();
+    doc.querySelector(".blog-latest")?.remove();
+    doc.querySelector(".blog-archive-list")?.remove();
+
+    const latest = doc.createElement("section");
+    latest.className = "blog-latest";
+    latest.setAttribute("aria-label", "Entradas recientes");
+    entries.slice(0, 2).forEach((entry, index) => {
+      latest.appendChild(blogCard(doc, entry, index === 0 ? "blog-card blog-card--lead" : "blog-card blog-card--secondary"));
+    });
+
+    const archive = doc.createElement("section");
+    archive.className = "blog-archive-list";
+    archive.setAttribute("aria-labelledby", "blog-archive-heading");
+    const archiveHeading = doc.createElement("h2");
+    archiveHeading.id = "blog-archive-heading";
+    archiveHeading.textContent = "Todas las entradas";
+    archive.appendChild(archiveHeading);
+    const list = doc.createElement("div");
+    list.className = "blog-archive-list__grid";
+    entries.slice(2).forEach(entry => list.appendChild(blogCard(doc, entry, "blog-card blog-card--archive")));
+    if (!entries.slice(2).length) {
+      const empty = doc.createElement("p");
+      empty.className = "blog-empty";
+      empty.textContent = entries.length ? "No hay más entradas publicadas." : "El blog se encuentra en preparación.";
+      list.appendChild(empty);
+    }
+    archive.appendChild(list);
+
+    main.append(editorial, latest, archive);
+    return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+  }
+
+  function rebuildHomeLatest(source, entry) {
+    const doc = new DOMParser().parseFromString(source, "text/html");
+    ensureStylesheet(doc, "src/css/blog.css", "gv-blog");
+    doc.querySelector("#home-latest-blog")?.remove();
+    if (!entry) return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+
+    const section = doc.createElement("section");
+    section.id = "home-latest-blog";
+    section.className = "home-latest-blog";
+    section.setAttribute("aria-labelledby", "home-latest-blog-title");
+
+    const label = doc.createElement("p");
+    label.className = "home-latest-blog__label";
+    label.textContent = "Última entrada";
+
+    const content = doc.createElement("div");
+    content.className = "home-latest-blog__content";
+    if (entry.imagePath) {
+      const imageLink = doc.createElement("a");
+      imageLink.href = entry.path;
+      imageLink.className = "home-latest-blog__image";
+      const image = doc.createElement("img");
+      image.src = entry.imagePath;
+      image.alt = entry.imageAlt || entry.title;
+      image.loading = "lazy";
+      imageLink.appendChild(image);
+      content.appendChild(imageLink);
+    }
+
+    const text = doc.createElement("div");
+    if (entry.dateLabel) {
+      const time = doc.createElement("time");
+      time.dateTime = entry.date;
+      time.textContent = entry.dateLabel;
+      text.appendChild(time);
+    }
+    const heading = doc.createElement("h2");
+    heading.id = "home-latest-blog-title";
+    const headingLink = doc.createElement("a");
+    headingLink.href = entry.path;
+    headingLink.textContent = entry.title;
+    heading.appendChild(headingLink);
+    text.appendChild(heading);
+    if (entry.description) {
+      const paragraph = doc.createElement("p");
+      paragraph.textContent = entry.description;
+      text.appendChild(paragraph);
+    }
+    const read = doc.createElement("a");
+    read.className = "home-latest-blog__read";
+    read.href = entry.path;
+    read.textContent = "Leer en el blog";
+    text.appendChild(read);
+    content.appendChild(text);
+    section.append(label, content);
+
+    const testimonials = doc.querySelector(".testimonials");
+    if (!testimonials) throw new Error("index.html no contiene la sección de testimoniales.");
+    testimonials.before(section);
+    return `<!doctype html>\n${doc.documentElement.outerHTML}`;
+  }
+
+  async function rebuildBlogSurfaces(extraData = null, applyFields = false) {
+    const entries = await collectBlogEntries(extraData);
+    const currentBlog = blogSource || await GVPatches.getFile("blog.html");
+    const currentHome = homeSource || await GVPatches.getFile("index.html");
+    const blogHtml = rebuildBlogDocument(currentBlog, entries, applyFields);
+    const homeHtml = rebuildHomeLatest(currentHome, entries[0] || null);
+    await GVPatches.savePatch("blog.html", blogHtml);
+    await GVPatches.savePatch("index.html", homeHtml);
+    blogSource = blogHtml;
+    homeSource = homeHtml;
+    return {entries, blogHtml, homeHtml};
+  }
+
+  async function loadBlogPage() {
+    treeStatus.textContent = "Cargando blog…";
+    try {
+      blogSource = await GVPatches.getFile("blog.html");
+      const doc = new DOMParser().parseFromString(blogSource, "text/html");
+      $("#blog-seo-title").value = doc.title;
+      $("#blog-seo-description").value = doc.querySelector('meta[name="description"]')?.content || "";
+      $("#blog-kicker").value = doc.querySelector(".page-kicker")?.textContent.trim() || "Publicaciones";
+      $("#blog-title").value = doc.querySelector(".page-title")?.textContent.trim() || "Blog";
+      $("#blog-deck").value = doc.querySelector(".page-deck")?.textContent.trim() || "Ensayos, notas y textos en proceso.";
+      $("#blog-archive-title").value = doc.querySelector(".blog-editorial h2")?.textContent.trim() || "Archivo";
+      $("#blog-archive-intro").value = doc.querySelector(".blog-editorial p")?.textContent.trim()
+        || doc.querySelector("article.prose p")?.textContent.trim()
+        || "Archivo cronológico de publicaciones.";
+
+      pagePanel.hidden = true;
+      homePanel.hidden = true;
+      blogPanel.hidden = false;
+      blogStatus.textContent = "";
+      treeStatus.textContent = "";
+      activateTree("blog.html");
+    } catch (error) {
+      treeStatus.textContent = error.message;
+    }
+  }
+
+  async function buildBlogPreview() {
+    if (!blogSource) throw new Error("Primero carga la página del blog.");
+    const entries = await collectBlogEntries();
+    return rebuildBlogDocument(blogSource, entries, true);
+  }
+
   async function updatedIndex(data) {
     const soundPatch = await updatedSoundArchive(data);
     if (soundPatch) return soundPatch;
@@ -959,6 +1333,7 @@
 
       pagePanel.hidden = false;
       homePanel.hidden = true;
+      blogPanel.hidden = true;
       type.value = inferType(path);
       updateType();
       title.value = pageTitle;
@@ -1196,6 +1571,7 @@
 
       pagePanel.hidden = true;
       homePanel.hidden = false;
+      blogPanel.hidden = true;
       treeStatus.textContent = "";
       homeStatus.textContent = "";
       activateTree("index.html");
@@ -1276,6 +1652,16 @@
     }
   });
 
+  $("#blog-preview").addEventListener("click", async () => {
+    blogStatus.textContent = "Preparando vista previa…";
+    try {
+      showPreview(await buildBlogPreview());
+      blogStatus.textContent = "";
+    } catch (error) {
+      blogStatus.textContent = error.message;
+    }
+  });
+
   $("#close-preview").addEventListener("click", () => {
     preview.hidden = true;
     frame.src = "about:blank";
@@ -1302,8 +1688,13 @@
         }
         const indexPatch = await updatedIndex(data);
         if (indexPatch) await GVPatches.savePatch(indexPatch.path, indexPatch.content);
+        if (data.type === "blog") {
+          await rebuildBlogSurfaces(data);
+        }
         await GVPatches.savePatch("sitemap.xml", await updatedSitemap(data));
-        formStatus.textContent = `Página nueva guardada: ${data.path}`;
+        formStatus.textContent = data.type === "blog"
+          ? `Entrada guardada y blog actualizado: ${data.path}`
+          : `Página nueva guardada: ${data.path}`;
       } else {
         const updated = updateExistingPage(data);
         await GVPatches.savePatch(loadedPath, updated);
@@ -1317,10 +1708,27 @@
         }
         const indexPatch = await updatedIndex(data);
         if (indexPatch) await GVPatches.savePatch(indexPatch.path, indexPatch.content);
-        formStatus.textContent = `Página actualizada: ${loadedPath}`;
+        if (data.type === "blog") {
+          await rebuildBlogSurfaces(data);
+        }
+        formStatus.textContent = data.type === "blog"
+          ? `Entrada y portada del blog actualizadas: ${loadedPath}`
+          : `Página actualizada: ${loadedPath}`;
       }
     } catch (error) {
       formStatus.textContent = error.message;
+    }
+  });
+
+  blogForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    blogStatus.textContent = "Guardando la página del blog…";
+    try {
+      if (!blogSource) blogSource = await GVPatches.getFile("blog.html");
+      const result = await rebuildBlogSurfaces(null, true);
+      blogStatus.textContent = `Blog guardado: ${result.entries.length} entrada${result.entries.length === 1 ? "" : "s"} sincronizada${result.entries.length === 1 ? "" : "s"}. También se actualizó index.html.`;
+    } catch (error) {
+      blogStatus.textContent = error.message;
     }
   });
 

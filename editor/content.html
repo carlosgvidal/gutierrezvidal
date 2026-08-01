@@ -144,6 +144,34 @@
           </div>
         </form>
       </section>
+
+      <section id="blog-panel" hidden>
+        <div class="mode-bar"><strong>Blog</strong><span>blog.html</span></div>
+        <form id="blog-form" class="panel panel-form">
+          <div class="step-number">01</div>
+          <div class="form-content">
+            <h2>Editar página del blog</h2>
+            <p class="privacy">Los listados de entradas se generan automáticamente desde las páginas publicadas del blog. Aquí puedes modificar los textos editoriales y metadatos de <code>blog.html</code>.</p>
+            <div class="field-grid">
+              <label><span>Título SEO</span><input id="blog-seo-title" required></label>
+              <label><span>Descripción SEO</span><textarea id="blog-seo-description" rows="3" maxlength="180" required></textarea></label>
+              <label><span>Antetítulo</span><input id="blog-kicker" required></label>
+              <label><span>Título visible</span><input id="blog-title" required></label>
+              <label><span>Bajada</span><textarea id="blog-deck" rows="3" required></textarea></label>
+              <label><span>Título del archivo</span><input id="blog-archive-title" required></label>
+            </div>
+            <label class="body-field">
+              <span>Introducción del archivo</span>
+              <textarea id="blog-archive-intro" rows="4" required></textarea>
+            </label>
+            <div class="actions">
+              <button id="blog-preview" type="button" class="secondary">Vista previa</button>
+              <button type="submit" class="primary">Guardar página del blog</button>
+            </div>
+            <p id="blog-status" class="status" role="status"></p>
+          </div>
+        </form>
+      </section>
     </section>
   </div>
 
