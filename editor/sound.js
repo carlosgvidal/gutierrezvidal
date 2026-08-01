@@ -9,6 +9,7 @@
   const panoramaAlt = document.querySelector("#sound-panorama-alt");
   const addButton = document.querySelector("#sound-add-hotspot");
   const saveButton = document.querySelector("#sound-save");
+  const downloadButton = document.querySelector("#sound-download");
   const deleteButton = document.querySelector("#sound-delete-hotspot");
   const form = document.querySelector("#sound-hotspot-form");
   const noSelection = document.querySelector("#sound-no-selection");
@@ -30,6 +31,30 @@
   let panoramaBlob = null;
   let panoramaObjectURL = "";
   let dirty = false;
+  const DRAFT_KEY = "gutierrezvidal-sound360-draft-v1";
+
+  function saveDraft() {
+    if (!data) return;
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        savedAt: new Date().toISOString(),
+        data
+      }));
+    } catch (error) {
+      console.warn("No se pudo guardar el borrador local:", error);
+    }
+  }
+
+  function readDraft() {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed?.data?.panorama && Array.isArray(parsed?.data?.hotspots) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const uid = () => `sonido-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
@@ -119,6 +144,7 @@
 
   function markDirty(message = "Cambios sin guardar.") {
     dirty = true;
+    saveDraft();
     status.textContent = message;
   }
 
@@ -312,50 +338,95 @@
     markDirty("Hotspot eliminado. Falta guardar la actualización.");
   });
 
+
+  function normalizeAllHotspots() {
+    data.panorama.alt = cleanText(panoramaAlt.value);
+    if (!data.panorama.alt) throw new Error("El texto alternativo del panorama es obligatorio.");
+
+    if (selectedItem()) syncSelectedFromForm({normalize: true});
+
+    for (const item of data.hotspots) {
+      item.title = cleanText(item.title);
+      item.description = cleanText(item.description);
+      item.sourceUrl = cleanText(item.sourceUrl);
+      if (!item.title) throw new Error("Todos los hotspots deben tener título.");
+
+      const rawEmbed = cleanText(item.embedUrl);
+      if (!rawEmbed) {
+        if (item.published !== false) throw new Error(`Falta el reproductor de “${item.title}”.`);
+        continue;
+      }
+
+      const normalized = normalizeEmbed(rawEmbed, item.platform);
+      item.embedUrl = normalized.embedUrl;
+      item.sourceUrl = item.sourceUrl || normalized.sourceUrl;
+    }
+  }
+
+  async function persistCurrentState() {
+    normalizeAllHotspots();
+    const serialized = JSON.stringify(data, null, 2) + "\n";
+
+    await GVPatches.savePatch("src/data/sound-hotspots.json", serialized);
+    if (panoramaBlob) {
+      await GVPatches.savePatch("public/panorama/sonido-360.jpg", panoramaBlob);
+    }
+
+    const patches = await GVPatches.listPatches();
+    if (!Object.prototype.hasOwnProperty.call(patches, "src/data/sound-hotspots.json")) {
+      throw new Error("El archivo JSON no apareció en el espacio de actualización.");
+    }
+
+    const verified = JSON.parse(
+      patches["src/data/sound-hotspots.json"] instanceof Blob
+        ? await patches["src/data/sound-hotspots.json"].text()
+        : String(patches["src/data/sound-hotspots.json"])
+    );
+    if (!Array.isArray(verified.hotspots) || verified.hotspots.length !== data.hotspots.length) {
+      throw new Error("La verificación posterior no coincide con los hotspots editados.");
+    }
+
+    saveDraft();
+    return serialized;
+  }
+
+  async function downloadSoundZip() {
+    if (!window.JSZip) throw new Error("No se pudo cargar JSZip.");
+    const serialized = await persistCurrentState();
+
+    const zip = new JSZip();
+    zip.file("src/data/sound-hotspots.json", serialized);
+    if (panoramaBlob) {
+      zip.file("public/panorama/sonido-360.jpg", panoramaBlob);
+    }
+    zip.file(
+      "INSTRUCCIONES.txt",
+      "ACTUALIZACIÓN DE SONIDO 360\\n\\nCopia estos archivos sobre la raíz del sitio.\\n"
+    );
+
+    const blob = await zip.generateAsync({
+      type: "blob",
+      compression: "DEFLATE",
+      compressionOptions: {level: 6}
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `gutierrezvidal-sonido-${new Date().toISOString().slice(0, 10)}.zip`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000);
+  }
+
   saveButton.addEventListener("click", async () => {
     saveButton.disabled = true;
-    status.textContent = "Guardando Sonido 360 en el paquete de actualización…";
+    status.textContent = "Guardando cambios de Sonido 360…";
     try {
-      data.panorama.alt = cleanText(panoramaAlt.value);
-      if (!data.panorama.alt) throw new Error("El texto alternativo del panorama es obligatorio.");
-
-      // El botón principal también recoge los datos que siguen visibles en el
-      // formulario. Ya no es necesario pulsar antes «Aplicar datos».
-      if (selectedItem()) syncSelectedFromForm({normalize: true});
-
-      for (const item of data.hotspots) {
-        item.title = cleanText(item.title);
-        item.description = cleanText(item.description);
-        item.sourceUrl = cleanText(item.sourceUrl);
-        if (!item.title) throw new Error("Todos los hotspots deben tener título.");
-
-        const rawEmbed = cleanText(item.embedUrl);
-        if (!rawEmbed) {
-          if (item.published !== false) throw new Error(`Falta el reproductor de “${item.title}”.`);
-          continue;
-        }
-
-        const normalized = normalizeEmbed(rawEmbed, item.platform);
-        item.embedUrl = normalized.embedUrl;
-        item.sourceUrl = item.sourceUrl || normalized.sourceUrl;
-      }
-
-      const serialized = JSON.stringify(data, null, 2) + "\n";
-      await GVPatches.savePatch("src/data/sound-hotspots.json", serialized);
-      if (panoramaBlob) {
-        await GVPatches.savePatch("public/panorama/sonido-360.jpg", panoramaBlob);
-      }
-
-      // Comprobación real contra el mismo espacio IndexedDB que exporta el ZIP.
-      const stored = await GVPatches.getFile("src/data/sound-hotspots.json");
-      const verified = JSON.parse(stored);
-      if (!Array.isArray(verified.hotspots) || verified.hotspots.length !== data.hotspots.length) {
-        throw new Error("La comprobación posterior al guardado no coincidió con los hotspots editados.");
-      }
-
+      await persistCurrentState();
       dirty = false;
       const count = data.hotspots.length;
-      status.textContent = `${count} hotspot${count === 1 ? "" : "s"} guardado${count === 1 ? "" : "s"} en el paquete de actualización. Descárgalo desde Herramientas.`;
+      status.textContent = `${count} hotspot${count === 1 ? "" : "s"} guardado${count === 1 ? "" : "s"}. Ya puedes descargar el ZIP desde aquí o desde Herramientas.`;
     } catch (error) {
       status.textContent = `No se guardó: ${error.message}`;
     } finally {
@@ -363,18 +434,45 @@
     }
   });
 
+  downloadButton.addEventListener("click", async () => {
+    downloadButton.disabled = true;
+    status.textContent = "Preparando ZIP de Sonido 360…";
+    try {
+      await downloadSoundZip();
+      dirty = false;
+      status.textContent = "ZIP de Sonido 360 descargado.";
+    } catch (error) {
+      status.textContent = `No se pudo descargar: ${error.message}`;
+    } finally {
+      downloadButton.disabled = false;
+    }
+  });
+
   async function load() {
     try {
-      data = JSON.parse(await GVPatches.getFile("src/data/sound-hotspots.json"));
-      if (!data?.panorama || !Array.isArray(data.hotspots)) throw new Error("La configuración de Sonido 360 no es válida.");
+      const draft = readDraft();
+      if (draft) {
+        data = draft.data;
+        status.textContent = `Borrador local recuperado (${new Date(draft.savedAt).toLocaleString("es-MX")}).`;
+      } else {
+        data = JSON.parse(await GVPatches.getFile("src/data/sound-hotspots.json"));
+      }
+
+      if (!data?.panorama || !Array.isArray(data.hotspots)) {
+        throw new Error("La configuración de Sonido 360 no es válida.");
+      }
       panoramaAlt.value = data.panorama.alt || "";
       setPanoramaPreview();
       render();
-      status.textContent = `${data.hotspots.length} hotspot${data.hotspots.length === 1 ? "" : "s"} cargado${data.hotspots.length === 1 ? "" : "s"}.`;
+
+      if (!draft) {
+        status.textContent = `${data.hotspots.length} hotspot${data.hotspots.length === 1 ? "" : "s"} cargado${data.hotspots.length === 1 ? "" : "s"}.`;
+      }
     } catch (error) {
       status.textContent = error.message;
       addButton.disabled = true;
       saveButton.disabled = true;
+      downloadButton.disabled = true;
     }
   }
 
