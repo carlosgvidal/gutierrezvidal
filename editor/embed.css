@@ -67,3 +67,16 @@
   pointer-events: none;
   background: #111;
 }
+
+.rich-editor .embed-placeholder-label {
+  margin: 0;
+  padding: 18px;
+  border: 1px solid var(--rule);
+  background: rgba(0,0,0,.04);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.rich-editor figure.embed-player iframe {
+  display: none !important;
+}

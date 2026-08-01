@@ -264,6 +264,22 @@
         ? "embed-player--video"
         : "embed-player--audio";
       cleanElement.className = ["embed-player", providerClass, typeClass].filter(Boolean).join(" ");
+
+      // Dentro del editor se usa un bloque de datos, no un iframe vivo. Esto
+      // evita que Safari/iPad pierda el nodo al insertarlo en contenteditable.
+      const embedSrc = node.getAttribute("data-embed-src") || "";
+      if (embedSrc) {
+        try {
+          const normalized = GVEmbeds.normalize(embedSrc);
+          cleanElement.setAttribute("data-embed-src", normalized.src);
+          cleanElement.setAttribute("data-embed-provider", normalized.provider);
+          cleanElement.setAttribute("data-embed-height", String(normalized.height));
+          cleanElement.setAttribute("data-embed-title", node.getAttribute("data-embed-title") || "Reproductor incrustado");
+          cleanElement.setAttribute("contenteditable", "false");
+        } catch {
+          return null;
+        }
+      }
     }
 
     if (node.tagName === "IFRAME") {
@@ -311,6 +327,10 @@
       cleanElement.className = "small-caps";
     }
 
+    if (node.tagName === "P" && node.classList.contains("embed-placeholder-label")) {
+      cleanElement.className = "embed-placeholder-label";
+    }
+
     for (const child of [...node.childNodes]) {
       const cleanChild = sanitizeNode(child, outputDocument);
       if (cleanChild) cleanElement.appendChild(cleanChild);
@@ -336,6 +356,26 @@
     return match ? `public/images/${match[1]}` : "";
   }
 
+  function placeholderForEmbed(figure, iframe) {
+    const normalized = GVEmbeds.normalize(iframe.outerHTML);
+    figure.className = GVEmbeds.className(normalized);
+    figure.setAttribute("data-embed-src", normalized.src);
+    figure.setAttribute("data-embed-provider", normalized.provider);
+    figure.setAttribute("data-embed-height", String(normalized.height));
+    figure.setAttribute("data-embed-title", iframe.getAttribute("title") || normalized.title || "Reproductor incrustado");
+    figure.setAttribute("contenteditable", "false");
+    iframe.remove();
+
+    let label = figure.querySelector(".embed-placeholder-label");
+    if (!label) {
+      label = figure.ownerDocument.createElement("p");
+      label.className = "embed-placeholder-label";
+      figure.insertBefore(label, figure.firstChild);
+    }
+    label.textContent = `Reproductor: ${figure.getAttribute("data-embed-title")} · ${normalized.provider}`;
+    return figure;
+  }
+
   function prepareEditorHTML(html, pagePath) {
     const parsed = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
     const holder = parsed.body.firstElementChild;
@@ -345,6 +385,9 @@
       if (!sitePath) return;
       image.setAttribute("data-site-path", sitePath);
       image.setAttribute("src", new URL(`../${sitePath}`, location.href).href);
+    });
+    holder.querySelectorAll("figure.embed-player iframe").forEach((iframe) => {
+      placeholderForEmbed(iframe.closest("figure"), iframe);
     });
     return sanitizeHTML(holder.innerHTML);
   }
@@ -359,6 +402,25 @@
       if (!sitePath) return;
       image.setAttribute("src", `${rootFor(pagePath)}${sitePath}`);
       image.removeAttribute("data-site-path");
+    });
+    holder.querySelectorAll("figure.embed-player[data-embed-src]").forEach((figure) => {
+      const normalized = GVEmbeds.normalize(figure.getAttribute("data-embed-src"));
+      const iframe = parsed.createElement("iframe");
+      iframe.src = normalized.src;
+      iframe.title = figure.getAttribute("data-embed-title") || "Reproductor incrustado";
+      iframe.loading = "lazy";
+      iframe.setAttribute("allow", normalized.allow);
+      iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.setAttribute("height", String(figure.getAttribute("data-embed-height") || normalized.height));
+      iframe.style.height = `${figure.getAttribute("data-embed-height") || normalized.height}px`;
+      figure.querySelector(".embed-placeholder-label")?.remove();
+      figure.removeAttribute("data-embed-src");
+      figure.removeAttribute("data-embed-provider");
+      figure.removeAttribute("data-embed-height");
+      figure.removeAttribute("data-embed-title");
+      figure.removeAttribute("contenteditable");
+      figure.insertBefore(iframe, figure.firstChild);
     });
     return holder.innerHTML.trim();
   }
@@ -893,17 +955,16 @@
 
       const figure = document.createElement("figure");
       figure.className = GVEmbeds.className(normalized);
-      const iframe = document.createElement("iframe");
-      iframe.src = normalized.src;
-      iframe.title = accessibleTitle;
-      iframe.loading = "lazy";
-      iframe.allow = normalized.allow;
-      iframe.referrerPolicy = "strict-origin-when-cross-origin";
-      iframe.setAttribute("allowfullscreen", "");
-      iframe.height = String(normalized.height);
-      iframe.style.height = `${normalized.height}px`;
-      iframe.contentEditable = "false";
-      figure.appendChild(iframe);
+      figure.setAttribute("data-embed-src", normalized.src);
+      figure.setAttribute("data-embed-provider", normalized.provider);
+      figure.setAttribute("data-embed-height", String(normalized.height));
+      figure.setAttribute("data-embed-title", accessibleTitle);
+      figure.setAttribute("contenteditable", "false");
+
+      const label = document.createElement("p");
+      label.className = "embed-placeholder-label";
+      label.textContent = `Reproductor: ${accessibleTitle} · ${normalized.provider}`;
+      figure.appendChild(label);
 
       if (embedCaption.value.trim()) {
         const caption = document.createElement("figcaption");
