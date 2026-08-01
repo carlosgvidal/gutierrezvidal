@@ -33,6 +33,12 @@
   const asideAlt = $("#aside-image-alt");
   const asideCaption = $("#aside-image-caption");
   const asidePreview = $("#aside-image-preview");
+  const embedDialog = $("#embed-dialog");
+  const embedForm = $("#embed-form");
+  const embedCode = $("#embed-code");
+  const embedTitle = $("#embed-title");
+  const embedCaption = $("#embed-caption");
+  const embedStatus = $("#embed-status");
 
   let navigation = [];
   let loadedPath = null;
@@ -223,7 +229,7 @@
 
   const allowedTags = new Set([
     "P", "BR", "H2", "H3", "STRONG", "EM", "A", "UL", "OL", "LI",
-    "BLOCKQUOTE", "FIGURE", "IMG", "FIGCAPTION", "SPAN"
+    "BLOCKQUOTE", "FIGURE", "IMG", "FIGCAPTION", "SPAN", "IFRAME"
   ]);
 
   function isSafeUrl(value, allowImageData = false) {
@@ -249,6 +255,33 @@
     }
 
     const cleanElement = outputDocument.createElement(node.tagName.toLowerCase());
+
+    if (node.tagName === "FIGURE" && node.classList.contains("embed-player")) {
+      const providerClass = [...node.classList].find(name =>
+        /^embed-player--(?:archive|youtube|vimeo|spotify|soundcloud|bandcamp|mixcloud)$/.test(name)
+      );
+      const typeClass = node.classList.contains("embed-player--video")
+        ? "embed-player--video"
+        : "embed-player--audio";
+      cleanElement.className = ["embed-player", providerClass, typeClass].filter(Boolean).join(" ");
+    }
+
+    if (node.tagName === "IFRAME") {
+      try {
+        const normalized = GVEmbeds.normalize(node.outerHTML);
+        cleanElement.setAttribute("src", normalized.src);
+        cleanElement.setAttribute("title", node.getAttribute("title") || normalized.title || "Reproductor incrustado");
+        cleanElement.setAttribute("loading", "lazy");
+        cleanElement.setAttribute("allow", normalized.allow);
+        cleanElement.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+        cleanElement.setAttribute("allowfullscreen", "");
+        cleanElement.setAttribute("height", String(normalized.height));
+        cleanElement.style.height = `${normalized.height}px`;
+      } catch {
+        return null;
+      }
+      return cleanElement;
+    }
 
     if (node.tagName === "A") {
       const href = node.getAttribute("href") || "";
@@ -471,6 +504,22 @@
     if (loadedPath && data.path !== loadedPath) throw new Error("La ruta de una página publicada no puede cambiarse desde este editor.");
   }
 
+  function hasEmbeddedPlayer(html) {
+    return /class=["'][^"']*\bembed-player\b/i.test(String(html || ""));
+  }
+
+  function ensureEmbedStylesheet(doc, pagePath) {
+    if (!doc.querySelector("figure.embed-player")) return;
+    let link = doc.querySelector('link[data-gv-embeds], link[href$="media-embeds.css"]');
+    if (!link) {
+      link = doc.createElement("link");
+      link.rel = "stylesheet";
+      link.dataset.gvEmbeds = "true";
+      doc.head.appendChild(link);
+    }
+    link.href = `${rootFor(pagePath)}src/css/media-embeds.css`;
+  }
+
   function pageHTML(data) {
     const root = rootFor(data.path);
     const url = canonical(data.path);
@@ -520,6 +569,7 @@
   <script type="application/ld+json">${JSON.stringify(schema)}</script>
   <title>${esc(data.title)} · Carlos Adolfo Gutiérrez Vidal</title>
   <link rel="stylesheet" href="${root}src/css/site-v2.2.css">
+  ${hasEmbeddedPlayer(data.body) ? `<link rel="stylesheet" data-gv-embeds="true" href="${root}src/css/media-embeds.css">` : ""}
 </head>
 <body data-root="${root}">
   <div data-site-header></div>
@@ -556,6 +606,7 @@
     pageDeck.textContent = data.description;
     article.innerHTML = data.body;
     applyMediaToDocument(doc, data);
+    ensureEmbedStylesheet(doc, data.path);
     doc.title = `${data.title} · Carlos Adolfo Gutiérrez Vidal`;
     updateMeta(doc, 'meta[name="description"]', data.description);
     updateMeta(doc, 'meta[property="og:title"]', data.title);
@@ -803,6 +854,70 @@
     const suffix = crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : String(Date.now());
     return `${base}-${suffix}.${extension}`;
   }
+
+  function insertNodeAtSavedSelection(node) {
+    restoreSelection();
+    const selection = window.getSelection();
+    if (selection.rangeCount && body.contains(selection.getRangeAt(0).commonAncestorContainer)) {
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(node);
+      range.setStartAfter(node);
+      range.collapse(true);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      saveSelection();
+    } else {
+      body.appendChild(node);
+    }
+  }
+
+  $("#insert-embed").addEventListener("click", () => {
+    saveSelection();
+    embedForm.reset();
+    embedStatus.textContent = "";
+    embedDialog.showModal();
+    embedCode.focus();
+  });
+
+  $("#embed-close").addEventListener("click", () => embedDialog.close());
+  $("#embed-cancel").addEventListener("click", () => embedDialog.close());
+
+  embedForm.addEventListener("submit", event => {
+    event.preventDefault();
+    embedStatus.textContent = "";
+    try {
+      const normalized = GVEmbeds.normalize(embedCode.value);
+      const accessibleTitle = embedTitle.value.trim();
+      if (!accessibleTitle) throw new Error("El título accesible del reproductor es obligatorio.");
+
+      const figure = document.createElement("figure");
+      figure.className = GVEmbeds.className(normalized);
+      const iframe = document.createElement("iframe");
+      iframe.src = normalized.src;
+      iframe.title = accessibleTitle;
+      iframe.loading = "lazy";
+      iframe.allow = normalized.allow;
+      iframe.referrerPolicy = "strict-origin-when-cross-origin";
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.height = String(normalized.height);
+      iframe.style.height = `${normalized.height}px`;
+      iframe.contentEditable = "false";
+      figure.appendChild(iframe);
+
+      if (embedCaption.value.trim()) {
+        const caption = document.createElement("figcaption");
+        caption.textContent = embedCaption.value.trim();
+        figure.appendChild(caption);
+      }
+
+      insertNodeAtSavedSelection(figure);
+      embedDialog.close();
+      formStatus.textContent = `Reproductor de ${normalized.provider} insertado.`;
+    } catch (error) {
+      embedStatus.textContent = error.message;
+    }
+  });
 
   $("#insert-image").addEventListener("click", () => {
     saveSelection();

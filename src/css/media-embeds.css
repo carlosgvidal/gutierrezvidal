@@ -1,0 +1,32 @@
+
+.embed-player {
+  width: 100%;
+  margin: clamp(28px, 5vw, 54px) 0;
+}
+
+.embed-player iframe {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  border: 0;
+  background: #111;
+}
+
+.embed-player--video iframe {
+  aspect-ratio: 16 / 9;
+  height: auto !important;
+  min-height: 220px;
+}
+
+.embed-player figcaption {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 640px) {
+  .embed-player--video iframe {
+    min-height: 190px;
+  }
+}

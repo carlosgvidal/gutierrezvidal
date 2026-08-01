@@ -7,7 +7,7 @@
   <title>Editar Sonido 360 · Gutiérrez Vidal</title>
   <link rel="stylesheet" href="editor.css">
   <link rel="stylesheet" href="sound.css">
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="vendor/jszip.min.js"></script>
 </head>
 <body>
 <main class="sound-editor">
@@ -114,12 +114,18 @@
       <h2>Guardar actualización</h2>
       <p>Guarda la configuración, la página de Sonido y, cuando corresponda, la nueva imagen panorámica.</p>
       <div class="actions actions-left">
-        <button id="sound-save" class="primary" type="button">Guardar cambios</button>
-        <button id="sound-download" class="secondary" type="button">Descargar ZIP de Sonido</button>
+        <button id="sound-save-download" class="primary" type="button">Guardar y descargar ZIP</button>
+        <button id="sound-save" class="secondary" type="button">Guardar sin descargar</button>
       </div>
+      <a id="sound-ready-download" class="primary tool-link" hidden>Descargar ZIP preparado</a>
+      <details id="sound-saved-details" hidden>
+        <summary>Archivos guardados</summary>
+        <ul id="sound-saved-files"></ul>
+      </details>
     </div>
   </section>
 </main>
+<script src="embed-utils.js"></script>
 <script src="workspace.js"></script>
 <script src="sound.js"></script>
 </body>

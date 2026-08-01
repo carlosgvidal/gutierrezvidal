@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow">
   <title>Panel editorial · Gutiérrez Vidal</title>
   <link rel="stylesheet" href="editor.css">
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="vendor/jszip.min.js"></script>
 </head>
 <body>
 <main class="editor editor-home">
@@ -23,6 +23,7 @@
       <div class="actions actions-left">
         <button id="export-patch" class="primary" type="button" disabled>Descargar actualización ZIP</button>
         <button id="clear-patches" class="secondary" type="button" disabled>Descartar cambios pendientes</button>
+        <a id="patch-download-link" class="secondary tool-link" hidden>Descargar ZIP preparado</a>
       </div>
       <details id="patch-details" hidden>
         <summary>Archivos incluidos</summary>

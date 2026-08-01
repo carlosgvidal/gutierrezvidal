@@ -1,0 +1,69 @@
+
+.embed-dialog {
+  width: min(680px, calc(100vw - 28px));
+  max-height: calc(100vh - 28px);
+  padding: 0;
+  border: 1px solid var(--rule);
+  background: var(--panel);
+  color: inherit;
+  box-shadow: 0 24px 90px rgba(0,0,0,.3);
+}
+
+.embed-dialog::backdrop {
+  background: rgba(0,0,0,.58);
+  backdrop-filter: blur(4px);
+}
+
+.embed-dialog form {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+}
+
+.embed-dialog header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.embed-dialog header h2 {
+  margin: 0;
+}
+
+.embed-dialog header button {
+  border: 0;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.embed-dialog label {
+  display: grid;
+  gap: 7px;
+}
+
+.rich-editor figure.embed-player {
+  position: relative;
+  min-height: 120px;
+  padding: 12px;
+  border: 1px dashed var(--rule);
+  background: rgba(0,0,0,.025);
+}
+
+.rich-editor figure.embed-player::before {
+  content: "Reproductor incrustado";
+  display: block;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.rich-editor figure.embed-player iframe {
+  width: 100%;
+  border: 0;
+  pointer-events: none;
+  background: #111;
+}

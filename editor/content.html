@@ -6,7 +6,8 @@
   <meta name="robots" content="noindex,nofollow">
   <title>CMS local · Gutiérrez Vidal</title>
   <link rel="stylesheet" href="editor.css">
-  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <link rel="stylesheet" href="embed.css">
+  <script src="vendor/jszip.min.js"></script>
 </head>
 <body>
 <main class="editor editor-cms">
@@ -98,6 +99,7 @@
                 <button type="button" data-command="insertUnorderedList">Lista</button>
                 <button type="button" data-block="blockquote">Cita</button>
                 <button type="button" id="insert-image">Imagen</button>
+                <button type="button" id="insert-embed">Reproductor</button>
                 <button type="button" data-command="removeFormat">Limpiar</button>
               </div>
               <div id="body" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Escribe aquí el contenido…"></div>
@@ -150,6 +152,34 @@
     <iframe id="preview-frame" title="Vista previa"></iframe>
   </section>
 </main>
+
+<dialog id="embed-dialog" class="embed-dialog" aria-labelledby="embed-dialog-title">
+  <form id="embed-form" method="dialog">
+    <header>
+      <h2 id="embed-dialog-title">Insertar reproductor</h2>
+      <button id="embed-close" type="button" aria-label="Cerrar">×</button>
+    </header>
+    <label>
+      <span>URL o código iframe</span>
+      <textarea id="embed-code" rows="7" required placeholder="Pega una URL de Archive.org, Spotify, YouTube, SoundCloud… o el código iframe completo."></textarea>
+    </label>
+    <label>
+      <span>Título accesible</span>
+      <input id="embed-title" type="text" required placeholder="Reproductor del álbum…">
+    </label>
+    <label>
+      <span>Pie del reproductor (opcional)</span>
+      <input id="embed-caption" type="text">
+    </label>
+    <p id="embed-status" class="status" role="status"></p>
+    <div class="actions actions-left">
+      <button id="embed-cancel" type="button" class="secondary">Cancelar</button>
+      <button type="submit" class="primary">Insertar reproductor</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="embed-utils.js"></script>
 <script src="workspace.js"></script>
 <script src="editor.js"></script>
 </body>
