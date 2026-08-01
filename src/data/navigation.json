@@ -154,7 +154,21 @@
       },
       {
         "label": "Blog",
-        "url": "blog.html"
+        "url": "blog.html",
+        "children": [
+          {
+            "label": "Fragmentos para una elegía interrumpida",
+            "url": "blog/fragmentos-para-una-elegia-interrumpida.html"
+          },
+          {
+            "label": "De la península como un archivo vivo",
+            "url": "blog/de-la-peninsula-como-un-archivo-vivo.html"
+          },
+          {
+            "label": "El cuerpo como contrapunto. Sobre El sentimiento del tiempo, de Lola Lince",
+            "url": "blog/el-cuerpo-como-contrapunto-sobre-el-sentimiento-del-tiempo-de-lola-lince.html"
+          }
+        ]
       },
       {
         "label": "Podcast",
