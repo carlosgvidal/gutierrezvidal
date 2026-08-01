@@ -1,14 +1,15 @@
 (() => {
   "use strict";
 
-  const EMBED_ROOTS = new Set(["IFRAME", "OBJECT", "EMBED", "AUDIO", "VIDEO"]);
+  const MEDIA_TAGS = new Set(["IFRAME", "OBJECT", "EMBED", "AUDIO", "VIDEO"]);
   const ALLOWED_TAGS = new Set([
     "IFRAME", "OBJECT", "EMBED", "AUDIO", "VIDEO", "SOURCE", "TRACK", "PARAM",
-    "A", "P", "SPAN", "DIV", "FIGURE", "FIGCAPTION", "BR"
+    "A", "P", "SPAN", "DIV", "FIGURE", "FIGCAPTION", "BR", "SCRIPT"
   ]);
   const URL_ATTRIBUTES = new Set(["src", "data", "poster", "href"]);
   const GLOBAL_ATTRIBUTES = new Set([
-    "title", "width", "height", "class", "id", "role", "aria-label", "aria-describedby"
+    "title", "width", "height", "class", "id", "role",
+    "aria-label", "aria-describedby", "aria-hidden"
   ]);
   const TAG_ATTRIBUTES = {
     IFRAME: new Set(["src", "title", "width", "height", "allow", "allowfullscreen", "loading", "referrerpolicy", "sandbox", "name"]),
@@ -19,15 +20,17 @@
     SOURCE: new Set(["src", "type", "media", "sizes"]),
     TRACK: new Set(["src", "kind", "srclang", "label", "default"]),
     PARAM: new Set(["name", "value"]),
-    A: new Set(["href", "target", "rel", "title"]),
+    A: new Set(["href", "target", "rel", "title", "download"]),
     FIGURE: new Set(["class"]),
     FIGCAPTION: new Set(["class"]),
     DIV: new Set(["class"]),
     P: new Set(["class"]),
-    SPAN: new Set(["class"])
+    SPAN: new Set(["class"]),
+    SCRIPT: new Set(["src", "async", "defer", "crossorigin", "referrerpolicy", "type"])
   };
   const BOOLEAN_ATTRIBUTES = new Set([
-    "allowfullscreen", "controls", "autoplay", "loop", "muted", "playsinline", "default"
+    "allowfullscreen", "controls", "autoplay", "loop", "muted", "playsinline",
+    "default", "async", "defer"
   ]);
 
   function cleanURL(value, base = location.href) {
@@ -36,14 +39,16 @@
     if (text.startsWith("#") || text.startsWith("./") || text.startsWith("../") || text.startsWith("/")) {
       return text;
     }
+
     let url;
     try {
       url = new URL(text, base);
     } catch {
       throw new Error(`URL no válida: ${text}`);
     }
+
     if (url.protocol === "http:") url.protocol = "https:";
-    if (!["https:", "blob:"].includes(url.protocol)) {
+    if (url.protocol !== "https:") {
       throw new Error(`Protocolo no permitido: ${url.protocol}`);
     }
     return url.href;
@@ -51,17 +56,22 @@
 
   function cleanDimension(value) {
     const text = String(value || "").trim();
-    if (!text) return "";
-    if (/^\d{1,5}(?:\.\d+)?(?:px|%|vw|vh)?$/i.test(text)) return text;
-    return "";
+    return /^\d{1,5}(?:\.\d+)?(?:px|%|vw|vh)?$/i.test(text) ? text : "";
   }
 
   function sanitizeClass(value) {
     return String(value || "")
       .split(/\s+/)
-      .filter(name => /^[a-z0-9_-]{1,64}$/i.test(name))
-      .slice(0, 12)
+      .filter(name => /^[a-z0-9_-]{1,96}$/i.test(name))
+      .slice(0, 24)
       .join(" ");
+  }
+
+  function sanitizeDataAttribute(name, value) {
+    if (!/^data-[a-z0-9_.:-]{1,96}$/i.test(name)) return "";
+    const text = String(value ?? "");
+    if (/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(text)) return "";
+    return text.slice(0, 5000);
   }
 
   function sanitizeElement(node, outputDocument, base) {
@@ -69,9 +79,11 @@
       return outputDocument.createTextNode(node.nodeValue || "");
     }
     if (node.nodeType !== Node.ELEMENT_NODE) return null;
-    if (["SCRIPT", "STYLE", "LINK", "META", "FORM", "INPUT", "BUTTON", "TEXTAREA", "SELECT"].includes(node.tagName)) {
+
+    if (["STYLE", "LINK", "META", "FORM", "INPUT", "BUTTON", "TEXTAREA", "SELECT"].includes(node.tagName)) {
       return null;
     }
+
     if (!ALLOWED_TAGS.has(node.tagName)) {
       const fragment = outputDocument.createDocumentFragment();
       for (const child of [...node.childNodes]) {
@@ -81,12 +93,42 @@
       return fragment;
     }
 
+    if (node.tagName === "SCRIPT") {
+      // Sólo scripts externos HTTPS. El código JavaScript inline nunca se conserva.
+      const source = node.getAttribute("src") || "";
+      if (!source || node.textContent.trim()) return null;
+
+      let cleanSource;
+      try {
+        cleanSource = cleanURL(source, base);
+      } catch {
+        return null;
+      }
+
+      const script = outputDocument.createElement("script");
+      script.setAttribute("src", cleanSource);
+      for (const attribute of [...node.attributes]) {
+        const name = attribute.name.toLowerCase();
+        if (!TAG_ATTRIBUTES.SCRIPT.has(name) || name === "src") continue;
+        if (BOOLEAN_ATTRIBUTES.has(name)) script.setAttribute(name, "");
+        else script.setAttribute(name, attribute.value);
+      }
+      return script;
+    }
+
     const clean = outputDocument.createElement(node.tagName.toLowerCase());
     const allowed = TAG_ATTRIBUTES[node.tagName] || new Set();
 
     for (const attribute of [...node.attributes]) {
       const name = attribute.name.toLowerCase();
       if (name.startsWith("on") || name === "srcdoc" || name === "style") continue;
+
+      if (name.startsWith("data-")) {
+        const value = sanitizeDataAttribute(name, attribute.value);
+        if (value || attribute.value === "") clean.setAttribute(name, value);
+        continue;
+      }
+
       if (!allowed.has(name) && !GLOBAL_ATTRIBUTES.has(name) && !name.startsWith("aria-")) continue;
 
       let value = attribute.value;
@@ -127,6 +169,7 @@
       clean.setAttribute("referrerpolicy", clean.getAttribute("referrerpolicy") || "strict-origin-when-cross-origin");
       if (!clean.getAttribute("title")) clean.setAttribute("title", "Contenido incrustado");
     }
+
     if (node.tagName === "A" && clean.getAttribute("target") === "_blank") {
       clean.setAttribute("rel", "noopener noreferrer");
     }
@@ -138,14 +181,22 @@
     return clean;
   }
 
-  function firstEmbedRoot(root) {
-    if (root.nodeType === Node.ELEMENT_NODE && EMBED_ROOTS.has(root.tagName)) return root;
-    return root.querySelector?.("iframe, object, embed, audio, video") || null;
+  function deriveTitle(holder, explicitTitle = "") {
+    if (String(explicitTitle || "").trim()) return String(explicitTitle).trim();
+
+    const titled = holder.querySelector("[data-title], [title], [aria-label]");
+    const candidate = titled?.getAttribute("data-title")
+      || titled?.getAttribute("title")
+      || titled?.getAttribute("aria-label")
+      || holder.querySelector("a")?.textContent
+      || "";
+    return String(candidate).trim() || "Contenido incrustado";
   }
 
   function sanitize(input, options = {}) {
     const raw = String(input || "").trim();
-    if (!raw) throw new Error("Pega un código incrustado o una URL.");
+    if (!raw) throw new Error("Pega el código incrustado.");
+
     const base = options.base || location.href;
     const markup = /<\s*[a-z][\s\S]*>/i.test(raw)
       ? raw
@@ -161,29 +212,33 @@
       if (clean) holder.appendChild(clean);
     }
 
-    const root = firstEmbedRoot(holder);
-    if (!root) {
-      throw new Error("El código no contiene iframe, object, embed, audio o video.");
+    const mediaRoot = holder.querySelector("iframe, object, embed, audio, video");
+    const externalScript = holder.querySelector("script[src]");
+    const visibleRoot = holder.querySelector("a, div, p, span, figure");
+
+    if (!mediaRoot && !(externalScript && visibleRoot)) {
+      throw new Error("El código no contiene un reproductor ni un widget externo válido.");
     }
 
-    const title = options.title || root.getAttribute("title") || root.getAttribute("aria-label") || "Contenido incrustado";
-    if (["IFRAME", "OBJECT", "EMBED"].includes(root.tagName) && !root.getAttribute("title")) {
-      root.setAttribute("title", title);
+    const title = deriveTitle(holder, options.title);
+    if (mediaRoot && ["IFRAME", "OBJECT", "EMBED"].includes(mediaRoot.tagName) && !mediaRoot.getAttribute("title")) {
+      mediaRoot.setAttribute("title", title);
     }
-    const primaryUrl = root.getAttribute("src") || root.getAttribute("data") || "";
-    const height = cleanDimension(root.getAttribute("height")) || "";
 
     return {
       html: holder.innerHTML.trim(),
       title,
-      kind: root.tagName.toLowerCase(),
-      primaryUrl,
-      height
+      kind: mediaRoot ? mediaRoot.tagName.toLowerCase() : "widget",
+      primaryUrl: mediaRoot?.getAttribute("src")
+        || mediaRoot?.getAttribute("data")
+        || externalScript?.getAttribute("src")
+        || "",
+      height: cleanDimension(mediaRoot?.getAttribute("height")) || ""
     };
   }
 
   function placeholderLabel(result, explicitTitle = "") {
-    const title = explicitTitle || result.title || "Contenido incrustado";
+    const title = String(explicitTitle || result.title || "Contenido incrustado").trim();
     return `${title} · ${result.kind}`;
   }
 

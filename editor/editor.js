@@ -356,24 +356,32 @@
     return match ? `public/images/${match[1]}` : "";
   }
 
-  function placeholderForEmbed(figure, embedNode) {
-    const sanitized = GVEmbeds.sanitize(embedNode.outerHTML, {
-      title: embedNode.getAttribute("title") || embedNode.getAttribute("aria-label") || "Contenido incrustado"
+  function placeholderForEmbed(figure, source, explicitTitle = "") {
+    const rawCode = typeof source === "string" ? source : source.outerHTML;
+    const sanitized = GVEmbeds.sanitize(rawCode, {
+      title: explicitTitle
+        || figure.getAttribute("data-embed-title")
+        || (typeof source === "string" ? "" : source.getAttribute("title") || source.getAttribute("aria-label") || "")
     });
+
+    const captionText = figure.querySelector("figcaption")?.textContent?.trim() || "";
+    figure.replaceChildren();
     figure.className = "embed-player embed-player--generic";
     figure.setAttribute("data-embed-code", sanitized.html);
     figure.setAttribute("data-embed-title", sanitized.title);
     figure.setAttribute("data-embed-kind", sanitized.kind);
     figure.setAttribute("contenteditable", "false");
 
-    figure.querySelectorAll("iframe, object, embed, audio, video").forEach(node => node.remove());
-    let label = figure.querySelector(".embed-placeholder-label");
-    if (!label) {
-      label = figure.ownerDocument.createElement("p");
-      label.className = "embed-placeholder-label";
-      figure.insertBefore(label, figure.firstChild);
+    const label = figure.ownerDocument.createElement("p");
+    label.className = "embed-placeholder-label";
+    label.textContent = GVEmbeds.placeholderLabel(sanitized, sanitized.title);
+    figure.appendChild(label);
+
+    if (captionText) {
+      const caption = figure.ownerDocument.createElement("figcaption");
+      caption.textContent = captionText;
+      figure.appendChild(caption);
     }
-    label.textContent = GVEmbeds.placeholderLabel(sanitized, figure.getAttribute("data-embed-title"));
     return figure;
   }
 
@@ -388,15 +396,34 @@
       image.setAttribute("src", new URL(`../${sitePath}`, location.href).href);
     });
     holder.querySelectorAll("figure.embed-player").forEach((figure) => {
-      const embedNode = figure.querySelector("iframe, object, embed, audio, video");
-      if (embedNode) placeholderForEmbed(figure, embedNode);
+      if (figure.hasAttribute("data-embed-code")) return;
+      const clone = figure.cloneNode(true);
+      clone.querySelector("figcaption")?.remove();
+      const hasWidget = clone.querySelector("iframe, object, embed, audio, video, script[src]");
+      if (hasWidget) placeholderForEmbed(figure, clone.innerHTML);
     });
+
     holder.querySelectorAll("iframe, object, embed, audio, video").forEach((embedNode) => {
       if (embedNode.closest("figure.embed-player")) return;
       const figure = parsed.createElement("figure");
       embedNode.replaceWith(figure);
       figure.appendChild(embedNode);
       placeholderForEmbed(figure, embedNode);
+    });
+
+    // Widgets del tipo <a ...></a><script src="..."></script>, como Spreaker.
+    holder.querySelectorAll("script[src]").forEach((script) => {
+      if (script.closest("figure.embed-player")) return;
+      const previous = script.previousElementSibling;
+      const figure = parsed.createElement("figure");
+      if (previous && ["A", "DIV", "P", "SPAN"].includes(previous.tagName)) {
+        previous.replaceWith(figure);
+        figure.append(previous, script);
+      } else {
+        script.replaceWith(figure);
+        figure.appendChild(script);
+      }
+      placeholderForEmbed(figure, figure.innerHTML);
     });
     return sanitizeHTML(holder.innerHTML);
   }
@@ -1003,19 +1030,18 @@
     embedStatus.textContent = "";
     try {
       const accessibleTitle = embedTitle.value.trim();
-      if (!accessibleTitle) throw new Error("El título accesible del contenido incrustado es obligatorio.");
       const sanitized = GVEmbeds.sanitize(embedCode.value, {title: accessibleTitle});
 
       const figure = document.createElement("figure");
       figure.className = "embed-player embed-player--generic";
       figure.setAttribute("data-embed-code", sanitized.html);
-      figure.setAttribute("data-embed-title", accessibleTitle);
+      figure.setAttribute("data-embed-title", sanitized.title);
       figure.setAttribute("data-embed-kind", sanitized.kind);
       figure.setAttribute("contenteditable", "false");
 
       const label = document.createElement("p");
       label.className = "embed-placeholder-label";
-      label.textContent = GVEmbeds.placeholderLabel(sanitized, accessibleTitle);
+      label.textContent = GVEmbeds.placeholderLabel(sanitized, sanitized.title);
       figure.appendChild(label);
 
       if (embedCaption.value.trim()) {
