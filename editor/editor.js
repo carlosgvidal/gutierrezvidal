@@ -730,7 +730,54 @@
     }
   }
 
+  function soundParentFor(data) {
+    const node = findNode(navigation, data.parentPath);
+    if (node?.url === "sonido.html") return node;
+    if (data.path.startsWith("obra/sonido/")) return findItemByUrl(navigation, "sonido.html");
+    return null;
+  }
+
+  function soundArchiveCard(doc, data) {
+    const article = doc.createElement("article");
+    article.className = "sound-item";
+    article.dataset.pageUrl = data.path;
+
+    const text = doc.createElement("div");
+    const heading = doc.createElement("h3");
+    heading.textContent = data.title;
+    const paragraph = doc.createElement("p");
+    paragraph.textContent = data.description || "Ficha individual.";
+    text.append(heading, paragraph);
+
+    const link = doc.createElement("a");
+    link.className = "secondary";
+    link.href = data.path;
+    link.textContent = "Abrir ficha";
+    article.append(text, link);
+    return article;
+  }
+
+  async function updatedSoundArchive(data) {
+    if (!soundParentFor(data)) return null;
+    const current = await GVPatches.getFile("sonido.html");
+    const doc = new DOMParser().parseFromString(current, "text/html");
+    const list = doc.querySelector("#sound-list");
+    if (!list) throw new Error("sonido.html no contiene #sound-list.");
+
+    let card = [...list.querySelectorAll(".sound-item")].find((article) => {
+      const pageUrl = article.dataset.pageUrl || article.querySelector("a[href]")?.getAttribute("href") || "";
+      return pageUrl === data.path || (loadedPath && pageUrl === loadedPath);
+    });
+    const replacement = soundArchiveCard(doc, data);
+    if (card) card.replaceWith(replacement);
+    else list.appendChild(replacement);
+
+    return {path: "sonido.html", content: `<!doctype html>\n${doc.documentElement.outerHTML}`};
+  }
+
   async function updatedIndex(data) {
+    const soundPatch = await updatedSoundArchive(data);
+    if (soundPatch) return soundPatch;
     if (!addIndex.checked) return null;
     const node = findNode(navigation, data.parentPath);
     if (!node?.url) return null;
@@ -1242,6 +1289,8 @@
           renderTree();
           activateTree(loadedPath);
         }
+        const indexPatch = await updatedIndex(data);
+        if (indexPatch) await GVPatches.savePatch(indexPatch.path, indexPatch.content);
         formStatus.textContent = `Página actualizada: ${loadedPath}`;
       }
     } catch (error) {

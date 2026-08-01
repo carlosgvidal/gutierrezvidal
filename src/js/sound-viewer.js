@@ -126,7 +126,8 @@ const hotspots = items.map(item => {
   };
 });
 
-if (items.length) {
+const authoredArchiveItems = list.querySelectorAll(".sound-item").length;
+if (!authoredArchiveItems && items.length) {
   list.replaceChildren();
   items.forEach(item => {
     const article = document.createElement("article");

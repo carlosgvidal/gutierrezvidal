@@ -17,6 +17,13 @@
   const deleteButton = $("#sound-delete-hotspot");
   const form = $("#sound-hotspot-form");
   const noSelection = $("#sound-no-selection");
+  const pageTitle = $("#sound-page-title");
+  const pageDescription = $("#sound-page-description");
+  const helpText = $("#sound-help-text");
+  const archiveTitle = $("#sound-archive-title");
+  const archiveIntro = $("#sound-archive-intro");
+  const syncArchiveButton = $("#sound-sync-archive");
+  const archivePagesList = $("#sound-archive-pages");
 
   const fields = {
     id: $("#sound-hotspot-id"),
@@ -38,10 +45,40 @@
   let panoramaObjectURL = "";
   let downloadObjectURL = "";
   let dirty = false;
+  let soundPageSource = "";
+  let navigation = [];
+  let archivePages = [];
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const uid = () => `sonido-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
   const cleanText = value => String(value || "").trim();
+
+  function escapeHTML(value) {
+    return String(value || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function pageFieldState() {
+    return {
+      title: pageTitle.value,
+      description: pageDescription.value,
+      help: helpText.value,
+      archiveTitle: archiveTitle.value,
+      archiveIntro: archiveIntro.value
+    };
+  }
+
+  function applyPageFieldState(value = {}) {
+    pageTitle.value = value.title || "";
+    pageDescription.value = value.description || "";
+    helpText.value = value.help || "";
+    archiveTitle.value = value.archiveTitle || "";
+    archiveIntro.value = value.archiveIntro || "";
+  }
 
   function setStatus(message) {
     status.textContent = message;
@@ -52,7 +89,8 @@
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({
         savedAt: new Date().toISOString(),
-        data
+        data,
+        page: pageFieldState()
       }));
     } catch (error) {
       console.warn("No se pudo guardar el borrador local:", error);
@@ -75,6 +113,160 @@
     dirty = true;
     saveDraft();
     setStatus(message);
+  }
+
+  function findNavigationItem(items, url) {
+    for (const item of items || []) {
+      if (item.url === url) return item;
+      const nested = findNavigationItem(item.children, url);
+      if (nested) return nested;
+    }
+    return null;
+  }
+
+  function parseHTML(html) {
+    return new DOMParser().parseFromString(html, "text/html");
+  }
+
+  function archiveCardFor(doc, page) {
+    const article = doc.createElement("article");
+    article.className = "sound-item";
+    article.dataset.pageUrl = page.url;
+
+    const text = doc.createElement("div");
+    const heading = doc.createElement("h3");
+    heading.textContent = page.title;
+    const paragraph = doc.createElement("p");
+    paragraph.textContent = page.description || "Ficha individual.";
+    text.append(heading, paragraph);
+
+    const link = doc.createElement("a");
+    link.className = "secondary";
+    link.href = page.url;
+    link.textContent = "Abrir ficha";
+    article.append(text, link);
+    return article;
+  }
+
+  async function readArchivePages() {
+    const soundNode = findNavigationItem(navigation, "sonido.html");
+    const children = Array.isArray(soundNode?.children) ? soundNode.children : [];
+    const existingDoc = soundPageSource ? parseHTML(soundPageSource) : null;
+    const existingCards = new Map();
+    existingDoc?.querySelectorAll("#sound-list .sound-item").forEach(card => {
+      const href = card.dataset.pageUrl || card.querySelector("a[href]")?.getAttribute("href") || "";
+      if (href) existingCards.set(href, card);
+    });
+
+    const pages = [];
+    for (const child of children) {
+      let title = child.label || child.url;
+      let description = existingCards.get(child.url)?.querySelector("p")?.textContent?.trim() || "";
+      let available = true;
+      try {
+        const pageHTML = await GVPatches.getFile(child.url);
+        const pageDoc = parseHTML(pageHTML);
+        title = pageDoc.querySelector(".page-title")?.textContent?.trim() || title;
+        description = pageDoc.querySelector(".page-deck")?.textContent?.trim()
+          || pageDoc.querySelector('meta[name="description"]')?.getAttribute("content")?.trim()
+          || description;
+      } catch {
+        available = false;
+      }
+      pages.push({url: child.url, title, description, available});
+    }
+    archivePages = pages;
+    renderArchivePages();
+    return pages;
+  }
+
+  function renderArchivePages() {
+    archivePagesList.replaceChildren();
+    if (!archivePages.length) {
+      const empty = document.createElement("li");
+      empty.textContent = "No hay subpáginas registradas bajo Sonido.";
+      archivePagesList.appendChild(empty);
+      return;
+    }
+    for (const page of archivePages) {
+      const item = document.createElement("li");
+      const text = document.createElement("div");
+      const title = document.createElement("strong");
+      title.textContent = page.title;
+      const path = document.createElement("small");
+      path.textContent = page.url;
+      text.append(title, path);
+      const state = document.createElement("span");
+      state.className = "archive-state";
+      state.textContent = page.available ? "Lista" : "Página no disponible";
+      item.append(text, state);
+      archivePagesList.appendChild(item);
+    }
+  }
+
+  function loadSoundPageFields() {
+    const doc = parseHTML(soundPageSource);
+    const title = doc.querySelector("title")?.textContent?.trim() || "Sonido · Carlos Adolfo Gutiérrez Vidal";
+    const description = doc.querySelector('meta[name="description"]')?.getAttribute("content")?.trim() || "";
+    const help = doc.querySelector(".sound-help")?.textContent?.trim() || "";
+    const heading = doc.querySelector("#sound-archive-title")?.textContent?.trim() || "Archivo sonoro";
+    const intro = doc.querySelector(".sound-archive__header p")?.textContent?.trim() || "";
+    applyPageFieldState({title, description, help, archiveTitle: heading, archiveIntro: intro});
+  }
+
+  function updateMeta(doc, selector, value) {
+    const element = doc.querySelector(selector);
+    if (element) element.setAttribute("content", value);
+  }
+
+  async function buildSoundPage() {
+    const title = cleanText(pageTitle.value);
+    const description = cleanText(pageDescription.value);
+    const help = cleanText(helpText.value);
+    const heading = cleanText(archiveTitle.value);
+    const intro = cleanText(archiveIntro.value);
+    if (!title) throw new Error("El título del documento es obligatorio.");
+    if (description.length < 40) throw new Error("La descripción SEO necesita al menos 40 caracteres.");
+    if (!help || !heading || !intro) throw new Error("Completa todos los textos de sonido.html.");
+
+    await readArchivePages();
+    const doc = parseHTML(soundPageSource);
+    const helpNode = doc.querySelector(".sound-help");
+    const archiveHeading = doc.querySelector("#sound-archive-title");
+    const archiveParagraph = doc.querySelector(".sound-archive__header p");
+    const list = doc.querySelector("#sound-list");
+    if (!helpNode || !archiveHeading || !archiveParagraph || !list) {
+      throw new Error("sonido.html no contiene la estructura editable esperada.");
+    }
+
+    doc.title = title;
+    updateMeta(doc, 'meta[name="description"]', description);
+    updateMeta(doc, 'meta[property="og:title"]', title);
+    updateMeta(doc, 'meta[property="og:description"]', description);
+    updateMeta(doc, 'meta[name="twitter:title"]', title);
+    updateMeta(doc, 'meta[name="twitter:description"]', description);
+    for (const script of doc.querySelectorAll('script[type="application/ld+json"]')) {
+      try {
+        const schema = JSON.parse(script.textContent);
+        const nodes = Array.isArray(schema?.["@graph"]) ? schema["@graph"] : [schema];
+        for (const node of nodes) {
+          if (!node || typeof node !== "object") continue;
+          if (node.url === "https://www.gutierrezvidal.com/sonido.html" || node["@id"]?.includes("/sonido.html")) {
+            if ("name" in node) node.name = title;
+            if ("description" in node) node.description = description;
+          }
+        }
+        script.textContent = JSON.stringify(schema);
+      } catch {
+        // Se conserva cualquier JSON-LD ajeno que no pueda interpretarse.
+      }
+    }
+    helpNode.textContent = help;
+    archiveHeading.textContent = heading;
+    archiveParagraph.textContent = intro;
+    list.replaceChildren(...archivePages.map(page => archiveCardFor(doc, page)));
+    return `<!doctype html>
+${doc.documentElement.outerHTML}`;
   }
 
   function selectedItem() {
@@ -266,6 +458,23 @@
     });
   }
 
+  for (const field of [pageTitle, pageDescription, helpText, archiveTitle, archiveIntro]) {
+    field.addEventListener("input", () => markDirty("Cambios de sonido.html sin guardar."));
+  }
+
+  syncArchiveButton.addEventListener("click", async () => {
+    syncArchiveButton.disabled = true;
+    setStatus("Sincronizando subpáginas de Sonido…");
+    try {
+      await readArchivePages();
+      markDirty(`${archivePages.length} subpágina${archivePages.length === 1 ? "" : "s"} sincronizada${archivePages.length === 1 ? "" : "s"}.`);
+    } catch (error) {
+      setStatus(error.message);
+    } finally {
+      syncArchiveButton.disabled = false;
+    }
+  });
+
   panoramaFile.addEventListener("change", async () => {
     const file = panoramaFile.files?.[0];
     if (!file) return;
@@ -366,8 +575,10 @@
   async function persistCurrentState() {
     const warnings = normalizeAllHotspots();
     const serialized = JSON.stringify(data, null, 2) + "\n";
+    const soundHTML = await buildSoundPage();
 
     await GVPatches.savePatch("src/data/sound-hotspots.json", serialized);
+    await GVPatches.savePatch("sonido.html", soundHTML);
     if (panoramaBlob) {
       await GVPatches.savePatch("public/panorama/sonido-360.jpg", panoramaBlob);
     }
@@ -376,6 +587,9 @@
     if (!Object.prototype.hasOwnProperty.call(patches, "src/data/sound-hotspots.json")) {
       throw new Error("El JSON de Sonido no apareció en el espacio de actualización.");
     }
+    if (!Object.prototype.hasOwnProperty.call(patches, "sonido.html")) {
+      throw new Error("sonido.html no apareció en el espacio de actualización.");
+    }
 
     const stored = patches["src/data/sound-hotspots.json"];
     const verified = JSON.parse(stored instanceof Blob ? await stored.text() : String(stored));
@@ -383,13 +597,15 @@
       throw new Error("La verificación del JSON guardado no coincide con los hotspots actuales.");
     }
 
+    soundPageSource = soundHTML;
     saveDraft();
     const paths = Object.keys(patches).filter(path =>
       path === "src/data/sound-hotspots.json" ||
+      path === "sonido.html" ||
       path === "public/panorama/sonido-360.jpg"
     );
     displaySavedFiles(paths);
-    return {serialized, warnings, paths, patches};
+    return {serialized, soundHTML, warnings, paths, patches};
   }
 
   function prepareVisibleDownload(blob) {
@@ -406,6 +622,7 @@
     const saved = await persistCurrentState();
     const zip = new JSZip();
     zip.file("src/data/sound-hotspots.json", saved.serialized);
+    zip.file("sonido.html", saved.soundHTML);
 
     const panoramaPatch = saved.patches["public/panorama/sonido-360.jpg"];
     if (panoramaPatch) {
@@ -467,6 +684,11 @@
 
   async function load() {
     try {
+      soundPageSource = await GVPatches.getFile("sonido.html");
+      navigation = JSON.parse(await GVPatches.getFile("src/data/navigation.json"));
+      loadSoundPageFields();
+      await readArchivePages();
+
       const workspaceState = await GVPatches.status();
       const draft = readDraft();
       const draftTime = draft?.savedAt ? Date.parse(draft.savedAt) : 0;
@@ -474,6 +696,7 @@
 
       if (draft && draftTime > workspaceTime) {
         data = draft.data;
+        if (draft.page) applyPageFieldState(draft.page);
         setStatus(`Borrador local recuperado (${new Date(draft.savedAt).toLocaleString("es-MX")}).`);
       } else {
         data = JSON.parse(await GVPatches.getFile("src/data/sound-hotspots.json"));
@@ -500,6 +723,7 @@
       displaySavedFiles(
         Object.keys(patches).filter(path =>
           path === "src/data/sound-hotspots.json" ||
+          path === "sonido.html" ||
           path === "public/panorama/sonido-360.jpg"
         )
       );

@@ -21,13 +21,54 @@
       <p class="eyebrow">CMS</p>
       <h1>Sonido 360</h1>
     </div>
-    <p class="privacy">Reemplaza el panorama, crea y reacomoda hotspots y configura reproductores. Los cambios se añaden al ZIP parcial del CMS.</p>
+    <p class="privacy">Edita sonido.html, sincroniza sus subpáginas, reemplaza el panorama y administra los hotspots. Los cambios se añaden al ZIP parcial del CMS.</p>
   </header>
 
   <p id="sound-status" class="status status-box" role="status">Cargando configuración publicada…</p>
 
-  <section class="panel sound-panorama-settings">
+
+  <section class="panel sound-page-settings">
     <div class="step-number">01</div>
+    <div>
+      <h2>Página de Sonido</h2>
+      <p class="field-help">Edita los textos de <code>sonido.html</code>. El archivo sonoro se sincroniza con las subpáginas registradas bajo Sonido en la navegación.</p>
+      <div class="sound-page-grid">
+        <label>
+          <span>Título del documento</span>
+          <input id="sound-page-title" type="text" required>
+        </label>
+        <label>
+          <span>Descripción SEO</span>
+          <textarea id="sound-page-description" rows="3" maxlength="180" required></textarea>
+        </label>
+        <label>
+          <span>Instrucción del panorama</span>
+          <input id="sound-help-text" type="text" required>
+        </label>
+        <label>
+          <span>Título del archivo</span>
+          <input id="sound-archive-title" type="text" required>
+        </label>
+        <label class="sound-page-wide">
+          <span>Introducción del archivo</span>
+          <textarea id="sound-archive-intro" rows="3" required></textarea>
+        </label>
+      </div>
+      <div class="sound-archive-preview" aria-labelledby="sound-archive-preview-title">
+        <div class="sound-stage-toolbar">
+          <div>
+            <p class="eyebrow">Sincronización</p>
+            <h3 id="sound-archive-preview-title">Subpáginas incluidas en sonido.html</h3>
+          </div>
+          <button id="sound-sync-archive" class="secondary" type="button">Sincronizar ahora</button>
+        </div>
+        <ol id="sound-archive-pages" class="sound-archive-pages"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel sound-panorama-settings">
+    <div class="step-number">02</div>
     <div>
       <h2>Panorama</h2>
       <div class="sound-form-grid">
@@ -98,7 +139,7 @@
   </section>
 
   <section class="panel">
-    <div class="step-number">02</div>
+    <div class="step-number">03</div>
     <div>
       <h2>Guardar actualización</h2>
       <p>Guarda la configuración, la página de Sonido y, cuando corresponda, la nueva imagen panorámica.</p>
