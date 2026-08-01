@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Editar menú · Gutiérrez Vidal</title>
+  <link rel="stylesheet" href="editor.css">
+  <link rel="stylesheet" href="menu.css">
+  <script src="vendor/jszip.min.js"></script>
+</head>
+<body>
+<main class="menu-editor">
+  <nav class="editor-nav">
+    <a href="index.html">← Herramientas</a>
+    <a href="../index.html" target="_blank" rel="noopener">Ver sitio</a>
+  </nav>
+
+  <header class="editor-header">
+    <div>
+      <p class="eyebrow">CMS</p>
+      <h1>Menú del sitio</h1>
+    </div>
+    <p class="privacy">Edita directamente <code>src/data/navigation.json</code>. Quitar un enlace del menú no elimina su página.</p>
+  </header>
+
+  <section class="panel menu-save-panel">
+    <div class="step-number">Guardar</div>
+    <div>
+      <h2>Actualización del menú</h2>
+      <p id="menu-status" class="status status-box" role="status">Cargando navegación…</p>
+      <div class="actions actions-left">
+        <button id="menu-save" class="primary" type="button" disabled>Guardar menú</button>
+        <button id="menu-save-download" class="secondary" type="button" disabled>Guardar y descargar ZIP</button>
+        <button id="menu-reload" class="secondary" type="button" disabled>Descartar edición no guardada</button>
+        <a id="menu-ready-download" class="secondary tool-link" hidden>Descargar ZIP preparado</a>
+      </div>
+      <details id="menu-validation-details" hidden>
+        <summary>Revisión del menú</summary>
+        <ul id="menu-validation-list"></ul>
+      </details>
+    </div>
+  </section>
+
+  <section class="menu-workspace">
+    <section class="menu-tree-panel" aria-labelledby="menu-tree-title">
+      <header class="menu-panel-header">
+        <div>
+          <p class="eyebrow">Estructura</p>
+          <h2 id="menu-tree-title">Orden y grupos</h2>
+        </div>
+        <button id="menu-add-root" class="primary" type="button">Agregar elemento principal</button>
+      </header>
+
+      <p class="menu-help">Selecciona un elemento para editarlo. Usa las flechas para ordenar; sangrar lo convierte en hijo del elemento anterior.</p>
+      <div id="menu-tree" class="menu-tree" aria-label="Estructura actual del menú"></div>
+    </section>
+
+    <aside class="menu-inspector" aria-labelledby="menu-inspector-title">
+      <h2 id="menu-inspector-title">Elemento del menú</h2>
+
+      <form id="menu-form" hidden>
+        <label>
+          <span>Etiqueta</span>
+          <input id="menu-label" type="text" required maxlength="120">
+        </label>
+
+        <label>
+          <span>Enlace opcional</span>
+          <input id="menu-url" type="text" inputmode="url" placeholder="pagina.html o https://…">
+        </label>
+        <p class="field-help">Déjalo vacío para crear un encabezado o grupo. Se admiten rutas internas, HTTPS, mailto:, tel: y anclas #.</p>
+
+        <div class="menu-position-actions" aria-label="Cambiar posición">
+          <button id="menu-up" type="button" class="secondary">↑ Subir</button>
+          <button id="menu-down" type="button" class="secondary">↓ Bajar</button>
+          <button id="menu-indent" type="button" class="secondary">→ Sangrar</button>
+          <button id="menu-outdent" type="button" class="secondary">← Desangrar</button>
+        </div>
+
+        <div class="actions actions-left">
+          <button type="submit" class="primary">Aplicar cambios</button>
+          <button id="menu-add-child" type="button" class="secondary">Agregar hijo</button>
+          <button id="menu-add-after" type="button" class="secondary">Agregar después</button>
+        </div>
+
+        <fieldset class="menu-danger">
+          <legend>Quitar del menú</legend>
+          <p class="field-help">La página enlazada no se borra del sitio.</p>
+          <div class="actions actions-left">
+            <button id="menu-remove-promote" type="button" class="secondary">Quitar y conservar sus hijos</button>
+            <button id="menu-remove-branch" type="button" class="secondary">Quitar toda la rama</button>
+          </div>
+        </fieldset>
+      </form>
+
+      <p id="menu-no-selection" class="field-help">Selecciona un elemento del árbol o agrega uno nuevo.</p>
+    </aside>
+  </section>
+</main>
+
+<script src="workspace.js"></script>
+<script src="menu.js"></script>
+</body>
+</html>
