@@ -11,10 +11,6 @@
         "url": "escritura.html",
         "children": [
           {
-            "label": "Libros",
-            "url": "https://www.amazon.com/-/es/stores/author/B001JWSNZC"
-          },
-          {
             "label": "Omisiones",
             "url": "obra/escritura/omisiones.html"
           },
@@ -131,16 +127,16 @@
       {
         "label": "Imágenes",
         "url": "imagenes.html"
-      },
+      }
+    ]
+  },
+  {
+    "label": "Sistema",
+    "url": "sistema.html",
+    "children": [
       {
-        "label": "Sistema",
-        "url": "sistema.html",
-        "children": [
-          {
-            "label": "Cursos",
-            "url": "https://carlosgvidal.thinkific.com/courses/joyeria-masculina"
-          }
-        ]
+        "label": "Cursos",
+        "url": "https://carlosgvidal.thinkific.com/courses/joyeria-masculina"
       }
     ]
   },
@@ -148,6 +144,10 @@
     "label": "Perfil",
     "url": "perfil.html",
     "children": [
+      {
+        "label": "Libros",
+        "url": "https://www.amazon.com/-/es/stores/author/B001JWSNZC"
+      },
       {
         "label": "Blog",
         "url": "blog.html"
@@ -164,6 +164,23 @@
   },
   {
     "label": "Enlaces",
-    "url": "enlaces.html"
+    "children": [
+      {
+        "label": "Enciclopedia de la Literatura en México",
+        "url": "http://www.elem.mx/autor/datos/1676"
+      },
+      {
+        "label": "The Library of Congress",
+        "url": "https://id.loc.gov/authorities/names/n93118673.html"
+      },
+      {
+        "label": "Arizona State University",
+        "url": "https://keep.lib.asu.edu/items/149713"
+      },
+      {
+        "label": "ResearchGate",
+        "url": "https://www.researchgate.net/profile/Carlos-Adolfo-Gutierrez-Vidal"
+      }
+    ]
   }
 ]
