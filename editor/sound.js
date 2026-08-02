@@ -222,6 +222,116 @@
     if (element) element.setAttribute("content", value);
   }
 
+  function ensureHeadAsset(doc, selector, create) {
+    let node = doc.querySelector(selector);
+    if (!node) {
+      node = create();
+      doc.head.appendChild(node);
+    }
+    return node;
+  }
+
+  function ensureSoundPageStructure(doc) {
+    ensureHeadAsset(doc, 'link[href$="sound-viewer.css"]', () => {
+      const link = doc.createElement("link");
+      link.rel = "stylesheet";
+      link.href = "src/css/sound-viewer.css";
+      return link;
+    });
+
+    ensureHeadAsset(doc, 'script[type="importmap"]', () => {
+      const script = doc.createElement("script");
+      script.type = "importmap";
+      script.textContent = JSON.stringify({
+        imports: {
+          three: "https://unpkg.com/three@0.167.1/build/three.module.js",
+          OrbitControls: "https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
+        }
+      }, null, 2);
+      return script;
+    });
+
+    const body = doc.body;
+    const footerMarker = body.querySelector("[data-site-footer]");
+
+    let main = doc.querySelector("main.sound-page");
+    if (!main) {
+      main = doc.createElement("main");
+      main.className = "sound-page";
+      const oldMain = doc.querySelector("main");
+      if (oldMain) oldMain.replaceWith(main);
+      else body.insertBefore(main, footerMarker || null);
+    }
+
+    let viewer = doc.querySelector("#sound-viewer");
+    if (!viewer) {
+      viewer = doc.createElement("section");
+      viewer.id = "sound-viewer";
+      viewer.className = "sound-panorama";
+      viewer.setAttribute("aria-label", "Panorama sonoro interactivo");
+      main.prepend(viewer);
+    } else if (!main.contains(viewer)) {
+      main.prepend(viewer);
+    }
+
+    let help = viewer.querySelector(".sound-help");
+    if (!help) {
+      help = doc.createElement("p");
+      help.className = "sound-help";
+      viewer.prepend(help);
+    }
+
+    let archive = doc.querySelector(".sound-archive");
+    if (!archive) {
+      archive = doc.createElement("section");
+      archive.className = "sound-archive";
+      archive.setAttribute("aria-labelledby", "sound-archive-title");
+      archive.innerHTML = `
+        <div class="sound-archive__inner">
+          <header class="sound-archive__header">
+            <h2 id="sound-archive-title">Archivo sonoro</h2>
+            <p>Lista accesible de las piezas y grabaciones disponibles en el panorama.</p>
+          </header>
+          <div class="sound-list" id="sound-list"></div>
+        </div>`;
+      body.insertBefore(archive, footerMarker || null);
+    }
+
+    let dialog = doc.querySelector("#sound-dialog");
+    if (!dialog) {
+      dialog = doc.createElement("dialog");
+      dialog.id = "sound-dialog";
+      dialog.className = "sound-dialog";
+      dialog.setAttribute("aria-labelledby", "sound-dialog-title");
+      dialog.innerHTML = `
+        <header class="sound-dialog__header">
+          <h2 id="sound-dialog-title">Escuchar</h2>
+          <button class="sound-dialog__close" id="sound-dialog-close" type="button" aria-label="Cerrar">×</button>
+        </header>
+        <div class="sound-dialog__body">
+          <p class="sound-dialog__description" id="sound-dialog-description"></p>
+          <div class="sound-embed" id="sound-embed"></div>
+          <a class="sound-source-link" id="sound-source-link" href="#" target="_blank" rel="noopener noreferrer">Abrir en la plataforma original</a>
+        </div>`;
+      body.insertBefore(dialog, footerMarker || null);
+    }
+
+    ensureHeadAsset(doc, 'script[type="module"][src$="sound-viewer.js"]', () => {
+      const script = doc.createElement("script");
+      script.type = "module";
+      script.src = "src/js/sound-viewer.js";
+      body.appendChild(script);
+      return script;
+    });
+
+    return {
+      help: viewer.querySelector(".sound-help"),
+      archiveHeading: archive.querySelector("#sound-archive-title"),
+      archiveParagraph: archive.querySelector(".sound-archive__header p"),
+      list: archive.querySelector("#sound-list")
+    };
+  }
+
   async function buildSoundPage() {
     const title = cleanText(pageTitle.value);
     const description = cleanText(pageDescription.value);
@@ -234,13 +344,11 @@
 
     await readArchivePages();
     const doc = parseHTML(soundPageSource);
-    const helpNode = doc.querySelector(".sound-help");
-    const archiveHeading = doc.querySelector("#sound-archive-title");
-    const archiveParagraph = doc.querySelector(".sound-archive__header p");
-    const list = doc.querySelector("#sound-list");
-    if (!helpNode || !archiveHeading || !archiveParagraph || !list) {
-      throw new Error("sonido.html no contiene la estructura editable esperada.");
-    }
+    const structure = ensureSoundPageStructure(doc);
+    const helpNode = structure.help;
+    const archiveHeading = structure.archiveHeading;
+    const archiveParagraph = structure.archiveParagraph;
+    const list = structure.list;
 
     doc.title = title;
     updateMeta(doc, 'meta[name="description"]', description);

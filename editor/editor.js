@@ -266,6 +266,13 @@
 
     if (node.tagName === "FIGURE" && node.classList.contains("embed-player")) {
       cleanElement.className = "embed-player embed-player--generic";
+      const interactivePath = node.getAttribute("data-interactive-path") || "";
+      if (interactivePath && /^public\/interactive\/[a-z0-9._-]+\.html$/i.test(interactivePath)) {
+        cleanElement.className = "embed-player embed-player--generic interactive-html";
+        cleanElement.setAttribute("data-interactive-path", interactivePath);
+        cleanElement.setAttribute("data-embed-title", node.getAttribute("data-embed-title") || "HTML interactivo");
+        cleanElement.setAttribute("contenteditable", "false");
+      }
       const embedCode = node.getAttribute("data-embed-code") || "";
       if (embedCode) {
         try {
@@ -314,6 +321,10 @@
         cleanElement.setAttribute("target", "_blank");
         cleanElement.setAttribute("rel", "noopener noreferrer");
       }
+      const classes = [...node.classList].filter(name =>
+        ["content-button", "content-button--primary", "content-button--secondary"].includes(name)
+      );
+      if (classes.length) cleanElement.className = classes.join(" ");
     }
 
     if (node.tagName === "IMG") {
@@ -413,10 +424,24 @@
 
     holder.querySelectorAll("iframe, object, embed, audio, video").forEach((embedNode) => {
       if (embedNode.closest("figure.embed-player")) return;
+      const source = embedNode.getAttribute("src") || embedNode.getAttribute("data") || "";
+      const localMatch = source.match(/(?:^|\/)public\/interactive\/([^?#]+\.html)(?:[?#].*)?$/i);
       const figure = parsed.createElement("figure");
       embedNode.replaceWith(figure);
-      figure.appendChild(embedNode);
-      placeholderForEmbed(figure, embedNode);
+
+      if (embedNode.tagName === "IFRAME" && localMatch) {
+        figure.className = "embed-player embed-player--generic interactive-html";
+        figure.setAttribute("data-interactive-path", `public/interactive/${localMatch[1]}`);
+        figure.setAttribute("data-embed-title", embedNode.getAttribute("title") || "HTML interactivo");
+        figure.setAttribute("contenteditable", "false");
+        const label = parsed.createElement("p");
+        label.className = "embed-placeholder-label";
+        label.textContent = `${figure.getAttribute("data-embed-title")} · archivo HTML`;
+        figure.appendChild(label);
+      } else {
+        figure.appendChild(embedNode);
+        placeholderForEmbed(figure, embedNode);
+      }
     });
 
     // Widgets del tipo <a ...></a><script src="..."></script>, como Spreaker.
@@ -447,6 +472,23 @@
       image.setAttribute("src", `${rootFor(pagePath)}${sitePath}`);
       image.removeAttribute("data-site-path");
     });
+    holder.querySelectorAll("figure.interactive-html[data-interactive-path]").forEach((figure) => {
+      const sitePath = figure.getAttribute("data-interactive-path");
+      const title = figure.getAttribute("data-embed-title") || "HTML interactivo";
+      figure.querySelector(".embed-placeholder-label")?.remove();
+      figure.removeAttribute("data-interactive-path");
+      figure.removeAttribute("data-embed-title");
+      figure.removeAttribute("contenteditable");
+      figure.className = "embed-player embed-player--generic interactive-html";
+      const iframe = parsed.createElement("iframe");
+      iframe.src = `${rootFor(pagePath)}${sitePath}`;
+      iframe.title = title;
+      iframe.loading = "lazy";
+      iframe.setAttribute("allowfullscreen", "");
+      iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-popups allow-downloads");
+      figure.insertBefore(iframe, figure.firstChild);
+    });
+
     holder.querySelectorAll("figure.embed-player[data-embed-code]").forEach((figure) => {
       const sanitized = GVEmbeds.sanitize(figure.getAttribute("data-embed-code"), {
         title: figure.getAttribute("data-embed-title") || "Contenido incrustado"
@@ -608,11 +650,11 @@
   }
 
   function hasEmbeddedPlayer(html) {
-    return /class=["'][^"']*\bembed-player\b/i.test(String(html || ""));
+    return /class=["'][^"']*\b(?:embed-player|content-button)\b/i.test(String(html || ""));
   }
 
   function ensureEmbedStylesheet(doc, pagePath) {
-    if (!doc.querySelector("figure.embed-player")) return;
+    if (!doc.querySelector("figure.embed-player, a.content-button")) return;
     let link = doc.querySelector('link[data-gv-embeds], link[href$="media-embeds.css"]');
     if (!link) {
       link = doc.createElement("link");
@@ -1400,6 +1442,88 @@
       body.appendChild(node);
     }
   }
+
+  $("#insert-link-button").addEventListener("click", () => {
+    saveSelection();
+    const label = prompt("Texto del botón:", "");
+    if (label === null) return;
+    if (!label.trim()) {
+      formStatus.textContent = "El texto del botón es obligatorio.";
+      return;
+    }
+
+    const href = prompt("Enlace del botón:", "https://");
+    if (href === null) return;
+    if (!isSafeUrl(href) || !href.trim()) {
+      formStatus.textContent = "El enlace del botón no es válido.";
+      return;
+    }
+
+    const style = prompt("Estilo: primario o secundario", "primario");
+    if (style === null) return;
+
+    const link = document.createElement("a");
+    link.href = href.trim();
+    link.textContent = label.trim();
+    link.className = style.trim().toLowerCase().startsWith("sec")
+      ? "content-button content-button--secondary"
+      : "content-button content-button--primary";
+    if (/^https?:/i.test(link.href)) {
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+    }
+    insertNodeAtSavedSelection(link);
+    formStatus.textContent = "Botón con enlace insertado.";
+  });
+
+  $("#insert-html-file").addEventListener("click", () => {
+    saveSelection();
+    $("#interactive-html-file").click();
+  });
+
+  $("#interactive-html-file").addEventListener("change", async event => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    try {
+      if (!/\\.html?$/i.test(file.name) && file.type !== "text/html") {
+        throw new Error("Selecciona un archivo HTML.");
+      }
+
+      const source = await file.text();
+      if (!/<html[\\s>]/i.test(source) && !/<!doctype\\s+html/i.test(source)) {
+        throw new Error("El archivo no contiene un documento HTML completo.");
+      }
+
+      const title = prompt("Título del HTML interactivo:", file.name.replace(/\\.html?$/i, ""));
+      if (title === null) return;
+      if (!title.trim()) throw new Error("El título es obligatorio.");
+
+      const base = slugify(file.name.replace(/\\.html?$/i, "")) || "interactivo";
+      const suffix = crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : String(Date.now());
+      const filename = `${base}-${suffix}.html`;
+      const sitePath = `public/interactive/${filename}`;
+
+      await GVPatches.savePatch(sitePath, file);
+
+      const figure = document.createElement("figure");
+      figure.className = "embed-player embed-player--generic interactive-html";
+      figure.setAttribute("data-interactive-path", sitePath);
+      figure.setAttribute("data-embed-title", title.trim());
+      figure.setAttribute("contenteditable", "false");
+
+      const label = document.createElement("p");
+      label.className = "embed-placeholder-label";
+      label.textContent = `${title.trim()} · archivo HTML`;
+      figure.appendChild(label);
+
+      insertNodeAtSavedSelection(figure);
+      formStatus.textContent = `HTML interactivo añadido: ${sitePath}`;
+    } catch (error) {
+      formStatus.textContent = error.message;
+    }
+  });
 
   $("#insert-embed").addEventListener("click", () => {
     saveSelection();

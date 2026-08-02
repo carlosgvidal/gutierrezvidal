@@ -140,3 +140,71 @@ body,
 .testimonials {
   border-color: var(--rule);
 }
+
+
+/* v2.7 — HTML interactivo local */
+.embed-player.interactive-html {
+  width: 100%;
+  margin: clamp(32px, 6vw, 72px) 0;
+}
+
+.embed-player.interactive-html iframe {
+  display: block;
+  width: 100%;
+  min-height: min(78vh, 860px);
+  height: clamp(520px, 72vh, 900px);
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+
+/* v2.7 — botones editoriales con enlace */
+.content-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  margin: 10px 12px 10px 0;
+  padding: 11px 18px;
+  border: 1px solid var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
+.content-button--primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.content-button--primary:hover,
+.content-button--primary:focus-visible {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.content-button--secondary {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.content-button--secondary:hover,
+.content-button--secondary:focus-visible {
+  background: var(--panel);
+  border-color: var(--accent);
+}
+
+@media (max-width: 640px) {
+  .embed-player.interactive-html iframe {
+    min-height: 480px;
+    height: 70vh;
+  }
+
+  .content-button {
+    width: 100%;
+    margin-right: 0;
+  }
+}
