@@ -401,7 +401,9 @@ ${doc.documentElement.outerHTML}`;
       const title = document.createElement("strong");
       title.textContent = item.title || "Sin título";
       const state = document.createElement("small");
-      state.textContent = item.published === false ? "Borrador" : "Publicado";
+      state.textContent = item.published === false
+        ? "No aparece en sonido.html · Borrador"
+        : "Visible en sonido.html · Publicado";
       text.append(title, state);
       identity.append(order, text);
       identity.addEventListener("click", () => {
@@ -631,12 +633,12 @@ ${doc.documentElement.outerHTML}`;
       sourceUrl: "",
       imageX: Math.round(data.panorama.width / 2),
       imageY: Math.round(data.panorama.height / 2),
-      published: false
+      published: true
     };
     data.hotspots.push(item);
     selectedId = item.id;
     render();
-    markDirty("Hotspot agregado como borrador. Completa sus datos y ubícalo.");
+    markDirty("Hotspot agregado como publicado. Completa el código incrustado y ubícalo.");
     fields.title.select();
   });
 

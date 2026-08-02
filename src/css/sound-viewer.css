@@ -254,3 +254,46 @@
 
 .sound-embed audio { min-height: 54px; }
 .sound-embed video { height: auto; }
+
+
+/* v2.5 — visibilidad determinista de hotspots sobre el panorama */
+.sound-panorama__canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.sound-help {
+  z-index: 5;
+}
+
+.sound-hotspot {
+  z-index: 10;
+  display: none;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.sound-hotspot.is-visible {
+  display: inline-flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.sound-hotspot[aria-hidden="true"] {
+  display: none !important;
+}
+
+.sound-panorama--without-hotspots::after {
+  content: "No hay hotspots publicados";
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  z-index: 6;
+  padding: 6px 9px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(0,0,0,.5);
+  color: rgba(255,255,255,.75);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
