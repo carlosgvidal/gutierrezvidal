@@ -334,3 +334,30 @@
     font-size: clamp(38px, 12vw, 66px);
   }
 }
+
+
+/* v2.3 — conservar la proporción original de la imagen en la portada */
+.home-latest-blog__content {
+  align-items: start;
+}
+
+.home-latest-blog__image {
+  overflow: visible;
+  align-self: start;
+  background: transparent;
+}
+
+.home-latest-blog__image img {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  aspect-ratio: auto;
+  object-fit: contain;
+  object-position: center top;
+}
+
+@media (min-width: 761px) {
+  .home-latest-blog__image {
+    margin-left: clamp(-20px, -1.5vw, 0px);
+  }
+}

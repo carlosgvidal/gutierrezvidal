@@ -1,0 +1,191 @@
+
+.hotspot-editor-v23 {
+  width: min(1500px, calc(100% - 32px));
+}
+
+.hotspot-header {
+  align-items: flex-end;
+}
+
+.hotspot-header .actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.hotspot-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 390px);
+  gap: 24px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.hotspot-stage-panel,
+.hotspot-inspector {
+  border: 1px solid var(--rule);
+  background: var(--panel);
+}
+
+.hotspot-stage-panel {
+  padding: 18px;
+}
+
+.hotspot-stage-toolbar,
+.hotspot-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+
+.hotspot-stage-toolbar h2,
+.hotspot-list-header h2,
+.hotspot-inspector h2 {
+  margin: 3px 0 0;
+}
+
+#hotspot-stage {
+  margin-top: 0;
+}
+
+.hotspot-marker[aria-pressed="true"] {
+  background: #fff;
+  color: #111;
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
+.hotspot-list-panel {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+.hotspot-list {
+  display: grid;
+  border-top: 1px solid var(--rule);
+}
+
+.hotspot-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.hotspot-list-item.is-selected {
+  background: rgba(0, 0, 0, .045);
+}
+
+.hotspot-list-select {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hotspot-list-select:hover,
+.hotspot-list-select:focus-visible {
+  background: rgba(0, 0, 0, .055);
+  outline: none;
+}
+
+.hotspot-list-index {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+
+.hotspot-list-select strong,
+.hotspot-list-select small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hotspot-list-select strong {
+  font-weight: 500;
+}
+
+.hotspot-list-select small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.hotspot-list-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.hotspot-list-actions button {
+  padding: 8px 10px;
+}
+
+.hotspot-inspector {
+  position: sticky;
+  top: 18px;
+  padding: 22px;
+  scroll-margin-top: 18px;
+}
+
+.hotspot-inspector form {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.hotspot-inspector label {
+  display: grid;
+  gap: 7px;
+}
+
+.hotspot-coordinate-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 940px) {
+  .hotspot-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .hotspot-inspector {
+    position: static;
+    border-width: 2px;
+  }
+}
+
+@media (max-width: 700px) {
+  .hotspot-header {
+    display: grid;
+  }
+
+  .hotspot-header .actions {
+    justify-content: stretch;
+  }
+
+  .hotspot-header .actions > * {
+    width: 100%;
+  }
+
+  .hotspot-list-item {
+    grid-template-columns: 1fr;
+  }
+
+  .hotspot-list-actions {
+    justify-content: flex-end;
+  }
+}
