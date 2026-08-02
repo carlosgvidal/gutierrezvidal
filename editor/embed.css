@@ -1,3 +1,5 @@
+@import url("../src/css/palette-v2.6.css");
+@import url("../src/css/typography-v3.0.css");
 
 .embed-dialog {
   width: min(680px, calc(100vw - 28px));
@@ -6,11 +8,11 @@
   border: 1px solid var(--rule);
   background: var(--panel);
   color: inherit;
-  box-shadow: 0 24px 90px rgba(0,0,0,.3);
+  box-shadow: 0 24px 90px rgba(0, 0, 0, .3);
 }
 
 .embed-dialog::backdrop {
-  background: rgba(0,0,0,.58);
+  background: rgba(0, 0, 0, .58);
   backdrop-filter: blur(4px);
 }
 
@@ -48,7 +50,7 @@
   min-height: 120px;
   padding: 12px;
   border: 1px dashed var(--rule);
-  background: rgba(0,0,0,.025);
+  background: rgba(0, 0, 0, .025);
 }
 
 .rich-editor figure.embed-player::before {
@@ -65,14 +67,14 @@
   width: 100%;
   border: 0;
   pointer-events: none;
-  background: #111;
+  background: #000000000;
 }
 
 .rich-editor .embed-placeholder-label {
   margin: 0;
   padding: 18px;
   border: 1px solid var(--rule);
-  background: rgba(0,0,0,.04);
+  background: rgba(0, 0, 0, .04);
   font-weight: 600;
   pointer-events: none;
 }
@@ -94,27 +96,91 @@
 }
 
 
-.rich-editor .interactive-html {
-  min-height: 110px;
-  padding: 18px;
-  border: 2px solid var(--accent);
-  background: var(--panel);
-}
-
-.rich-editor .content-button {
-  display: inline-block;
-  margin: 8px 10px 8px 0;
-  padding: 10px 16px;
-  border: 1px solid var(--ink);
-  text-decoration: none;
-}
-
-.rich-editor .content-button--primary {
-  background: var(--ink);
-  color: var(--paper);
-}
-
-.rich-editor .content-button--secondary {
-  background: var(--paper);
+/* v2.6 — aplicación estricta de la paleta */
+body,
+.page,
+.home-main,
+.site-header,
+.site-footer,
+.panel,
+.tool-card,
+.menu-tree-panel,
+.menu-inspector,
+.sound-stage-panel,
+.sound-inspector,
+.hotspot-stage-panel,
+.hotspot-inspector,
+.embed-dialog {
+  background-color: var(--paper);
   color: var(--ink);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item,
+  .menu-select,
+  .hotspot-list-item,
+  .sound-hotspot-list-item,
+  input,
+  textarea,
+  select
+) {
+  border-color: var(--rule);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item
+):where(:hover, :focus-within) {
+  border-color: var(--accent);
+}
+
+:is(
+  .eyebrow,
+  .page-kicker,
+  .field-help,
+  .status,
+  time,
+  figcaption,
+  small,
+  .muted
+) {
+  color: var(--rule);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot,
+  .menu-select[aria-current="true"],
+  .hotspot-list-item.is-selected,
+  .sound-hotspot-list-item.is-selected
+) {
+  background-color: var(--ink);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot
+):where(:hover, :focus-visible) {
+  background-color: var(--accent);
+  color: var(--ink);
+}
+
+.site-footer,
+.site-header,
+.blog-editorial,
+.blog-latest,
+.blog-archive-list,
+.home-latest-blog,
+.practice-statement,
+.testimonials {
+  border-color: var(--rule);
 }

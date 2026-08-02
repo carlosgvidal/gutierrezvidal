@@ -1,0 +1,288 @@
+/*
+ * Sistema tipográfico editorial v3.0
+ * Escala fluida, ritmo vertical, ancho de lectura, justificación e hifenación.
+ */
+:root {
+  --font-reading: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-ui: "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  --text--2: clamp(.74rem, .71rem + .12vw, .82rem);
+  --text--1: clamp(.84rem, .80rem + .16vw, .94rem);
+  --text-0: clamp(1rem, .95rem + .22vw, 1.125rem);
+  --text-1: clamp(1.20rem, 1.08rem + .48vw, 1.50rem);
+  --text-2: clamp(1.50rem, 1.28rem + .92vw, 2rem);
+  --text-3: clamp(1.95rem, 1.55rem + 1.65vw, 3rem);
+  --text-4: clamp(2.70rem, 1.95rem + 3vw, 5rem);
+  --text-5: clamp(3.60rem, 2.40rem + 5vw, 7.75rem);
+
+  --leading-tight: .94;
+  --leading-heading: 1.03;
+  --leading-copy: 1.58;
+  --leading-reading: 1.68;
+
+  --measure-copy: 68ch;
+  --measure-narrow: 54ch;
+  --measure-wide: 78ch;
+
+  --space-text-xs: clamp(.45rem, .38rem + .3vw, .68rem);
+  --space-text-sm: clamp(.75rem, .64rem + .45vw, 1rem);
+  --space-text-md: clamp(1.15rem, .95rem + .75vw, 1.60rem);
+  --space-text-lg: clamp(1.85rem, 1.45rem + 1.5vw, 2.85rem);
+  --space-text-xl: clamp(2.80rem, 2rem + 3vw, 5rem);
+}
+
+html {
+  font-family: var(--font-reading);
+  font-size: 100%;
+  line-height: var(--leading-copy);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  font-kerning: normal;
+  font-synthesis: none;
+}
+
+body {
+  font-family: var(--font-reading);
+  font-size: var(--text-0);
+  line-height: var(--leading-copy);
+}
+
+:where(
+  button,
+  input,
+  select,
+  textarea,
+  nav,
+  .site-header,
+  .site-footer,
+  .editor-nav,
+  .toolbar,
+  .actions,
+  .status,
+  .field-help,
+  .eyebrow,
+  .page-kicker,
+  .step-number
+) {
+  font-family: var(--font-ui);
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  margin-block: 0;
+  font-family: var(--font-reading);
+  font-weight: 500;
+  line-height: var(--leading-heading);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+
+h1,
+.page-title {
+  font-size: var(--text-4);
+  line-height: var(--leading-tight);
+  letter-spacing: -.045em;
+}
+
+h2 {
+  font-size: var(--text-3);
+  letter-spacing: -.03em;
+}
+
+h3 {
+  font-size: var(--text-2);
+  letter-spacing: -.018em;
+}
+
+h4 {
+  font-size: var(--text-1);
+}
+
+:where(.display-title, .hero-title, .home-latest-blog h2) {
+  font-size: var(--text-5);
+  line-height: .90;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+:where(
+  .prose,
+  .page-deck,
+  .practice-statement,
+  .testimonial,
+  .blog-card__content,
+  .blog-editorial,
+  .blog-archive-list,
+  .home-latest-blog__content,
+  .sound-item,
+  .page-aside,
+  .editorial-copy
+) {
+  font-size: var(--text-0);
+}
+
+:where(
+  .prose,
+  .editorial-copy,
+  .page-deck,
+  .blog-editorial p,
+  .home-latest-blog__content > div,
+  .practice-statement__intro,
+  .page-aside
+) {
+  max-width: var(--measure-copy);
+}
+
+:where(.prose, .editorial-copy) {
+  line-height: var(--leading-reading);
+}
+
+:where(
+  .prose,
+  .editorial-copy,
+  .page-deck,
+  .practice-statement,
+  .testimonial,
+  .testimonials,
+  .blog-card__content,
+  .blog-editorial,
+  .blog-archive-list,
+  .home-latest-blog__content,
+  .sound-item,
+  .page-aside,
+  article
+) :where(p, li, blockquote) {
+  text-align: justify;
+  text-justify: inter-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  hanging-punctuation: first last;
+}
+
+:where(
+  nav,
+  header,
+  footer,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  button,
+  label,
+  figcaption,
+  time,
+  .eyebrow,
+  .page-kicker,
+  .field-help,
+  .status,
+  .sound-help,
+  .hotspot-marker,
+  .sound-hotspot
+) {
+  text-align: left;
+  -webkit-hyphens: none;
+  hyphens: none;
+}
+
+:where(.prose, .editorial-copy) > * + * {
+  margin-block-start: var(--space-text-md);
+}
+
+:where(.prose, .editorial-copy) > :where(h2, h3, h4) {
+  margin-block-start: var(--space-text-xl);
+  margin-block-end: var(--space-text-sm);
+}
+
+:where(.prose, .editorial-copy) > h2 + *,
+:where(.prose, .editorial-copy) > h3 + *,
+:where(.prose, .editorial-copy) > h4 + * {
+  margin-block-start: 0;
+}
+
+:where(.prose, .editorial-copy) :where(ul, ol) {
+  padding-inline-start: 1.25em;
+}
+
+:where(.prose, .editorial-copy) li + li {
+  margin-block-start: .45em;
+}
+
+blockquote {
+  max-width: var(--measure-narrow);
+  margin-inline: 0;
+  padding-inline-start: clamp(1rem, 2.5vw, 2rem);
+  border-inline-start: 1px solid var(--rule);
+  font-size: var(--text-1);
+  line-height: var(--leading-copy);
+}
+
+figcaption,
+time,
+small,
+.eyebrow,
+.page-kicker,
+.field-help,
+.status,
+.meta {
+  font-size: var(--text--1);
+  line-height: 1.4;
+}
+
+:where(nav, .site-header, .site-footer, button, .content-button) {
+  font-size: var(--text--1);
+  letter-spacing: .035em;
+}
+
+:where(.eyebrow, .page-kicker, .step-number) {
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+:where(code, pre) {
+  font-size: .92em;
+  font-variant-ligatures: none;
+}
+
+:where(.rich-editor, [contenteditable="true"]) {
+  font-family: var(--font-reading);
+  font-size: var(--text-0);
+  line-height: var(--leading-reading);
+}
+
+:where(.rich-editor, [contenteditable="true"]) :where(p, li, blockquote) {
+  text-align: justify;
+  text-justify: inter-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+}
+
+@media (max-width: 680px) {
+  :root {
+    --measure-copy: 100%;
+  }
+
+  :where(
+    .prose,
+    .editorial-copy,
+    .page-deck,
+    .practice-statement,
+    .testimonial,
+    .blog-card__content,
+    .blog-editorial,
+    .blog-archive-list,
+    .home-latest-blog__content,
+    .sound-item,
+    .page-aside,
+    article
+  ) :where(p, li, blockquote) {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

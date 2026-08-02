@@ -1,4 +1,5 @@
 @import url("../src/css/palette-v2.6.css");
+@import url("../src/css/typography-v3.0.css");
 
 .sound-editor {
   width: min(1500px, calc(100% - 32px));
