@@ -235,7 +235,7 @@ img { max-width: 100%; }
 .page-title {
   margin: 0;
   font-size: clamp(48px, 8vw, 104px);
-  font-weight: 400;
+  font-weight: 700;
   line-height: .94;
   letter-spacing: -.045em;
 }
