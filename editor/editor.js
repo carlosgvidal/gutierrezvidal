@@ -41,6 +41,8 @@
   const embedCode = $("#embed-code");
   const embedTitle = $("#embed-title");
   const embedCaption = $("#embed-caption");
+  const embedFullscreen = $("#embed-fullscreen");
+  const embedSubmit = $("#embed-submit");
   const embedStatus = $("#embed-status");
 
   let navigation = [];
@@ -56,6 +58,7 @@
   let asideImagePath = "";
   let heroPreviewUrl = "";
   let asidePreviewUrl = "";
+  let editingEmbedFigure = null;
 
   const esc = (value) => String(value)
     .replaceAll("&", "&amp;")
@@ -271,6 +274,7 @@
         cleanElement.className = "embed-player embed-player--generic interactive-html";
         cleanElement.setAttribute("data-interactive-path", interactivePath);
         cleanElement.setAttribute("data-embed-title", node.getAttribute("data-embed-title") || "HTML interactivo");
+        cleanElement.setAttribute("data-embed-fullscreen", node.getAttribute("data-embed-fullscreen") === "false" ? "false" : "true");
         cleanElement.setAttribute("contenteditable", "false");
       }
       const embedCode = node.getAttribute("data-embed-code") || "";
@@ -375,6 +379,95 @@
     return match ? `public/images/${match[1]}` : "";
   }
 
+  function embedCaptionText(figure) {
+    return figure.querySelector("figcaption")?.textContent?.trim() || "";
+  }
+
+  function createEmbedEditorControls(figure) {
+    figure.querySelector(".embed-editor-controls")?.remove();
+
+    const controls = figure.ownerDocument.createElement("div");
+    controls.className = "embed-editor-controls";
+    controls.setAttribute("contenteditable", "false");
+
+    for (const [action, label] of [
+      ["edit", "Editar"],
+      ["duplicate", "Duplicar"],
+      ["delete", "Eliminar"]
+    ]) {
+      const button = figure.ownerDocument.createElement("button");
+      button.type = "button";
+      button.dataset.embedAction = action;
+      button.textContent = label;
+      controls.appendChild(button);
+    }
+
+    figure.prepend(controls);
+    return figure;
+  }
+
+  function decorateEmbedFigures(root = body) {
+    root.querySelectorAll("figure.embed-player").forEach(createEmbedEditorControls);
+  }
+
+  async function textFromPatch(path) {
+    const value = await GVPatches.getFile(path);
+    if (value instanceof Blob) return value.text();
+    if (value instanceof Uint8Array) return new TextDecoder().decode(value);
+    return String(value ?? "");
+  }
+
+  function closeEmbedDialog() {
+    editingEmbedFigure = null;
+    delete embedDialog.dataset.interactivePath;
+    embedSubmit.textContent = "Insertar contenido incrustado";
+    embedDialog.close();
+  }
+
+  async function editEmbedFigure(figure) {
+    editingEmbedFigure = figure;
+    saveSelection();
+    embedForm.reset();
+    embedStatus.textContent = "";
+    embedFullscreen.checked = figure.getAttribute("data-embed-fullscreen") !== "false";
+    embedTitle.value = figure.getAttribute("data-embed-title") || "";
+    embedCaption.value = embedCaptionText(figure);
+    embedSubmit.textContent = "Guardar cambios";
+
+    const interactivePath = figure.getAttribute("data-interactive-path") || "";
+    if (interactivePath) {
+      embedCode.value = await textFromPatch(interactivePath);
+      embedDialog.dataset.interactivePath = interactivePath;
+    } else {
+      embedCode.value = figure.getAttribute("data-embed-code") || "";
+      delete embedDialog.dataset.interactivePath;
+    }
+
+    embedDialog.showModal();
+    embedCode.focus();
+  }
+
+  async function duplicateEmbedFigure(figure) {
+    const clone = figure.cloneNode(true);
+    clone.querySelector(".embed-editor-controls")?.remove();
+
+    const interactivePath = figure.getAttribute("data-interactive-path") || "";
+    if (interactivePath) {
+      const source = await textFromPatch(interactivePath);
+      const originalName = interactivePath.split("/").pop().replace(/\.html?$/i, "");
+      const suffix = crypto.randomUUID
+        ? crypto.randomUUID().slice(0, 8)
+        : String(Date.now());
+      const duplicatePath = `public/interactive/${originalName}-copia-${suffix}.html`;
+      await GVPatches.savePatch(duplicatePath, source);
+      clone.setAttribute("data-interactive-path", duplicatePath);
+    }
+
+    figure.insertAdjacentElement("afterend", clone);
+    createEmbedEditorControls(clone);
+    formStatus.textContent = "Contenido incrustado duplicado.";
+  }
+
   function placeholderForEmbed(figure, source, explicitTitle = "") {
     const rawCode = typeof source === "string" ? source : source.outerHTML;
     const sanitized = GVEmbeds.sanitize(rawCode, {
@@ -407,6 +500,7 @@
   function prepareEditorHTML(html, pagePath) {
     const parsed = new DOMParser().parseFromString(`<div>${html}</div>`, "text/html");
     const holder = parsed.body.firstElementChild;
+    holder.querySelectorAll(".embed-editor-controls").forEach(control => control.remove());
     holder.querySelectorAll("img").forEach((image) => {
       const sitePath = image.getAttribute("data-site-path")
         || siteImagePathFromSource(image.getAttribute("src") || "");
@@ -415,9 +509,43 @@
       image.setAttribute("src", new URL(`../${sitePath}`, location.href).href);
     });
     holder.querySelectorAll("figure.embed-player").forEach((figure) => {
-      if (figure.hasAttribute("data-embed-code")) return;
+      if (figure.hasAttribute("data-embed-code") || figure.hasAttribute("data-interactive-path")) return;
+
+      const localFrame = figure.querySelector("iframe[src*='public/interactive/']");
+      if (localFrame) {
+        const source = localFrame.getAttribute("src") || "";
+        const localMatch = source.match(/(?:^|\/)public\/interactive\/([^?#]+\.html)(?:[?#].*)?$/i);
+        if (localMatch) {
+          const captionText = figure.querySelector("figcaption")?.textContent?.trim() || "";
+          const title = localFrame.getAttribute("title")
+            || figure.querySelector(".interactive-app__title")?.textContent?.trim()
+            || "HTML interactivo";
+          const hasFullscreen = Boolean(figure.querySelector(".interactive-app__fullscreen"));
+
+          figure.replaceChildren();
+          figure.className = "embed-player embed-player--generic interactive-html";
+          figure.setAttribute("data-interactive-path", `public/interactive/${localMatch[1]}`);
+          figure.setAttribute("data-embed-title", title);
+          figure.setAttribute("data-embed-fullscreen", hasFullscreen ? "true" : "false");
+          figure.setAttribute("contenteditable", "false");
+
+          const label = parsed.createElement("p");
+          label.className = "embed-placeholder-label";
+          label.textContent = `${title} · aplicación interactiva`;
+          figure.appendChild(label);
+
+          if (captionText) {
+            const caption = parsed.createElement("figcaption");
+            caption.textContent = captionText;
+            figure.appendChild(caption);
+          }
+          return;
+        }
+      }
+
       const clone = figure.cloneNode(true);
       clone.querySelector("figcaption")?.remove();
+      clone.querySelector(".embed-editor-controls")?.remove();
       const hasWidget = clone.querySelector("iframe, object, embed, audio, video, script[src]");
       if (hasWidget) placeholderForEmbed(figure, clone.innerHTML);
     });
@@ -458,11 +586,17 @@
       }
       placeholderForEmbed(figure, figure.innerHTML);
     });
-    return sanitizeHTML(holder.innerHTML);
+    const prepared = sanitizeHTML(holder.innerHTML);
+    const finalDocument = new DOMParser().parseFromString(`<div>${prepared}</div>`, "text/html");
+    const finalHolder = finalDocument.body.firstElementChild;
+    decorateEmbedFigures(finalHolder);
+    return finalHolder.innerHTML;
   }
 
   function editorHTML(pagePath) {
-    const cleanHTML = sanitizeHTML(body.innerHTML);
+    const source = body.cloneNode(true);
+    source.querySelectorAll(".embed-editor-controls").forEach(control => control.remove());
+    const cleanHTML = sanitizeHTML(source.innerHTML);
     const parsed = new DOMParser().parseFromString(`<div>${cleanHTML}</div>`, "text/html");
     const holder = parsed.body.firstElementChild;
     holder.querySelectorAll("img").forEach((image) => {
@@ -475,18 +609,43 @@
     holder.querySelectorAll("figure.interactive-html[data-interactive-path]").forEach((figure) => {
       const sitePath = figure.getAttribute("data-interactive-path");
       const title = figure.getAttribute("data-embed-title") || "HTML interactivo";
+      const showFullscreen = figure.getAttribute("data-embed-fullscreen") !== "false";
+      const caption = figure.querySelector("figcaption");
       figure.querySelector(".embed-placeholder-label")?.remove();
       figure.removeAttribute("data-interactive-path");
       figure.removeAttribute("data-embed-title");
+      figure.removeAttribute("data-embed-fullscreen");
       figure.removeAttribute("contenteditable");
-      figure.className = "embed-player embed-player--generic interactive-html";
+      figure.className = "embed-player embed-player--generic interactive-html interactive-app";
+      figure.dataset.interactiveApp = "true";
+
+      const toolbar = parsed.createElement("div");
+      toolbar.className = "interactive-app__toolbar";
+      const heading = parsed.createElement("p");
+      heading.className = "interactive-app__title";
+      heading.textContent = title;
+      toolbar.appendChild(heading);
+
+      if (showFullscreen) {
+        const fullLink = parsed.createElement("a");
+        fullLink.className = "interactive-app__fullscreen";
+        fullLink.href = `${rootFor(pagePath)}${sitePath}`;
+        fullLink.target = "_blank";
+        fullLink.rel = "noopener";
+        fullLink.textContent = "Abrir a pantalla completa";
+        toolbar.appendChild(fullLink);
+      }
+
       const iframe = parsed.createElement("iframe");
       iframe.src = `${rootFor(pagePath)}${sitePath}`;
       iframe.title = title;
-      iframe.loading = "lazy";
+      iframe.loading = "eager";
       iframe.setAttribute("allowfullscreen", "");
       iframe.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-popups allow-downloads");
-      figure.insertBefore(iframe, figure.firstChild);
+      iframe.dataset.interactiveFrame = "true";
+
+      figure.insertBefore(toolbar, caption || null);
+      figure.insertBefore(iframe, caption || null);
     });
 
     holder.querySelectorAll("figure.embed-player[data-embed-code]").forEach((figure) => {
@@ -665,6 +824,23 @@
     link.href = `${rootFor(pagePath)}src/css/media-embeds.css`;
   }
 
+  function hasInteractiveApp(html) {
+    return /class=["'][^"']*\binteractive-app\b/i.test(String(html || ""))
+      || /data-interactive-app=["']true["']/i.test(String(html || ""));
+  }
+
+  function ensureInteractiveRuntime(doc, pagePath) {
+    if (!doc.querySelector("figure.interactive-app, [data-interactive-app='true']")) return;
+    let script = doc.querySelector('script[data-gv-interactive], script[src$="interactive-embed.js"]');
+    if (!script) {
+      script = doc.createElement("script");
+      script.defer = true;
+      script.dataset.gvInteractive = "true";
+      doc.body.appendChild(script);
+    }
+    script.src = `${rootFor(pagePath)}src/js/interactive-embed.js`;
+  }
+
   function pageHTML(data) {
     const root = rootFor(data.path);
     const url = canonical(data.path);
@@ -731,6 +907,7 @@
   </main>
   <div data-site-footer></div>
   <script src="${root}src/js/site-shell-v2.1.js"></script>
+  ${hasInteractiveApp(data.body) ? `<script defer data-gv-interactive="true" src="${root}src/js/interactive-embed.js"></script>` : ""}
 </body>
 </html>`;
   }
@@ -752,6 +929,7 @@
     article.innerHTML = data.body;
     applyMediaToDocument(doc, data);
     ensureEmbedStylesheet(doc, data.path);
+    ensureInteractiveRuntime(doc, data.path);
     doc.title = `${data.title} · Carlos Adolfo Gutiérrez Vidal`;
     updateMeta(doc, 'meta[name="description"]', data.description);
     updateMeta(doc, 'meta[property="og:title"]', data.title);
@@ -1536,6 +1714,7 @@
     figure.className = "embed-player embed-player--generic interactive-html";
     figure.setAttribute("data-interactive-path", sitePath);
     figure.setAttribute("data-embed-title", requestedTitle);
+    figure.setAttribute("data-embed-fullscreen", embedFullscreen.checked ? "true" : "false");
     figure.setAttribute("contenteditable", "false");
 
     const label = document.createElement("p");
@@ -1549,9 +1728,14 @@
       figure.appendChild(caption);
     }
 
-    insertNodeAtSavedSelection(figure);
-    embedDialog.close();
-    formStatus.textContent = `HTML interactivo añadido: ${sitePath}`;
+    createEmbedEditorControls(figure);
+    if (editingEmbedFigure) {
+      editingEmbedFigure.replaceWith(figure);
+    } else {
+      insertNodeAtSavedSelection(figure);
+    }
+    closeEmbedDialog();
+    formStatus.textContent = `HTML interactivo guardado: ${sitePath}`;
   }
 
   $("#embed-html-file-button").addEventListener("click", () => {
@@ -1570,21 +1754,50 @@
 
   $("#insert-embed").addEventListener("click", () => {
     saveSelection();
+    editingEmbedFigure = null;
+    delete embedDialog.dataset.interactivePath;
     embedForm.reset();
+    embedFullscreen.checked = true;
+    embedSubmit.textContent = "Insertar contenido incrustado";
     embedStatus.textContent = "";
     embedDialog.showModal();
     embedCode.focus();
   });
 
-  $("#embed-close").addEventListener("click", () => embedDialog.close());
-  $("#embed-cancel").addEventListener("click", () => embedDialog.close());
+  $("#embed-close").addEventListener("click", closeEmbedDialog);
+  $("#embed-cancel").addEventListener("click", closeEmbedDialog);
 
-  embedForm.addEventListener("submit", event => {
+  embedForm.addEventListener("submit", async event => {
     event.preventDefault();
     embedStatus.textContent = "";
     try {
       const accessibleTitle = embedTitle.value.trim();
-      const sanitized = GVEmbeds.sanitize(embedCode.value, {title: accessibleTitle});
+      const raw = embedCode.value.trim();
+      const editingInteractivePath = embedDialog.dataset.interactivePath || "";
+
+      if (editingInteractivePath && (/<!doctype\s+html/i.test(raw) || /<html[\s>]/i.test(raw))) {
+        await GVPatches.savePatch(editingInteractivePath, raw);
+        editingEmbedFigure.setAttribute("data-embed-title", accessibleTitle || editingEmbedFigure.getAttribute("data-embed-title") || "HTML interactivo");
+        editingEmbedFigure.setAttribute("data-embed-fullscreen", embedFullscreen.checked ? "true" : "false");
+        const label = editingEmbedFigure.querySelector(".embed-placeholder-label");
+        if (label) label.textContent = `${editingEmbedFigure.getAttribute("data-embed-title")} · aplicación interactiva`;
+        let caption = editingEmbedFigure.querySelector("figcaption");
+        if (embedCaption.value.trim()) {
+          if (!caption) {
+            caption = document.createElement("figcaption");
+            editingEmbedFigure.appendChild(caption);
+          }
+          caption.textContent = embedCaption.value.trim();
+        } else {
+          caption?.remove();
+        }
+        createEmbedEditorControls(editingEmbedFigure);
+        closeEmbedDialog();
+        formStatus.textContent = "Aplicación interactiva actualizada.";
+        return;
+      }
+
+      const sanitized = GVEmbeds.sanitize(raw, {title: accessibleTitle});
 
       const figure = document.createElement("figure");
       figure.className = "embed-player embed-player--generic";
@@ -1604,11 +1817,53 @@
         figure.appendChild(caption);
       }
 
-      insertNodeAtSavedSelection(figure);
-      embedDialog.close();
-      formStatus.textContent = "Contenido incrustado insertado.";
+      createEmbedEditorControls(figure);
+      const wasEditing = Boolean(editingEmbedFigure);
+      if (editingEmbedFigure) {
+        editingEmbedFigure.replaceWith(figure);
+      } else {
+        insertNodeAtSavedSelection(figure);
+      }
+      closeEmbedDialog();
+      formStatus.textContent = wasEditing
+        ? "Contenido incrustado actualizado."
+        : "Contenido incrustado insertado.";
     } catch (error) {
       embedStatus.textContent = error.message;
+    }
+  });
+
+  body.addEventListener("click", async event => {
+    const button = event.target.closest("[data-embed-action]");
+    if (!button) return;
+    event.preventDefault();
+    event.stopPropagation();
+
+    const figure = button.closest("figure.embed-player");
+    if (!figure) return;
+
+    const action = button.dataset.embedAction;
+    if (action === "edit") {
+      try {
+        await editEmbedFigure(figure);
+      } catch (error) {
+        formStatus.textContent = error.message;
+      }
+      return;
+    }
+
+    if (action === "duplicate") {
+      try {
+        await duplicateEmbedFigure(figure);
+      } catch (error) {
+        formStatus.textContent = error.message;
+      }
+      return;
+    }
+
+    if (action === "delete" && confirm("¿Eliminar este contenido incrustado?")) {
+      figure.remove();
+      formStatus.textContent = "Contenido incrustado eliminado.";
     }
   });
 

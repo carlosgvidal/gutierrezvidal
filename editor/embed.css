@@ -184,3 +184,49 @@ body,
 .testimonials {
   border-color: var(--rule);
 }
+
+
+/* v3.1 — edición completa de bloques incrustados */
+.embed-checkbox {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.embed-checkbox input {
+  width: auto;
+}
+
+.rich-editor figure.embed-player {
+  padding-top: 54px;
+}
+
+.embed-editor-controls {
+  position: absolute;
+  inset: 8px 8px auto;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.embed-editor-controls button {
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.embed-editor-controls button:hover,
+.embed-editor-controls button:focus-visible {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.rich-editor figure.interactive-html::before {
+  content: "Aplicación interactiva";
+}
