@@ -11,5 +11,18 @@
     },
     "fov": 82
   },
-  "hotspots": []
+  "hotspots": [
+    {
+      "id": "sonido-msb31qtq-cup6h7",
+      "title": "Inside My Mother's Heart",
+      "description": "",
+      "platform": "generic",
+      "embedCode": "<object data=\"https://open.spotify.com/embed/album/1ISWnhQWq6RH0v03eQ2uwR?utm_source=generator\" width=\"100%\" height=\"450\" title=\"Inside My Mother's Heart\"></object>",
+      "embedUrl": "https://open.spotify.com/embed/album/1ISWnhQWq6RH0v03eQ2uwR?utm_source=generator",
+      "sourceUrl": "/obra/sonido/inside-my-mothers-heart.html",
+      "imageX": 1188,
+      "imageY": 642,
+      "published": false
+    }
+  ]
 }
