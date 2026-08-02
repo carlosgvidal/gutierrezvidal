@@ -27,6 +27,27 @@
     }
   }
 
+  function alignApp(app) {
+    const gutter = window.innerWidth <= 680 ? 8 : 16;
+
+    app.style.width = "";
+    app.style.marginLeft = "";
+
+    const rect = app.getBoundingClientRect();
+    const availableWidth = Math.max(0, window.innerWidth - gutter * 2);
+    const targetWidth = Math.min(1500, availableWidth);
+
+    app.style.width = `${targetWidth}px`;
+
+    const adjustedRect = app.getBoundingClientRect();
+    const targetLeft = (window.innerWidth - targetWidth) / 2;
+    app.style.marginLeft = `${targetLeft - adjustedRect.left}px`;
+  }
+
+  function alignAllApps() {
+    document.querySelectorAll(".interactive-app").forEach(alignApp);
+  }
+
   function activate(frame) {
     frame.addEventListener("load", () => {
       resizeFrame(frame);
@@ -39,4 +60,10 @@
   }
 
   document.querySelectorAll("iframe[data-interactive-frame='true']").forEach(activate);
+
+  alignAllApps();
+  window.addEventListener("resize", alignAllApps, {passive: true});
+  window.addEventListener("orientationchange", () => {
+    requestAnimationFrame(alignAllApps);
+  });
 })();

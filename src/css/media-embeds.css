@@ -143,13 +143,15 @@ body,
 }
 
 
-/* v3.1 — aplicaciones interactivas a ancho editorial completo */
+/* v3.2 — aplicaciones interactivas alineadas con el viewport */
 .interactive-app {
   position: relative;
-  width: min(1500px, calc(100vw - 32px));
+  box-sizing: border-box;
+  width: 100%;
   max-width: none;
-  margin: clamp(40px, 7vw, 96px) 50%;
-  transform: translateX(-50%);
+  margin-block: clamp(40px, 7vw, 96px);
+  margin-inline: 0;
+  transform: none;
   border-block: 1px solid var(--rule);
   background: var(--paper);
 }
@@ -211,7 +213,7 @@ body,
 
 @media (max-width: 680px) {
   .interactive-app {
-    width: calc(100vw - 16px);
+    width: 100%;
   }
 
   .interactive-app__toolbar {
