@@ -28,7 +28,7 @@
       exportButton.disabled = true;
       clearButton.disabled = true;
       details.hidden = true;
-      readyLink.hidden = true;
+      if (readyLink) readyLink.hidden = true;
       return;
     }
 
@@ -48,6 +48,7 @@
       const {blob, names} = await GVPatches.buildPatchZip();
       if (downloadUrl) URL.revokeObjectURL(downloadUrl);
       downloadUrl = URL.createObjectURL(blob);
+      if (!readyLink) throw new Error("Falta el enlace de descarga preparado en editor/index.html.");
       readyLink.href = downloadUrl;
       readyLink.download = `gutierrezvidal-actualizacion-${new Date().toISOString().slice(0, 10)}.zip`;
       readyLink.hidden = false;
