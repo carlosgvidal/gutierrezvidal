@@ -218,7 +218,7 @@
     const value = type.value;
     dateField.hidden = value !== "blog";
     $("#folder-field").hidden = value === "page";
-    heroField.hidden = value === "subpage";
+    heroField.hidden = false;
     asideField.hidden = value !== "subpage";
 
     if (value === "blog") {
@@ -724,7 +724,7 @@
       <h1 class="page-title">${esc(data.title)}</h1>
       <p class="page-deck">${esc(data.description)}</p>
     </header>
-    ${data.type !== "subpage" && heroImagePath ? mediaFigureHTML("hero", data.path) : ""}
+    ${heroImagePath ? mediaFigureHTML("hero", data.path) : ""}
     ${data.type === "subpage" && asideImagePath
       ? `<div class="page-content-grid"><article class="prose">${data.body}</article><aside class="page-aside">${mediaFigureHTML("aside", data.path)}</aside></div>`
       : `<article class="prose">${data.body}</article>`}
@@ -1234,16 +1234,49 @@
     const soundPatch = await updatedSoundArchive(data);
     if (soundPatch) return soundPatch;
     if (!addIndex.checked) return null;
+
     const node = findNode(navigation, data.parentPath);
-    if (!node?.url) return null;
+    if (!node?.url || !node.url.endsWith(".html")) return null;
+
     const current = await GVPatches.getFile(node.url);
-    const start = current.indexOf('<section class="collection"');
-    if (start < 0) return null;
-    const close = current.indexOf("</section>", start);
-    if (close < 0) return null;
+    const doc = new DOMParser().parseFromString(current, "text/html");
+    const main = doc.querySelector("main");
+    if (!main) throw new Error(`${node.url} no contiene un elemento main.`);
+
+    let collection = main.querySelector("section.collection");
+    if (!collection) {
+      collection = doc.createElement("section");
+      collection.className = "collection";
+      collection.setAttribute("aria-label", `Páginas de ${node.label || "la sección"}`);
+      main.appendChild(collection);
+    }
+
     const link = rootFor(node.url) + data.path;
-    const card = `\n<article><h2><a href="${link}">${esc(data.title)}</a></h2><p>${esc(data.description)}</p></article>\n`;
-    return { path: node.url, content: current.slice(0, close) + card + current.slice(close) };
+    let card = [...collection.querySelectorAll("article")].find(article => {
+      const href = article.querySelector("a[href]")?.getAttribute("href") || "";
+      return href === link
+        || href === data.path
+        || (loadedPath && (href === loadedPath || href === rootFor(node.url) + loadedPath));
+    });
+
+    const replacement = doc.createElement("article");
+    replacement.dataset.pageUrl = data.path;
+    const heading = doc.createElement("h2");
+    const anchor = doc.createElement("a");
+    anchor.href = link;
+    anchor.textContent = data.title;
+    heading.appendChild(anchor);
+    const paragraph = doc.createElement("p");
+    paragraph.textContent = data.description;
+    replacement.append(heading, paragraph);
+
+    if (card) card.replaceWith(replacement);
+    else collection.appendChild(replacement);
+
+    return {
+      path: node.url,
+      content: `<!doctype html>\n${doc.documentElement.outerHTML}`
+    };
   }
 
   async function updatedSitemap(data) {
@@ -1354,7 +1387,7 @@
     const article = doc.querySelector("article.prose");
     if (!header || !article) throw new Error("La página no conserva la estructura necesaria para insertar imágenes.");
 
-    if (data.type !== "subpage" && heroImagePath) {
+    if (heroImagePath) {
       header.insertAdjacentHTML("afterend", mediaFigureHTML("hero", data.path));
     }
 
@@ -1476,52 +1509,62 @@
     formStatus.textContent = "Botón con enlace insertado.";
   });
 
-  $("#insert-html-file").addEventListener("click", () => {
-    saveSelection();
-    $("#interactive-html-file").click();
+  async function insertInteractiveHTMLFile(file) {
+    if (!file) return;
+    if (!/\.html?$/i.test(file.name) && file.type !== "text/html") {
+      throw new Error("Selecciona un archivo HTML.");
+    }
+
+    const source = await file.text();
+    if (!/<html[\s>]/i.test(source) && !/<!doctype\s+html/i.test(source)) {
+      throw new Error("El archivo no contiene un documento HTML completo.");
+    }
+
+    const requestedTitle = embedTitle.value.trim()
+      || file.name.replace(/\.html?$/i, "")
+      || "HTML interactivo";
+    const base = slugify(file.name.replace(/\.html?$/i, "")) || "interactivo";
+    const suffix = crypto.randomUUID
+      ? crypto.randomUUID().slice(0, 8)
+      : String(Date.now());
+    const filename = `${base}-${suffix}.html`;
+    const sitePath = `public/interactive/${filename}`;
+
+    await GVPatches.savePatch(sitePath, file);
+
+    const figure = document.createElement("figure");
+    figure.className = "embed-player embed-player--generic interactive-html";
+    figure.setAttribute("data-interactive-path", sitePath);
+    figure.setAttribute("data-embed-title", requestedTitle);
+    figure.setAttribute("contenteditable", "false");
+
+    const label = document.createElement("p");
+    label.className = "embed-placeholder-label";
+    label.textContent = `${requestedTitle} · archivo HTML`;
+    figure.appendChild(label);
+
+    if (embedCaption.value.trim()) {
+      const caption = document.createElement("figcaption");
+      caption.textContent = embedCaption.value.trim();
+      figure.appendChild(caption);
+    }
+
+    insertNodeAtSavedSelection(figure);
+    embedDialog.close();
+    formStatus.textContent = `HTML interactivo añadido: ${sitePath}`;
+  }
+
+  $("#embed-html-file-button").addEventListener("click", () => {
+    $("#embed-html-file").click();
   });
 
-  $("#interactive-html-file").addEventListener("change", async event => {
+  $("#embed-html-file").addEventListener("change", async event => {
     const file = event.target.files?.[0];
     event.target.value = "";
-    if (!file) return;
-
     try {
-      if (!/\\.html?$/i.test(file.name) && file.type !== "text/html") {
-        throw new Error("Selecciona un archivo HTML.");
-      }
-
-      const source = await file.text();
-      if (!/<html[\\s>]/i.test(source) && !/<!doctype\\s+html/i.test(source)) {
-        throw new Error("El archivo no contiene un documento HTML completo.");
-      }
-
-      const title = prompt("Título del HTML interactivo:", file.name.replace(/\\.html?$/i, ""));
-      if (title === null) return;
-      if (!title.trim()) throw new Error("El título es obligatorio.");
-
-      const base = slugify(file.name.replace(/\\.html?$/i, "")) || "interactivo";
-      const suffix = crypto.randomUUID ? crypto.randomUUID().slice(0, 8) : String(Date.now());
-      const filename = `${base}-${suffix}.html`;
-      const sitePath = `public/interactive/${filename}`;
-
-      await GVPatches.savePatch(sitePath, file);
-
-      const figure = document.createElement("figure");
-      figure.className = "embed-player embed-player--generic interactive-html";
-      figure.setAttribute("data-interactive-path", sitePath);
-      figure.setAttribute("data-embed-title", title.trim());
-      figure.setAttribute("contenteditable", "false");
-
-      const label = document.createElement("p");
-      label.className = "embed-placeholder-label";
-      label.textContent = `${title.trim()} · archivo HTML`;
-      figure.appendChild(label);
-
-      insertNodeAtSavedSelection(figure);
-      formStatus.textContent = `HTML interactivo añadido: ${sitePath}`;
+      await insertInteractiveHTMLFile(file);
     } catch (error) {
-      formStatus.textContent = error.message;
+      embedStatus.textContent = error.message;
     }
   });
 
