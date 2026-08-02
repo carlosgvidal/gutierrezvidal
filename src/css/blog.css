@@ -336,28 +336,39 @@
 }
 
 
-/* v2.3 — conservar la proporción original de la imagen en la portada */
+/* v2.4 — imagen editorial completa, sin recorte */
 .home-latest-blog__content {
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(26px, 5vw, 58px);
 }
 
 .home-latest-blog__image {
+  order: 0;
+  width: 100%;
+  margin: 0;
   overflow: visible;
-  align-self: start;
+  border: 0;
   background: transparent;
 }
 
 .home-latest-blog__image img {
+  display: block;
   width: 100%;
   height: auto;
   max-height: none;
-  aspect-ratio: auto;
-  object-fit: contain;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
   object-position: center top;
 }
 
-@media (min-width: 761px) {
-  .home-latest-blog__image {
-    margin-left: clamp(-20px, -1.5vw, 0px);
+.home-latest-blog__content > div {
+  order: 1;
+  width: min(920px, 100%);
+}
+
+@media (max-width: 760px) {
+  .home-latest-blog__content {
+    gap: 24px;
   }
 }

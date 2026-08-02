@@ -2,7 +2,6 @@
   "use strict";
 
   const $ = selector => document.querySelector(selector);
-
   const stage = $("#hotspot-stage");
   const stageImage = $("#hotspot-stage-image");
   const status = $("#hotspot-status");
@@ -25,12 +24,17 @@
     y: $("#hotspot-y")
   };
 
+  const DRAFT_KEY = "gutierrezvidal-index-hotspots-draft-v24";
+  const FALLBACK_WIDTH = 1774;
+  const FALLBACK_HEIGHT = 887;
+
   let hotspots = [];
   let selectedId = "";
-  let imageWidth = 1774;
-  let imageHeight = 887;
+  let imageWidth = FALLBACK_WIDTH;
+  let imageHeight = FALLBACK_HEIGHT;
   let dirty = false;
   let downloadUrl = "";
+  let initialLoadFinished = false;
 
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const cleanText = value => String(value || "").trim();
@@ -48,6 +52,30 @@
     return !/\s/.test(url);
   }
 
+  function saveDraft() {
+    try {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({
+        savedAt: new Date().toISOString(),
+        hotspots
+      }));
+    } catch {
+      // El editor sigue funcionando aunque el navegador bloquee localStorage.
+    }
+  }
+
+  function readDraft() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      return Array.isArray(parsed?.hotspots) ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function clearDraft() {
+    try { localStorage.removeItem(DRAFT_KEY); } catch {}
+  }
+
   function selectedItem() {
     return hotspots.find(item => item.id === selectedId) || null;
   }
@@ -55,6 +83,7 @@
   function markDirty(message = "Cambios sin guardar.") {
     dirty = true;
     readyDownload.hidden = true;
+    saveDraft();
     setStatus(message);
   }
 
@@ -64,8 +93,9 @@
   }
 
   function scrollInspectorIntoView() {
-    const narrow = window.matchMedia?.("(max-width: 940px)")?.matches;
-    if (narrow) inspector.scrollIntoView({behavior: "smooth", block: "start"});
+    if (window.matchMedia?.("(max-width: 940px)")?.matches) {
+      inspector.scrollIntoView({behavior: "smooth", block: "start"});
+    }
   }
 
   function select(id) {
@@ -115,7 +145,8 @@
     marker.addEventListener("pointerdown", event => {
       event.preventDefault();
       select(item.id);
-      marker.setPointerCapture(event.pointerId);
+
+      try { marker.setPointerCapture(event.pointerId); } catch {}
 
       const startX = event.clientX;
       const startY = event.clientY;
@@ -128,6 +159,8 @@
         if (!moved) return;
 
         const rect = stage.getBoundingClientRect();
+        if (!rect.width || !rect.height) return;
+
         item.imageX = Math.round(
           clamp(moveEvent.clientX - rect.left, 0, rect.width) / rect.width * imageWidth
         );
@@ -145,8 +178,8 @@
         marker.removeEventListener("pointercancel", end);
 
         if (moved) {
-          markDirty(`${item.label}: x ${item.imageX}, y ${item.imageY}.`);
           renderList();
+          markDirty(`${item.label}: x ${item.imageX}, y ${item.imageY}.`);
         } else {
           select(item.id);
           scrollInspectorIntoView();
@@ -180,7 +213,7 @@
       const selectButton = document.createElement("button");
       selectButton.type = "button";
       selectButton.className = "hotspot-list-select";
-      selectButton.setAttribute("aria-label", `Editar ${item.label}`);
+      selectButton.setAttribute("aria-label", `Editar ${item.label || "hotspot"}`);
 
       const order = document.createElement("span");
       order.className = "hotspot-list-index";
@@ -243,13 +276,35 @@
     select(selectedId);
   }
 
+  function addHotspot() {
+    const item = {
+      id: uid(),
+      label: "Nuevo hotspot",
+      imageX: Math.round(imageWidth / 2),
+      imageY: Math.round(imageHeight / 2),
+      url: "index.html",
+      icon: "point"
+    };
+
+    hotspots.push(item);
+    selectedId = item.id;
+    render();
+    markDirty("Hotspot agregado. Edita su etiqueta, enlace, icono y posición.");
+    scrollInspectorIntoView();
+
+    requestAnimationFrame(() => {
+      fields.label.focus();
+      fields.label.select();
+    });
+  }
+
   function removeById(id) {
     const item = hotspots.find(candidate => candidate.id === id);
     if (!item) return;
     if (!confirm(`¿Eliminar el hotspot “${item.label}”?`)) return;
 
     hotspots = hotspots.filter(candidate => candidate.id !== id);
-    if (selectedId === id) selectedId = "";
+    if (selectedId === id) selectedId = hotspots[0]?.id || "";
     render();
     markDirty(`Hotspot “${item.label}” eliminado.`);
   }
@@ -281,8 +336,8 @@
     const clean = cleanHotspots();
     validateAll(clean);
     const serialized = JSON.stringify(clean, null, 2) + "\n";
-    await GVPatches.savePatch("src/data/hotspots.json", serialized);
 
+    await GVPatches.savePatch("src/data/hotspots.json", serialized);
     const patches = await GVPatches.listPatches();
     const stored = patches["src/data/hotspots.json"];
     if (stored === undefined) {
@@ -297,6 +352,7 @@
 
     hotspots = verified;
     dirty = false;
+    clearDraft();
     render();
     return serialized;
   }
@@ -309,21 +365,28 @@
     readyDownload.hidden = false;
   }
 
-  async function load() {
+  function updateImageDimensions() {
+    if (stageImage.naturalWidth && stageImage.naturalHeight) {
+      imageWidth = stageImage.naturalWidth;
+      imageHeight = stageImage.naturalHeight;
+    }
+  }
+
+  async function loadPublishedHotspots() {
+    const draft = readDraft();
+    if (draft) {
+      hotspots = draft.hotspots;
+      selectedId = hotspots[0]?.id || "";
+      render();
+      setStatus(`Borrador recuperado: ${hotspots.length} hotspot${hotspots.length === 1 ? "" : "s"}.`);
+      return;
+    }
+
     try {
-      await new Promise(resolve => {
-        if (stageImage.complete && stageImage.naturalWidth) return resolve();
-        stageImage.addEventListener("load", resolve, {once: true});
-        stageImage.addEventListener("error", resolve, {once: true});
-      });
+      const parsed = JSON.parse(await GVPatches.getFile("src/data/hotspots.json"));
+      if (!Array.isArray(parsed)) throw new Error("Formato de hotspots inválido.");
 
-      imageWidth = stageImage.naturalWidth || 1774;
-      imageHeight = stageImage.naturalHeight || 887;
-
-      hotspots = JSON.parse(await GVPatches.getFile("src/data/hotspots.json"));
-      if (!Array.isArray(hotspots)) throw new Error("Formato de hotspots inválido.");
-
-      hotspots = hotspots.map(item => ({
+      hotspots = parsed.map(item => ({
         id: cleanText(item.id) || uid(),
         label: cleanText(item.label),
         imageX: Number(item.imageX) || 0,
@@ -336,29 +399,27 @@
       render();
       setStatus(`${hotspots.length} hotspot${hotspots.length === 1 ? "" : "s"} cargado${hotspots.length === 1 ? "" : "s"} de index.html.`);
     } catch (error) {
-      setStatus(error.message);
-      addButton.disabled = true;
-      saveButton.disabled = true;
-      saveDownloadButton.disabled = true;
+      hotspots = [];
+      selectedId = "";
+      render();
+      setStatus(`No se pudieron leer los hotspots publicados: ${error.message}. Puedes agregar hotspots nuevos y guardarlos.`);
+    } finally {
+      initialLoadFinished = true;
     }
   }
 
-  addButton.addEventListener("click", () => {
-    const item = {
-      id: uid(),
-      label: "Nuevo hotspot",
-      imageX: Math.round(imageWidth / 2),
-      imageY: Math.round(imageHeight / 2),
-      url: "index.html",
-      icon: "point"
-    };
-    hotspots.push(item);
-    selectedId = item.id;
+  stageImage.addEventListener("load", () => {
+    updateImageDimensions();
     render();
-    markDirty("Hotspot agregado. Completa sus datos y posición.");
-    fields.label.focus();
-    fields.label.select();
   });
+
+  stageImage.addEventListener("error", () => {
+    imageWidth = FALLBACK_WIDTH;
+    imageHeight = FALLBACK_HEIGHT;
+    setStatus("No se pudo cargar la imagen de referencia. El editor seguirá usando las dimensiones 1774 × 887.");
+  });
+
+  addButton.addEventListener("click", addHotspot);
 
   form.addEventListener("submit", event => {
     event.preventDefault();
@@ -376,6 +437,7 @@
     form.addEventListener(eventName, () => {
       const item = selectedItem();
       if (!item) return;
+
       item.label = cleanText(fields.label.value);
       item.url = cleanText(fields.url.value);
       item.icon = fields.icon.value || "point";
@@ -431,10 +493,13 @@
   });
 
   window.GVIndexHotspotsEditor = {
+    addHotspot,
     getHotspots: () => JSON.parse(JSON.stringify(hotspots)),
     select,
-    removeById
+    removeById,
+    isLoaded: () => initialLoadFinished
   };
 
-  load();
+  updateImageDimensions();
+  loadPublishedHotspots();
 })();

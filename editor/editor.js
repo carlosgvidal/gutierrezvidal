@@ -885,7 +885,7 @@
       || doc.querySelector("article.prose p")?.textContent.trim()
       || "";
     const date = publishedDate(doc);
-    const image = doc.querySelector(".page-hero img");
+    const image = doc.querySelector(".page-hero img, article.prose img, main img");
     return {
       path,
       title,
@@ -893,7 +893,9 @@
       date,
       dateLabel: formatBlogDate(date),
       imagePath: sitePathFromURL(path, image?.getAttribute("src") || ""),
-      imageAlt: image?.getAttribute("alt") || title
+      imageAlt: image?.getAttribute("alt") || title,
+      imageWidth: Number(image?.getAttribute("width")) || 0,
+      imageHeight: Number(image?.getAttribute("height")) || 0
     };
   }
 
@@ -945,6 +947,11 @@
       image.src = entry.imagePath;
       image.alt = entry.imageAlt || entry.title;
       image.loading = "lazy";
+      image.decoding = "async";
+      if (entry.imageWidth > 0 && entry.imageHeight > 0) {
+        image.width = entry.imageWidth;
+        image.height = entry.imageHeight;
+      }
       link.appendChild(image);
       article.appendChild(link);
     }
@@ -1093,7 +1100,12 @@
       const image = doc.createElement("img");
       image.src = entry.imagePath;
       image.alt = entry.imageAlt || entry.title;
-      image.loading = "lazy";
+      image.loading = "eager";
+      image.decoding = "async";
+      if (entry.imageWidth > 0 && entry.imageHeight > 0) {
+        image.width = entry.imageWidth;
+        image.height = entry.imageHeight;
+      }
       imageLink.appendChild(image);
       content.appendChild(imageLink);
     }
