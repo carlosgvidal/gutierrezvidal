@@ -17,6 +17,9 @@
   const deleteButton = $("#sound-delete-hotspot");
   const form = $("#sound-hotspot-form");
   const noSelection = $("#sound-no-selection");
+  const inspector = $("#sound-inspector");
+  const hotspotList = $("#sound-hotspot-list");
+  const hotspotCount = $("#sound-hotspot-count");
   const pageTitle = $("#sound-page-title");
   const pageDescription = $("#sound-page-description");
   const helpText = $("#sound-help-text");
@@ -349,6 +352,88 @@ ${doc.documentElement.outerHTML}`;
     marker.style.top = `${(Number(item.imageY) / data.panorama.height) * 100}%`;
   }
 
+  function scrollInspectorIntoView() {
+    const narrow = window.matchMedia?.("(max-width: 940px)")?.matches;
+    if (narrow) {
+      inspector.scrollIntoView({behavior: "smooth", block: "start"});
+    }
+  }
+
+  function removeHotspotById(id) {
+    const item = data?.hotspots.find(candidate => candidate.id === id);
+    if (!item) return false;
+    if (!confirm(`¿Eliminar el hotspot “${item.title}”?`)) return false;
+
+    data.hotspots = data.hotspots.filter(candidate => candidate.id !== id);
+    if (selectedId === id) selectedId = "";
+    render();
+    markDirty(`Hotspot “${item.title}” eliminado.`);
+    return true;
+  }
+
+  function renderHotspotList() {
+    hotspotList.replaceChildren();
+    const count = data?.hotspots.length || 0;
+    hotspotCount.textContent = `${count} hotspot${count === 1 ? "" : "s"}`;
+
+    if (!count) {
+      const empty = document.createElement("p");
+      empty.className = "field-help sound-hotspot-list-empty";
+      empty.textContent = "No hay hotspots. Usa «Agregar hotspot» para crear el primero.";
+      hotspotList.appendChild(empty);
+      return;
+    }
+
+    data.hotspots.forEach((item, index) => {
+      const row = document.createElement("article");
+      row.className = "sound-hotspot-list-item";
+      row.dataset.id = item.id;
+      if (item.id === selectedId) row.classList.add("is-selected");
+
+      const identity = document.createElement("button");
+      identity.type = "button";
+      identity.className = "sound-hotspot-list-select";
+      identity.setAttribute("aria-label", `Editar ${item.title || "hotspot"}`);
+      const order = document.createElement("span");
+      order.className = "sound-hotspot-list-index";
+      order.textContent = String(index + 1).padStart(2, "0");
+      const text = document.createElement("span");
+      const title = document.createElement("strong");
+      title.textContent = item.title || "Sin título";
+      const state = document.createElement("small");
+      state.textContent = item.published === false ? "Borrador" : "Publicado";
+      text.append(title, state);
+      identity.append(order, text);
+      identity.addEventListener("click", () => {
+        select(item.id);
+        scrollInspectorIntoView();
+      });
+
+      const actions = document.createElement("div");
+      actions.className = "sound-hotspot-list-actions";
+
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "secondary";
+      edit.textContent = "Editar";
+      edit.addEventListener("click", () => {
+        select(item.id);
+        scrollInspectorIntoView();
+        fields.title.focus();
+      });
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "secondary";
+      remove.textContent = "Eliminar";
+      remove.addEventListener("click", () => removeHotspotById(item.id));
+
+      actions.append(edit, remove);
+      row.append(identity, actions);
+      hotspotList.appendChild(row);
+    });
+  }
+
   function select(id) {
     selectedId = id;
     const item = selectedItem();
@@ -371,6 +456,11 @@ ${doc.documentElement.outerHTML}`;
     fields.published.checked = item.published !== false;
     fields.x.value = Math.round(Number(item.imageX) || 0);
     fields.y.value = Math.round(Number(item.imageY) || 0);
+    $("#sound-inspector-title").textContent = `Hotspot: ${item.title || "Sin título"}`;
+
+    hotspotList.querySelectorAll(".sound-hotspot-list-item").forEach(row => {
+      row.classList.toggle("is-selected", row.dataset.id === id);
+    });
   }
 
   function attachDrag(marker, item) {
@@ -379,7 +469,16 @@ ${doc.documentElement.outerHTML}`;
       select(item.id);
       marker.setPointerCapture(event.pointerId);
 
+      const startX = event.clientX;
+      const startY = event.clientY;
+      let moved = false;
+
       const move = moveEvent => {
+        if (Math.hypot(moveEvent.clientX - startX, moveEvent.clientY - startY) > 5) {
+          moved = true;
+        }
+        if (!moved) return;
+
         const rect = stage.getBoundingClientRect();
         item.imageX = Math.round(
           clamp(moveEvent.clientX - rect.left, 0, rect.width) / rect.width * data.panorama.width
@@ -390,21 +489,26 @@ ${doc.documentElement.outerHTML}`;
         fields.x.value = item.imageX;
         fields.y.value = item.imageY;
         placeMarker(marker, item);
-        markDirty(`${item.title || "Hotspot"}: x ${item.imageX}, y ${item.imageY}.`);
       };
 
       const end = () => {
         marker.removeEventListener("pointermove", move);
         marker.removeEventListener("pointerup", end);
         marker.removeEventListener("pointercancel", end);
+
+        if (moved) {
+          markDirty(`${item.title || "Hotspot"}: x ${item.imageX}, y ${item.imageY}.`);
+          renderHotspotList();
+        } else {
+          select(item.id);
+          scrollInspectorIntoView();
+        }
       };
 
       marker.addEventListener("pointermove", move);
       marker.addEventListener("pointerup", end);
       marker.addEventListener("pointercancel", end);
     });
-
-    marker.addEventListener("click", () => select(item.id));
   }
 
   function render() {
@@ -421,6 +525,7 @@ ${doc.documentElement.outerHTML}`;
       attachDrag(marker, item);
       stage.appendChild(marker);
     });
+    renderHotspotList();
     select(selectedId);
   }
 
@@ -542,7 +647,7 @@ ${doc.documentElement.outerHTML}`;
       if (!item) return;
       render();
       select(item.id);
-      markDirty(`Datos de “${item.title}” aplicados.`);
+      markDirty(`Cambios de “${item.title}” guardados en la sesión. Falta guardar la actualización del sitio.`);
     } catch (error) {
       setStatus(error.message);
     }
@@ -563,13 +668,7 @@ ${doc.documentElement.outerHTML}`;
   }
 
   deleteButton.addEventListener("click", () => {
-    const item = selectedItem();
-    if (!item) return;
-    if (!confirm(`¿Eliminar el hotspot “${item.title}”?`)) return;
-    data.hotspots = data.hotspots.filter(candidate => candidate.id !== item.id);
-    selectedId = "";
-    render();
-    markDirty("Hotspot eliminado.");
+    if (selectedId) removeHotspotById(selectedId);
   });
 
   async function persistCurrentState() {

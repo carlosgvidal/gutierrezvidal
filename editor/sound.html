@@ -97,10 +97,21 @@
       <div id="sound-stage" class="sound-stage" aria-label="Editor visual de hotspots">
         <img id="sound-stage-image" alt="">
       </div>
-      <p class="field-help">Arrastra cada marcador. Haz clic en un marcador para editar sus datos.</p>
+      <p class="field-help">Arrastra cada marcador. Tócalo o selecciónalo en la lista para editarlo.</p>
+
+      <section class="sound-hotspot-list-panel" aria-labelledby="sound-hotspot-list-title">
+        <div class="sound-stage-toolbar sound-hotspot-list-header">
+          <div>
+            <p class="eyebrow">Administración</p>
+            <h3 id="sound-hotspot-list-title">Hotspots existentes</h3>
+          </div>
+          <span id="sound-hotspot-count" class="archive-state">0 hotspots</span>
+        </div>
+        <div id="sound-hotspot-list" class="sound-hotspot-list"></div>
+      </section>
     </div>
 
-    <aside class="sound-inspector" aria-labelledby="sound-inspector-title">
+    <aside class="sound-inspector" id="sound-inspector" aria-labelledby="sound-inspector-title">
       <h2 id="sound-inspector-title">Hotspot</h2>
       <form id="sound-hotspot-form">
         <input id="sound-hotspot-id" type="hidden">
@@ -130,8 +141,8 @@
           <label><span>Y</span><input id="sound-hotspot-y" type="number" min="0" readonly></label>
         </div>
         <div class="actions actions-left">
-          <button class="primary" type="submit">Aplicar datos</button>
-          <button id="sound-delete-hotspot" class="secondary" type="button">Eliminar</button>
+          <button class="primary" type="submit">Guardar cambios del hotspot</button>
+          <button id="sound-delete-hotspot" class="secondary" type="button">Eliminar hotspot</button>
         </div>
       </form>
       <p id="sound-no-selection" class="field-help">Selecciona un marcador o agrega uno nuevo.</p>

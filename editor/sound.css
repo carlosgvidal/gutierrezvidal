@@ -223,3 +223,108 @@
     gap: 6px;
   }
 }
+
+
+/* v2.2 — administración explícita de hotspots */
+.sound-hotspot-list-panel {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rule);
+}
+
+.sound-hotspot-list-header {
+  margin-bottom: 10px;
+}
+
+.sound-hotspot-list {
+  display: grid;
+  border-top: 1px solid var(--rule);
+}
+
+.sound-hotspot-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.sound-hotspot-list-item.is-selected {
+  background: rgba(0, 0, 0, .045);
+}
+
+.sound-hotspot-list-select {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  padding: 9px 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sound-hotspot-list-select:hover,
+.sound-hotspot-list-select:focus-visible {
+  background: rgba(0, 0, 0, .055);
+  outline: none;
+}
+
+.sound-hotspot-list-index {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+
+.sound-hotspot-list-select strong,
+.sound-hotspot-list-select small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sound-hotspot-list-select strong {
+  font-weight: 500;
+}
+
+.sound-hotspot-list-select small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.sound-hotspot-list-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.sound-hotspot-list-actions button {
+  padding: 8px 10px;
+}
+
+.sound-hotspot-list-empty {
+  padding: 16px 0;
+}
+
+.sound-inspector {
+  scroll-margin-top: 18px;
+}
+
+@media (max-width: 720px) {
+  .sound-hotspot-list-item {
+    grid-template-columns: 1fr;
+  }
+
+  .sound-hotspot-list-actions {
+    justify-content: flex-end;
+  }
+
+  .sound-inspector {
+    border-width: 2px;
+  }
+}
