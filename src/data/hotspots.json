@@ -18,8 +18,8 @@
   {
     "id": "sonido",
     "label": "Sonido",
-    "imageX": 1378,
-    "imageY": 499,
+    "imageX": 1469,
+    "imageY": 494,
     "url": "sonido.html",
     "icon": "sound"
   },
@@ -54,13 +54,5 @@
     "imageY": 264,
     "url": "imagenes.html",
     "icon": "image"
-  },
-  {
-    "id": "archivo",
-    "label": "Archivo",
-    "imageX": 1605,
-    "imageY": 416,
-    "url": "archivo.html",
-    "icon": "archive"
   }
 ]
