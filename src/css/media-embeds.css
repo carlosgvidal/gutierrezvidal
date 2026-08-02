@@ -1,3 +1,4 @@
+@import url("./palette-v2.6.css");
 
 .embed-player {
   width: 100%;
@@ -9,7 +10,7 @@
   width: 100%;
   max-width: 100%;
   border: 0;
-  background: #111;
+  background: #000000000;
 }
 
 .embed-player--video iframe {
@@ -48,4 +49,94 @@
 
 .embed-player--generic > video {
   height: auto;
+}
+
+
+/* v2.6 — aplicación estricta de la paleta */
+body,
+.page,
+.home-main,
+.site-header,
+.site-footer,
+.panel,
+.tool-card,
+.menu-tree-panel,
+.menu-inspector,
+.sound-stage-panel,
+.sound-inspector,
+.hotspot-stage-panel,
+.hotspot-inspector,
+.embed-dialog {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item,
+  .menu-select,
+  .hotspot-list-item,
+  .sound-hotspot-list-item,
+  input,
+  textarea,
+  select
+) {
+  border-color: var(--rule);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item
+):where(:hover, :focus-within) {
+  border-color: var(--accent);
+}
+
+:is(
+  .eyebrow,
+  .page-kicker,
+  .field-help,
+  .status,
+  time,
+  figcaption,
+  small,
+  .muted
+) {
+  color: var(--rule);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot,
+  .menu-select[aria-current="true"],
+  .hotspot-list-item.is-selected,
+  .sound-hotspot-list-item.is-selected
+) {
+  background-color: var(--ink);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot
+):where(:hover, :focus-visible) {
+  background-color: var(--accent);
+  color: var(--ink);
+}
+
+.site-footer,
+.site-header,
+.blog-editorial,
+.blog-latest,
+.blog-archive-list,
+.home-latest-blog,
+.practice-statement,
+.testimonials {
+  border-color: var(--rule);
 }

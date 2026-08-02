@@ -1,3 +1,4 @@
+@import url("../src/css/palette-v2.6.css");
 
 .menu-editor {
   width: min(1500px, calc(100% - 32px));
@@ -164,11 +165,11 @@
 }
 
 .menu-validation-error {
-  color: #8b1e1e;
+  color: #000000;
 }
 
 .menu-validation-warning {
-  color: #765900;
+  color: #C4A265;
 }
 
 @media (max-width: 940px) {
@@ -203,4 +204,94 @@
     margin-left: 12px;
     padding-left: 10px;
   }
+}
+
+
+/* v2.6 — aplicación estricta de la paleta */
+body,
+.page,
+.home-main,
+.site-header,
+.site-footer,
+.panel,
+.tool-card,
+.menu-tree-panel,
+.menu-inspector,
+.sound-stage-panel,
+.sound-inspector,
+.hotspot-stage-panel,
+.hotspot-inspector,
+.embed-dialog {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item,
+  .menu-select,
+  .hotspot-list-item,
+  .sound-hotspot-list-item,
+  input,
+  textarea,
+  select
+) {
+  border-color: var(--rule);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item
+):where(:hover, :focus-within) {
+  border-color: var(--accent);
+}
+
+:is(
+  .eyebrow,
+  .page-kicker,
+  .field-help,
+  .status,
+  time,
+  figcaption,
+  small,
+  .muted
+) {
+  color: var(--rule);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot,
+  .menu-select[aria-current="true"],
+  .hotspot-list-item.is-selected,
+  .sound-hotspot-list-item.is-selected
+) {
+  background-color: var(--ink);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot
+):where(:hover, :focus-visible) {
+  background-color: var(--accent);
+  color: var(--ink);
+}
+
+.site-footer,
+.site-header,
+.blog-editorial,
+.blog-latest,
+.blog-archive-list,
+.home-latest-blog,
+.practice-statement,
+.testimonials {
+  border-color: var(--rule);
 }

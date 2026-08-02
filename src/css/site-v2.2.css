@@ -1,12 +1,13 @@
+@import url("./palette-v2.6.css");
 :root {
   --paper: #FAF9F6;
-  --paper-warm: #F5EBD7;
+  --paper-warm: #F5E8D7;
   --gold: #C4A265;
   --lavender: #B8B5C3;
-  --ink: #000;
-  --muted: #5c5850;
-  --rule: rgba(0,0,0,.28);
-  --soft-rule: rgba(0,0,0,.12);
+  --ink: #000000;
+  --muted: #B8B5C3;
+  --rule: rgba(0, 0, 0, .28);
+  --soft-rule: rgba(0, 0, 0, .12);
   --max: 1240px;
   --text: 720px;
   --serif: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -111,7 +112,7 @@ img { max-width: 100%; }
   position: fixed;
   inset: 0;
   z-index: 70;
-  background: rgba(0,0,0,.48);
+  background: rgba(0, 0, 0, .48);
 }
 
 .site-drawer {
@@ -466,13 +467,13 @@ html, body { overflow-x: hidden; }
   height: min(76svh, 820px);
   min-height: 540px;
   overflow: hidden;
-  background: #000;
+  background: #000000;
 }
 
 #viewer {
   position: absolute;
   inset: 0;
-  background: #000;
+  background: #000000;
   overflow: hidden;
 }
 
@@ -486,14 +487,14 @@ html, body { overflow-x: hidden; }
   position: absolute;
   z-index: 15;
   padding: 0 0 3px;
-  color: #fff;
-  border-bottom: 1px solid rgba(255,255,255,.75);
+  color: #FAF9F6;
+  border-bottom: 1px solid rgba(250, 249, 246, .75);
   font-family: var(--serif);
   font-size: 15px;
   letter-spacing: .035em;
   line-height: 1;
   text-decoration: none;
-  text-shadow: 0 1px 4px rgba(0,0,0,.9);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, .9);
   transform: translate(-50%,-50%);
   white-space: nowrap;
 }
@@ -507,8 +508,8 @@ html, body { overflow-x: hidden; }
   z-index: 20;
   margin: 0;
   padding: 6px 8px;
-  background: rgba(0,0,0,.56);
-  color: #fff;
+  background: rgba(0, 0, 0, .56);
+  color: #FAF9F6;
   font-family: var(--sans);
   font-size: 10px;
 }
@@ -610,7 +611,7 @@ html, body { overflow-x: hidden; }
   gap: 8px;
   min-height: 34px;
   padding: 7px 10px 7px 8px;
-  color: #fff;
+  color: #FAF9F6;
   background: rgba(0, 0, 0, .64);
   border: 1px solid rgba(250, 249, 246, .48);
   border-radius: 2px;
@@ -1201,4 +1202,94 @@ html, body { overflow-x: hidden; }
     position: static;
     max-width: 520px;
   }
+}
+
+
+/* v2.6 — aplicación estricta de la paleta */
+body,
+.page,
+.home-main,
+.site-header,
+.site-footer,
+.panel,
+.tool-card,
+.menu-tree-panel,
+.menu-inspector,
+.sound-stage-panel,
+.sound-inspector,
+.hotspot-stage-panel,
+.hotspot-inspector,
+.embed-dialog {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item,
+  .menu-select,
+  .hotspot-list-item,
+  .sound-hotspot-list-item,
+  input,
+  textarea,
+  select
+) {
+  border-color: var(--rule);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item
+):where(:hover, :focus-within) {
+  border-color: var(--accent);
+}
+
+:is(
+  .eyebrow,
+  .page-kicker,
+  .field-help,
+  .status,
+  time,
+  figcaption,
+  small,
+  .muted
+) {
+  color: var(--rule);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot,
+  .menu-select[aria-current="true"],
+  .hotspot-list-item.is-selected,
+  .sound-hotspot-list-item.is-selected
+) {
+  background-color: var(--ink);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot
+):where(:hover, :focus-visible) {
+  background-color: var(--accent);
+  color: var(--ink);
+}
+
+.site-footer,
+.site-header,
+.blog-editorial,
+.blog-latest,
+.blog-archive-list,
+.home-latest-blog,
+.practice-statement,
+.testimonials {
+  border-color: var(--rule);
 }

@@ -1,3 +1,4 @@
+@import url("./palette-v2.6.css");
 
 .sound-page {
   display: block;
@@ -12,8 +13,8 @@
   height: min(72vh, 760px);
   min-height: 460px;
   overflow: hidden;
-  background: #080000;
-  color: #fff;
+  background: #000000;
+  color: #FAF9F6;
 }
 
 .sound-panorama canvas {
@@ -29,9 +30,9 @@
   z-index: 3;
   margin: 0;
   padding: 7px 10px;
-  border: 1px solid rgba(255,255,255,.35);
-  background: rgba(0,0,0,.55);
-  color: #fff;
+  border: 1px solid rgba(250, 249, 246, .35);
+  background: rgba(0, 0, 0, .55);
+  color: #FAF9F6;
   font-size: 12px;
   letter-spacing: .04em;
   backdrop-filter: blur(8px);
@@ -47,23 +48,23 @@
   max-width: min(240px, 42vw);
   transform: translate(-50%, -50%);
   padding: 9px 12px;
-  border: 1px solid rgba(255,255,255,.72);
+  border: 1px solid rgba(250, 249, 246, .72);
   border-radius: 999px;
   background: rgba(8,0,0,.72);
-  color: #fff;
+  color: #FAF9F6;
   font: inherit;
   font-size: 13px;
   line-height: 1.15;
   text-align: left;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(0,0,0,.28);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .28);
   backdrop-filter: blur(8px);
 }
 
 .sound-hotspot:hover,
 .sound-hotspot:focus-visible {
-  background: #fff;
-  color: #111;
+  background: #FAF9F6;
+  color: #000000000;
   outline: none;
 }
 
@@ -86,7 +87,7 @@
 
 .sound-archive {
   padding: clamp(52px, 8vw, 100px) var(--page-gutter, 5vw);
-  background: var(--paper, #faf9f6);
+  background: var(--paper, #FAF9F6);
 }
 
 .sound-archive__inner {
@@ -100,7 +101,7 @@
   gap: 36px;
   align-items: end;
   padding-bottom: 24px;
-  border-bottom: 1px solid var(--rule, #cfcac1);
+  border-bottom: 1px solid var(--rule, #F5E8D7);
 }
 
 .sound-archive__header h2 {
@@ -112,7 +113,7 @@
 
 .sound-archive__header p {
   margin: 0;
-  color: var(--muted, #68645d);
+  color: var(--muted, #B8B5C3);
 }
 
 .sound-list {
@@ -125,7 +126,7 @@
   gap: 24px;
   align-items: center;
   padding: 24px 0;
-  border-bottom: 1px solid var(--rule, #cfcac1);
+  border-bottom: 1px solid var(--rule, #F5E8D7);
 }
 
 .sound-item h3 {
@@ -137,7 +138,7 @@
 .sound-item p {
   max-width: 720px;
   margin: 0;
-  color: var(--muted, #68645d);
+  color: var(--muted, #B8B5C3);
 }
 
 .sound-item button,
@@ -147,7 +148,7 @@
 
 .sound-empty {
   padding: 30px 0;
-  color: var(--muted, #68645d);
+  color: var(--muted, #B8B5C3);
 }
 
 .sound-dialog {
@@ -155,13 +156,13 @@
   max-height: calc(100vh - 28px);
   padding: 0;
   border: 0;
-  background: #111;
-  color: #fff;
-  box-shadow: 0 24px 90px rgba(0,0,0,.55);
+  background: #000000000;
+  color: #FAF9F6;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, .55);
 }
 
 .sound-dialog::backdrop {
-  background: rgba(0,0,0,.76);
+  background: rgba(0, 0, 0, .76);
   backdrop-filter: blur(5px);
 }
 
@@ -170,7 +171,7 @@
   justify-content: space-between;
   gap: 20px;
   padding: 18px 20px;
-  border-bottom: 1px solid rgba(255,255,255,.16);
+  border-bottom: 1px solid rgba(250, 249, 246, .16);
 }
 
 .sound-dialog__header h2 {
@@ -182,7 +183,7 @@
 .sound-dialog__close {
   border: 0;
   background: transparent;
-  color: #fff;
+  color: #FAF9F6;
   font-size: 26px;
   cursor: pointer;
 }
@@ -193,12 +194,12 @@
 
 .sound-dialog__description {
   margin: 0 0 16px;
-  color: rgba(255,255,255,.72);
+  color: rgba(250, 249, 246, .72);
 }
 
 .sound-embed {
   min-height: 160px;
-  background: #000;
+  background: #000000;
 }
 
 .sound-embed iframe {
@@ -206,13 +207,13 @@
   width: 100%;
   min-height: 166px;
   border: 0;
-  background: #000;
+  background: #000000;
 }
 
 .sound-source-link {
   display: inline-block;
   margin-top: 15px;
-  color: #fff;
+  color: #FAF9F6;
 }
 
 @media (max-width: 760px) {
@@ -291,9 +292,99 @@
   bottom: 16px;
   z-index: 6;
   padding: 6px 9px;
-  border: 1px solid rgba(255,255,255,.3);
-  background: rgba(0,0,0,.5);
-  color: rgba(255,255,255,.75);
+  border: 1px solid rgba(250, 249, 246, .3);
+  background: rgba(0, 0, 0, .5);
+  color: rgba(250, 249, 246, .75);
   font-size: 11px;
   letter-spacing: .04em;
+}
+
+
+/* v2.6 — aplicación estricta de la paleta */
+body,
+.page,
+.home-main,
+.site-header,
+.site-footer,
+.panel,
+.tool-card,
+.menu-tree-panel,
+.menu-inspector,
+.sound-stage-panel,
+.sound-inspector,
+.hotspot-stage-panel,
+.hotspot-inspector,
+.embed-dialog {
+  background-color: var(--paper);
+  color: var(--ink);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item,
+  .menu-select,
+  .hotspot-list-item,
+  .sound-hotspot-list-item,
+  input,
+  textarea,
+  select
+) {
+  border-color: var(--rule);
+}
+
+:is(
+  .panel,
+  .tool-card,
+  .blog-card,
+  .testimonial,
+  .sound-item
+):where(:hover, :focus-within) {
+  border-color: var(--accent);
+}
+
+:is(
+  .eyebrow,
+  .page-kicker,
+  .field-help,
+  .status,
+  time,
+  figcaption,
+  small,
+  .muted
+) {
+  color: var(--rule);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot,
+  .menu-select[aria-current="true"],
+  .hotspot-list-item.is-selected,
+  .sound-hotspot-list-item.is-selected
+) {
+  background-color: var(--ink);
+  color: var(--paper);
+  border-color: var(--accent);
+}
+
+:is(
+  .hotspot-marker,
+  .sound-hotspot
+):where(:hover, :focus-visible) {
+  background-color: var(--accent);
+  color: var(--ink);
+}
+
+.site-footer,
+.site-header,
+.blog-editorial,
+.blog-latest,
+.blog-archive-list,
+.home-latest-blog,
+.practice-statement,
+.testimonials {
+  border-color: var(--rule);
 }

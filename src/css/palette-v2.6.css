@@ -1,0 +1,158 @@
+/*
+ * Sistema cromático global v2.6
+ * Paleta única:
+ * #FAF9F6 · #F5E8D7 · #C4A265 · #B8B5C3 · #000000
+ */
+:root {
+  --paper: #FAF9F6;
+  --panel: #F5E8D7;
+  --accent: #C4A265;
+  --rule: #B8B5C3;
+  --ink: #000000;
+
+  --color-paper: var(--paper);
+  --color-sand: var(--panel);
+  --color-gold: var(--accent);
+  --color-stone: var(--rule);
+  --color-ink: var(--ink);
+
+  --background: var(--paper);
+  --surface: var(--panel);
+  --muted: var(--rule);
+  --text: var(--ink);
+  --link: var(--ink);
+  --selection: var(--accent);
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  accent-color: var(--accent);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline-color: var(--accent);
+}
+
+a {
+  color: var(--ink);
+}
+
+hr {
+  border-color: var(--rule);
+}
+
+input,
+textarea,
+select,
+button,
+dialog {
+  color: var(--ink);
+  border-color: var(--rule);
+}
+
+input,
+textarea,
+select {
+  background: var(--paper);
+}
+
+button,
+.primary,
+.secondary,
+.tool-link {
+  border-color: var(--ink);
+}
+
+.primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.primary:hover,
+.primary:focus-visible {
+  background: var(--accent);
+  color: var(--ink);
+}
+
+.secondary,
+.tool-link {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.secondary:hover,
+.secondary:focus-visible,
+.tool-link:hover,
+.tool-link:focus-visible {
+  background: var(--panel);
+  border-color: var(--accent);
+}
+
+code,
+pre {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+/* Texto editorial: justificación y partición silábica. */
+:where(
+  .prose,
+  .page-deck,
+  .practice-statement,
+  .testimonial,
+  .testimonials,
+  .blog-card__content,
+  .blog-editorial,
+  .blog-archive-list,
+  .home-latest-blog__content,
+  .sound-item,
+  .page-aside,
+  .editorial-copy,
+  article
+) :where(p, li, blockquote) {
+  text-align: justify;
+  text-justify: inter-word;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  overflow-wrap: break-word;
+  hanging-punctuation: first last;
+}
+
+/* Evita justificar controles, títulos y metadatos breves. */
+:where(
+  nav,
+  header,
+  footer,
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  button,
+  label,
+  figcaption,
+  time,
+  .eyebrow,
+  .page-kicker,
+  .field-help,
+  .status,
+  .sound-help,
+  .hotspot-marker,
+  .sound-hotspot
+) {
+  text-align: left;
+  -webkit-hyphens: none;
+  hyphens: none;
+}
