@@ -5,60 +5,49 @@
       "id": "sala-1",
       "label": "Sala 1",
       "panorama": "public/panorama/sala-1.jpg",
+      "alt": "Panorama de Sala 1",
+      "width": 1536,
+      "height": 768,
       "initialView": {
         "x": 780,
         "y": 390
       },
       "artworks": [
         {
-          "id": "obra-1",
-          "title": "Umbral I",
-          "image": "public/gallery/obra-1.svg",
-          "x": 1135,
-          "y": 355,
-          "width": 180,
-          "action": "zoom",
-          "published": true,
+          "id": "obra-mscwrjzg-6fzgi3",
+          "title": "Retrato de Bibiana Padilla Maltos, Plata sobre gelatina, 1992",
+          "image": "public/gallery/nueva-obra-wl54sb.png",
+          "x": 890,
+          "y": 374,
+          "width": 75,
           "depth": 9.4,
           "curve": 0.12,
           "rotationX": 0,
-          "rotationY": 0,
-          "rotationZ": 0
-        },
-        {
-          "id": "obra-2",
-          "title": "Materia curva",
-          "image": "public/gallery/obra-2.svg",
-          "x": 690,
-          "y": 385,
-          "width": 220,
+          "rotationY": 15,
+          "rotationZ": 25,
           "action": "zoom",
-          "published": true,
-          "depth": 9.4,
-          "curve": 0.12,
-          "rotationX": 0,
-          "rotationY": 0,
-          "rotationZ": 0
+          "link": "",
+          "published": true
         }
       ],
       "portals": [
         {
+          "id": "transito-sala-1-1",
           "label": "Ir a Sala 2",
           "room": "sala-2",
-          "x": 1490,
-          "y": 390,
-          "id": "transito-sala-1-1",
+          "x": 981,
+          "y": 416,
           "published": true
         }
-      ],
-      "width": 1536,
-      "height": 768,
-      "alt": "Panorama de Sala 1"
+      ]
     },
     {
       "id": "sala-2",
       "label": "Sala 2",
       "panorama": "public/panorama/sala-2.jpg",
+      "alt": "Panorama de Sala 2",
+      "width": 1536,
+      "height": 768,
       "initialView": {
         "x": 770,
         "y": 380
@@ -71,13 +60,14 @@
           "x": 350,
           "y": 390,
           "width": 170,
-          "action": "zoom",
-          "published": true,
           "depth": 9.4,
           "curve": 0.12,
           "rotationX": 0,
           "rotationY": 0,
-          "rotationZ": 0
+          "rotationZ": 0,
+          "action": "zoom",
+          "link": "",
+          "published": true
         },
         {
           "id": "obra-4",
@@ -86,41 +76,42 @@
           "x": 1075,
           "y": 390,
           "width": 215,
-          "action": "zoom",
-          "published": true,
           "depth": 9.4,
           "curve": 0.12,
           "rotationX": 0,
           "rotationY": 0,
-          "rotationZ": 0
+          "rotationZ": 0,
+          "action": "zoom",
+          "link": "",
+          "published": true
         }
       ],
       "portals": [
         {
+          "id": "transito-sala-2-1",
           "label": "Sala 1",
           "room": "sala-1",
           "x": 80,
           "y": 390,
-          "id": "transito-sala-2-1",
           "published": true
         },
         {
+          "id": "transito-sala-2-2",
           "label": "Sala 3",
           "room": "sala-3",
           "x": 1460,
           "y": 390,
-          "id": "transito-sala-2-2",
           "published": true
         }
-      ],
-      "width": 1536,
-      "height": 768,
-      "alt": "Panorama de Sala 2"
+      ]
     },
     {
       "id": "sala-3",
       "label": "Sala 3",
       "panorama": "public/panorama/sala-3.jpg",
+      "alt": "Panorama de Sala 3",
+      "width": 1536,
+      "height": 768,
       "initialView": {
         "x": 768,
         "y": 380
@@ -133,13 +124,14 @@
           "x": 520,
           "y": 405,
           "width": 240,
-          "action": "zoom",
-          "published": true,
           "depth": 9.4,
           "curve": 0.12,
           "rotationX": 0,
           "rotationY": 0,
-          "rotationZ": 0
+          "rotationZ": 0,
+          "action": "zoom",
+          "link": "",
+          "published": true
         },
         {
           "id": "obra-1b",
@@ -148,41 +140,42 @@
           "x": 1210,
           "y": 415,
           "width": 155,
-          "action": "zoom",
-          "published": true,
           "depth": 9.4,
           "curve": 0.12,
           "rotationX": 0,
           "rotationY": 0,
-          "rotationZ": 0
+          "rotationZ": 0,
+          "action": "zoom",
+          "link": "",
+          "published": true
         }
       ],
       "portals": [
         {
+          "id": "transito-sala-3-1",
           "label": "Sala 2",
           "room": "sala-2",
           "x": 120,
           "y": 390,
-          "id": "transito-sala-3-1",
           "published": true
         },
         {
+          "id": "transito-sala-3-2",
           "label": "Sala 4",
           "room": "sala-4",
           "x": 1420,
           "y": 390,
-          "id": "transito-sala-3-2",
           "published": true
         }
-      ],
-      "width": 1536,
-      "height": 768,
-      "alt": "Panorama de Sala 3"
+      ]
     },
     {
       "id": "sala-4",
       "label": "Sala 4",
       "panorama": "public/panorama/sala-4.jpg",
+      "alt": "Panorama de Sala 4",
+      "width": 1536,
+      "height": 768,
       "initialView": {
         "x": 770,
         "y": 390
@@ -195,28 +188,26 @@
           "x": 770,
           "y": 350,
           "width": 260,
-          "action": "zoom",
-          "published": true,
           "depth": 9.4,
           "curve": 0.12,
           "rotationX": 0,
           "rotationY": 0,
-          "rotationZ": 0
+          "rotationZ": 0,
+          "action": "zoom",
+          "link": "",
+          "published": true
         }
       ],
       "portals": [
         {
+          "id": "transito-sala-4-1",
           "label": "Volver a Sala 1",
           "room": "sala-1",
           "x": 80,
           "y": 390,
-          "id": "transito-sala-4-1",
           "published": true
         }
-      ],
-      "width": 1536,
-      "height": 768,
-      "alt": "Panorama de Sala 4"
+      ]
     }
   ]
 }
