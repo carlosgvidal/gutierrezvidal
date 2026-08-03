@@ -6,6 +6,7 @@
 <meta name="author" content="Carlos Adolfo Gutiérrez Vidal">
 <title>Imágenes · Carlos Adolfo Gutiérrez Vidal</title>
 <link rel="stylesheet" href="src/css/site-v2.2.css">
+<link rel="stylesheet" href="src/css/gallery-360.css">
 
   <meta name="description" content="Fotografía, obra visual y documentos gráficos.">
   <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -30,19 +31,49 @@
   <meta name="twitter:description" content="Fotografía, obra visual y documentos gráficos.">
   <meta name="twitter:image" content="https://www.gutierrezvidal.com/public/assets/og-home.jpg">
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://www.gutierrezvidal.com/#person","name":"Carlos Adolfo Gutiérrez Vidal","url":"https://www.gutierrezvidal.com/","jobTitle":["Poeta","Artista indisciplinario","Investigador"],"image":"https://www.gutierrezvidal.com/public/assets/og-home.jpg"},{"@type":"WebSite","@id":"https://www.gutierrezvidal.com/#website","url":"https://www.gutierrezvidal.com/","name":"Carlos Adolfo Gutiérrez Vidal","inLanguage":"es-MX","publisher":{"@id":"https://www.gutierrezvidal.com/#person"}},{"@type":"CollectionPage","@id":"https://www.gutierrezvidal.com/imagenes.html#webpage","url":"https://www.gutierrezvidal.com/imagenes.html","name":"Imágenes · Carlos Adolfo Gutiérrez Vidal","description":"Fotografía, obra visual y documentos gráficos.","inLanguage":"es-MX","isPartOf":{"@id":"https://www.gutierrezvidal.com/#website"},"about":{"@id":"https://www.gutierrezvidal.com/#person"},"author":{"@id":"https://www.gutierrezvidal.com/#person"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://www.gutierrezvidal.com/public/assets/og-home.jpg"}}]}</script>
-</head>
-<body data-root="">
-<div data-site-header></div>
-<main class="page">
-<header class="page-header">
-<p class="page-kicker">Visualidad</p>
-<h1 class="page-title">Imágenes</h1>
-<p class="page-deck">Fotografía, obra visual y documentos gráficos.</p>
-</header>
-<article class="prose"><p>Archivo visual de obra y procesos.</p></article>
 
-</main>
-<div data-site-footer></div>
-<script src="src/js/site-shell-v2.1.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
+    "OrbitControls": "https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
+  }
+}
+</script>
+</head>
+<body class="gallery-page">
+  <header class="gallery-shell gallery-shell--top" id="gallery-header">
+    <a class="gallery-brand" href="index.html">Carlos Adolfo Gutiérrez Vidal</a>
+    <nav aria-label="Galería">
+      <button id="room-menu" type="button">Salas</button>
+      <button id="toggle-shell" type="button">Vista inmersiva</button>
+    </nav>
+  </header>
+
+  <main class="gallery-main">
+    <section id="gallery-viewer" class="gallery-viewer" aria-label="Galería virtual panorámica">
+      <div id="gallery-overlay" class="gallery-overlay"></div>
+      <p class="gallery-help">Arrastra para recorrer · toca una obra para ampliarla</p>
+      <div id="room-picker" class="room-picker" hidden></div>
+    </section>
+  </main>
+
+  <footer class="gallery-shell gallery-shell--bottom" id="gallery-footer">
+    <span id="room-label">Sala</span>
+    <div class="gallery-footer-actions">
+      <a href="index.html">Portada</a>
+      <button id="toggle-footer" type="button">Ocultar pie</button>
+    </div>
+  </footer>
+
+  <button id="restore-shell" class="restore-shell" type="button" hidden aria-label="Mostrar navegación">Menú</button>
+
+  <dialog id="art-dialog" class="art-dialog">
+    <button id="art-close" class="art-close" type="button" aria-label="Cerrar">×</button>
+    <img id="art-image" alt="">
+    <h2 id="art-title"></h2>
+  </dialog>
+
+  <script type="module" src="src/js/gallery-360.js"></script>
 </body>
 </html>

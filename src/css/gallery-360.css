@@ -80,3 +80,33 @@ body.shell-hidden .gallery-shell--bottom { transform:translateY(110%); opacity:0
   .gallery-help { bottom:54px; width:max-content; max-width:90vw; text-align:center; }
   .gallery-artwork img { border-width:5px; }
 }
+
+
+/* v1.1 — integración directa en imagenes.html */
+.gallery-page {
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.gallery-page .gallery-main {
+  margin: 0;
+  padding: 0;
+  max-width: none;
+}
+
+.gallery-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gallery-footer-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+}
