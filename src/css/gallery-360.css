@@ -37,12 +37,23 @@ body.shell-hidden .gallery-shell--bottom { transform:translateY(110%); opacity:0
 }
 .gallery-overlay { position:absolute; inset:0; z-index:15; pointer-events:none; }
 .gallery-artwork, .gallery-portal {
-  position:absolute; transform:translate(-50%,-50%);
-  pointer-events:auto; cursor:pointer; border:0;
+  position:absolute;
+  left:0;
+  top:0;
+  transform:translate3d(0,0,0) translate(-50%,-50%);
+  transform-origin:center;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  will-change:transform;
+  contain:layout paint;
+  pointer-events:auto;
+  cursor:pointer;
+  border:0;
 }
 .gallery-artwork {
-  padding:0; background:transparent;
-  filter:drop-shadow(0 10px 18px rgba(0,0,0,.28));
+  padding:0;
+  background:transparent;
+  filter:none;
 }
 .gallery-artwork img {
   display:block; width:100%; height:auto;
@@ -109,4 +120,16 @@ body.shell-hidden .gallery-shell--bottom { transform:translateY(110%); opacity:0
   background: var(--paper);
   color: var(--ink);
   text-decoration: none;
+}
+
+/* v3.3 — composición estable de capas móviles en Safari */
+.gallery-artwork,
+.gallery-portal {
+  isolation: isolate;
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+.gallery-artwork img {
+  -webkit-user-drag: none;
+  user-select: none;
 }

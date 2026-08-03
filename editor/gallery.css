@@ -1,0 +1,40 @@
+@import url("../src/css/palette-v2.6.css");
+@import url("../src/css/typography-v3.0.css");
+
+.gallery-editor { width:min(1500px,calc(100% - 32px)); margin:0 auto; padding:24px 0 70px; }
+.gallery-form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; }
+.gallery-form-grid label, .gallery-inspector label { display:grid; gap:7px; }
+.gallery-wide { grid-column:1/-1; }
+.gallery-toolbar { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:15px; }
+.gallery-toolbar h2, .gallery-toolbar h3 { margin:0; }
+.gallery-workspace { display:grid; grid-template-columns:minmax(0,1fr) minmax(310px,390px); gap:24px; align-items:start; margin-top:24px; }
+.gallery-stage-wrap, .gallery-inspector { border:1px solid var(--rule); background:var(--paper); padding:18px; }
+.gallery-stage { position:relative; overflow:hidden; width:100%; aspect-ratio:2/1; background:var(--ink); touch-action:none; }
+.gallery-stage > img { display:block; width:100%; height:100%; object-fit:contain; pointer-events:none; user-select:none; }
+.gallery-stage-marker { position:absolute; left:0; top:0; z-index:3; transform:translate(-50%,-50%); cursor:grab; touch-action:none; user-select:none; }
+.gallery-stage-marker:active { cursor:grabbing; }
+.gallery-stage-marker.is-selected { outline:3px solid var(--accent); outline-offset:4px; }
+.gallery-stage-artwork { border:0; padding:0; background:transparent; min-width:56px; }
+.gallery-stage-artwork img { display:block; width:100%; height:auto; max-height:150px; object-fit:contain; border:4px solid var(--paper); outline:1px solid var(--ink); }
+.gallery-stage-placeholder { display:grid; place-items:center; min-width:100px; min-height:70px; padding:8px; background:var(--panel); border:1px solid var(--ink); font-size:12px; }
+.gallery-stage-portal { padding:8px 10px; border:1px solid var(--paper); background:rgba(0,0,0,.76); color:var(--paper); font-size:11px; text-transform:uppercase; white-space:nowrap; }
+.gallery-inspector { position:sticky; top:18px; }
+.gallery-inspector form { display:grid; gap:16px; margin-top:18px; }
+.gallery-kind { margin:0; padding-bottom:10px; border-bottom:1px solid var(--rule); font-size:12px; font-weight:600; text-transform:uppercase; }
+.gallery-coordinate-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.gallery-item-list-panel { margin-top:24px; padding-top:20px; border-top:1px solid var(--rule); }
+.gallery-item-list { display:grid; border-top:1px solid var(--rule); }
+.gallery-item-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:10px; align-items:center; border-bottom:1px solid var(--rule); padding:8px 0; }
+.gallery-item-row.is-selected { background:var(--panel); }
+.gallery-item-select { display:grid; grid-template-columns:48px minmax(0,1fr); gap:10px; align-items:center; width:100%; padding:8px; border:0; background:transparent; text-align:left; cursor:pointer; }
+.gallery-item-thumb { display:grid; place-items:center; width:48px; height:42px; overflow:hidden; background:var(--panel); font-size:10px; }
+.gallery-item-thumb img { width:100%; height:100%; object-fit:cover; }
+.gallery-item-select strong, .gallery-item-select small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gallery-item-select small { color:var(--rule); font-size:11px; }
+.gallery-item-actions { display:flex; gap:6px; }
+.gallery-item-actions button { padding:7px 9px; }
+.gallery-state { font-size:12px; }
+.check-field { grid-template-columns:auto 1fr !important; align-items:center; }
+.check-field input { width:auto; }
+@media(max-width:960px){ .gallery-workspace{grid-template-columns:1fr}.gallery-inspector{position:static}.gallery-form-grid{grid-template-columns:1fr}.gallery-wide{grid-column:auto} }
+@media(max-width:680px){ .gallery-editor{width:min(100% - 18px,1500px)}.gallery-toolbar{align-items:stretch;flex-direction:column}.gallery-toolbar .actions{width:100%}.gallery-toolbar .actions>*{flex:1}.gallery-item-row{grid-template-columns:1fr}.gallery-item-actions{justify-content:flex-end} }

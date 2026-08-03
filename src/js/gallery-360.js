@@ -54,11 +54,19 @@ function createArtwork(item){
   button.type="button";
   button.className="gallery-artwork";
   button.style.width=`${item.width || 180}px`;
-  button.innerHTML=`<img src="${item.image}" alt="${item.title}">`;
+  const image=document.createElement("img");
+  image.src=item.image;
+  image.alt=item.title || "Obra visual";
+  image.draggable=false;
+  button.appendChild(image);
   button.addEventListener("click",()=>{
+    if(item.action === "link" && item.link){
+      window.open(item.link,"_blank","noopener");
+      return;
+    }
     artImage.src=item.image;
-    artImage.alt=item.title;
-    artTitle.textContent=item.title;
+    artImage.alt=item.title || "Obra visual";
+    artTitle.textContent=item.title || "Obra visual";
     artDialog.showModal();
   });
   overlay.appendChild(button);
@@ -82,8 +90,8 @@ async function loadRoom(id){
   roomLabel.textContent=next.label;
   overlay.replaceChildren();
   items=[
-    ...(next.artworks||[]).map(createArtwork),
-    ...(next.portals||[]).map(createPortal)
+    ...(next.artworks||[]).filter(item=>item.published!==false).map(createArtwork),
+    ...(next.portals||[]).filter(item=>item.published!==false).map(createPortal)
   ];
   const loaded=await new THREE.TextureLoader().loadAsync(next.panorama);
   loaded.colorSpace=THREE.SRGBColorSpace;
@@ -106,10 +114,10 @@ function updateItems(){
       projected.x>=-1.1 && projected.x<=1.1 && projected.y>=-1.1 && projected.y<=1.1;
     item.element.hidden=!visible;
     if(!visible) continue;
-    item.element.style.left=`${(projected.x*.5+.5)*rect.width}px`;
-    item.element.style.top=`${(-projected.y*.5+.5)*rect.height}px`;
+    const x=(projected.x*.5+.5)*rect.width;
+    const y=(-projected.y*.5+.5)*rect.height;
     const scale=Math.max(.48,Math.min(1.18,1.05-projected.z*.12));
-    item.element.style.scale=String(scale);
+    item.element.style.transform=`translate3d(${x}px,${y}px,0) translate(-50%,-50%) scale(${scale})`;
   }
 }
 

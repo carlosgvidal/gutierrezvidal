@@ -156,6 +156,11 @@
         } else if (item.url === "blog.html") {
           button.title = "Editar la página y el archivo del blog";
           button.addEventListener("click", loadBlogPage);
+        } else if (item.url === "imagenes.html") {
+          button.title = "Abrir el editor especializado de la Galería 360";
+          button.addEventListener("click", () => {
+            location.href = "gallery.html";
+          });
         } else {
           button.addEventListener("click", () => loadPublishedPage(item.url));
         }
