@@ -38,3 +38,28 @@
 .check-field input { width:auto; }
 @media(max-width:960px){ .gallery-workspace{grid-template-columns:1fr}.gallery-inspector{position:static}.gallery-form-grid{grid-template-columns:1fr}.gallery-wide{grid-column:auto} }
 @media(max-width:680px){ .gallery-editor{width:min(100% - 18px,1500px)}.gallery-toolbar{align-items:stretch;flex-direction:column}.gallery-toolbar .actions{width:100%}.gallery-toolbar .actions>*{flex:1}.gallery-item-row{grid-template-columns:1fr}.gallery-item-actions{justify-content:flex-end} }
+
+
+/* v3.4 — controles de integración tridimensional */
+.gallery-3d-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 12px;
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px solid var(--rule);
+}
+
+.gallery-3d-fields legend {
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 680px) {
+  .gallery-3d-fields {
+    grid-template-columns: 1fr;
+  }
+}

@@ -92,6 +92,15 @@
           <label><span>Reemplazar imagen</span><input id="gallery-artwork-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/svg+xml"></label>
           <label><span>Ruta de la imagen</span><input id="gallery-artwork-path" type="text" placeholder="public/gallery/obra.jpg"></label>
           <label><span>Ancho visual</span><input id="gallery-artwork-width" type="number" min="50" max="900" step="1"></label>
+          <fieldset class="gallery-3d-fields">
+            <legend>Integración 3D</legend>
+            <label><span>Distancia al visitante</span><input id="gallery-artwork-depth" type="number" min="4" max="20" step="0.1"></label>
+            <label><span>Curvatura del muro</span><input id="gallery-artwork-curve" type="number" min="-0.8" max="0.8" step="0.01"></label>
+            <label><span>Giro horizontal</span><input id="gallery-artwork-rotation-y" type="number" min="-180" max="180" step="1"></label>
+            <label><span>Inclinación vertical</span><input id="gallery-artwork-rotation-x" type="number" min="-90" max="90" step="1"></label>
+            <label><span>Rotación de la obra</span><input id="gallery-artwork-rotation-z" type="number" min="-180" max="180" step="1"></label>
+          </fieldset>
+          <p class="field-help">Curvatura positiva adapta los bordes hacia el muro; distancia menor acerca la obra al visitante.</p>
           <label><span>Acción al tocar</span><select id="gallery-artwork-action"><option value="zoom">Ampliar</option><option value="link">Abrir enlace</option></select></label>
           <label id="gallery-artwork-link-field"><span>Enlace</span><input id="gallery-artwork-link" type="text" placeholder="https://… o pagina.html"></label>
         </div>

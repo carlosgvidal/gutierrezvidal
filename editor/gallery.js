@@ -38,7 +38,13 @@
   const itemFields = {
     id: $("#gallery-item-id"), type: $("#gallery-item-type"), kind: $("#gallery-item-kind"),
     title: $("#gallery-artwork-title"), file: $("#gallery-artwork-file"), path: $("#gallery-artwork-path"),
-    width: $("#gallery-artwork-width"), action: $("#gallery-artwork-action"), link: $("#gallery-artwork-link"),
+    width: $("#gallery-artwork-width"),
+    depth: $("#gallery-artwork-depth"),
+    curve: $("#gallery-artwork-curve"),
+    rotationX: $("#gallery-artwork-rotation-x"),
+    rotationY: $("#gallery-artwork-rotation-y"),
+    rotationZ: $("#gallery-artwork-rotation-z"),
+    action: $("#gallery-artwork-action"), link: $("#gallery-artwork-link"),
     portalLabel: $("#gallery-portal-label"), portalRoom: $("#gallery-portal-room"), published: $("#gallery-item-published"),
     x: $("#gallery-item-x"), y: $("#gallery-item-y")
   };
@@ -94,7 +100,13 @@
       panorama:cleanText(value.panorama), alt:cleanText(value.alt)||`Panorama de ${value.label||`Sala ${index+1}`}`,
       width:Number(value.width)||1536,height:Number(value.height)||768,
       initialView:{x:Number(value.initialView?.x)||768,y:Number(value.initialView?.y)||384},
-      artworks:(value.artworks||[]).map(item=>({id:cleanText(item.id)||uid("obra"),title:cleanText(item.title)||"Obra sin título",image:cleanText(item.image),x:Number(item.x)||768,y:Number(item.y)||384,width:clamp(Number(item.width)||180,50,900),action:item.action==="link"?"link":"zoom",link:cleanText(item.link),published:item.published!==false})),
+      artworks:(value.artworks||[]).map(item=>({id:cleanText(item.id)||uid("obra"),title:cleanText(item.title)||"Obra sin título",image:cleanText(item.image),x:Number(item.x)||768,y:Number(item.y)||384,width:clamp(Number(item.width)||180,50,900),
+        depth:clamp(Number(item.depth)||9.4,4,20),
+        curve:clamp(Number(item.curve)||0,-0.8,0.8),
+        rotationX:clamp(Number(item.rotationX)||0,-90,90),
+        rotationY:clamp(Number(item.rotationY)||0,-180,180),
+        rotationZ:clamp(Number(item.rotationZ)||0,-180,180),
+        action:item.action==="link"?"link":"zoom",link:cleanText(item.link),published:item.published!==false})),
       portals:(value.portals||[]).map(item=>({id:cleanText(item.id)||uid("transito"),label:cleanText(item.label)||"Cambiar de sala",room:cleanText(item.room),x:Number(item.x)||768,y:Number(item.y)||384,published:item.published!==false}))
     }));
   }
@@ -162,17 +174,31 @@
     stage.querySelectorAll(".gallery-stage-marker").forEach(node=>node.classList.toggle("is-selected",node.dataset.key===selectedKey)); itemList.querySelectorAll(".gallery-item-row").forEach(node=>node.classList.toggle("is-selected",node.dataset.key===selectedKey));
     if(!record){inspectorTitle.textContent="Elemento";return;}
     itemFields.id.value=record.item.id||"";itemFields.type.value=record.type;itemFields.kind.textContent=record.type==="artwork"?"Obra visual":"Punto de tránsito";artworkFields.hidden=record.type!=="artwork";portalFields.hidden=record.type!=="portal";itemFields.published.checked=record.item.published!==false;itemFields.x.value=Math.round(record.item.x);itemFields.y.value=Math.round(record.item.y);
-    if(record.type==="artwork"){itemFields.title.value=record.item.title||"";itemFields.path.value=record.item.image||"";itemFields.width.value=record.item.width||180;itemFields.action.value=record.item.action||"zoom";itemFields.link.value=record.item.link||"";linkField.hidden=itemFields.action.value!=="link";inspectorTitle.textContent=`Obra: ${record.item.title||"Sin título"}`;}else{itemFields.portalLabel.value=record.item.label||"";itemFields.portalRoom.value=record.item.room||data.rooms[0]?.id||"";inspectorTitle.textContent=`Tránsito: ${record.item.label||"Sin etiqueta"}`;}
+    if(record.type==="artwork"){itemFields.title.value=record.item.title||"";itemFields.path.value=record.item.image||"";itemFields.width.value=record.item.width||180;
+      itemFields.depth.value=record.item.depth??9.4;
+      itemFields.curve.value=record.item.curve??0;
+      itemFields.rotationX.value=record.item.rotationX??0;
+      itemFields.rotationY.value=record.item.rotationY??0;
+      itemFields.rotationZ.value=record.item.rotationZ??0;
+      itemFields.action.value=record.item.action||"zoom";itemFields.link.value=record.item.link||"";linkField.hidden=itemFields.action.value!=="link";inspectorTitle.textContent=`Obra: ${record.item.title||"Sin título"}`;}else{itemFields.portalLabel.value=record.item.label||"";itemFields.portalRoom.value=record.item.room||data.rooms[0]?.id||"";inspectorTitle.textContent=`Tránsito: ${record.item.label||"Sin etiqueta"}`;}
   }
   function syncSelected(){
     const record=selected(); if(!record)return null; record.item.published=itemFields.published.checked;
     if(record.type==="artwork"){
-      record.item.title=cleanText(itemFields.title.value);record.item.image=cleanText(itemFields.path.value);record.item.width=clamp(Number(itemFields.width.value)||180,50,900);record.item.action=itemFields.action.value==="link"?"link":"zoom";record.item.link=cleanText(itemFields.link.value);if(!record.item.title)throw new Error("El título de la obra es obligatorio.");if(!record.item.image)throw new Error("Selecciona o escribe la ruta de la imagen.");if(record.item.action==="link"&&!record.item.link)throw new Error("La obra necesita un enlace.");
+      record.item.title=cleanText(itemFields.title.value);
+      record.item.image=cleanText(itemFields.path.value);
+      record.item.width=clamp(Number(itemFields.width.value)||180,50,900);
+      record.item.depth=clamp(Number(itemFields.depth.value)||9.4,4,20);
+      record.item.curve=clamp(Number(itemFields.curve.value)||0,-0.8,0.8);
+      record.item.rotationX=clamp(Number(itemFields.rotationX.value)||0,-90,90);
+      record.item.rotationY=clamp(Number(itemFields.rotationY.value)||0,-180,180);
+      record.item.rotationZ=clamp(Number(itemFields.rotationZ.value)||0,-180,180);
+      record.item.action=itemFields.action.value==="link"?"link":"zoom";record.item.link=cleanText(itemFields.link.value);if(!record.item.title)throw new Error("El título de la obra es obligatorio.");if(!record.item.image)throw new Error("Selecciona o escribe la ruta de la imagen.");if(record.item.action==="link"&&!record.item.link)throw new Error("La obra necesita un enlace.");
     }else{record.item.label=cleanText(itemFields.portalLabel.value);record.item.room=itemFields.portalRoom.value;if(!record.item.label)throw new Error("La etiqueta del tránsito es obligatoria.");if(!record.item.room)throw new Error("Selecciona una sala de destino.");}
     return record;
   }
   function render(){renderRoomOptions();syncRoomFields();renderStage();renderList();select(selectedKey);}
-  function addArtwork(){const value=room();if(!value)return;const item={id:uid("obra"),title:"Nueva obra",image:"",x:Math.round(value.width/2),y:Math.round(value.height/2),width:180,action:"zoom",link:"",published:true};value.artworks.push(item);selectedKey=`artwork:${item.id}`;render();markDirty("Obra agregada. Selecciona su imagen y ubicación.");itemFields.title.select();}
+  function addArtwork(){const value=room();if(!value)return;const item={id:uid("obra"),title:"Nueva obra",image:"",x:Math.round(value.width/2),y:Math.round(value.height/2),width:180,depth:9.4,curve:0.12,rotationX:0,rotationY:0,rotationZ:0,action:"zoom",link:"",published:true};value.artworks.push(item);selectedKey=`artwork:${item.id}`;render();markDirty("Obra agregada. Selecciona su imagen y ubicación.");itemFields.title.select();}
   function addPortal(){const value=room();if(!value)return;const target=data.rooms.find(candidate=>candidate.id!==value.id)?.id||value.id;const item={id:uid("transito"),label:"Cambiar de sala",room:target,x:Math.round(value.width/2),y:Math.round(value.height/2),published:true};value.portals.push(item);selectedKey=`portal:${item.id}`;render();markDirty("Punto de tránsito agregado.");itemFields.portalLabel.select();}
   function removeItem(key){const record=allItems().find(value=>value.key===key);if(!record||!confirm(`¿Eliminar “${record.type==="artwork"?record.item.title:record.item.label}”?`))return;const value=room();if(record.type==="artwork")value.artworks=value.artworks.filter(item=>item.id!==record.item.id);else value.portals=value.portals.filter(item=>item.id!==record.item.id);selectedKey="";render();markDirty("Elemento eliminado.");}
   function duplicateSelected(){const record=selected();if(!record)return;const clone=JSON.parse(JSON.stringify(record.item));clone.id=uid(record.type==="artwork"?"obra":"transito");clone.x=clamp(clone.x+40,0,room().width);clone.y=clamp(clone.y+25,0,room().height);if(record.type==="artwork"){clone.title=`${clone.title} · copia`;room().artworks.push(clone);}else{clone.label=`${clone.label} · copia`;room().portals.push(clone);}selectedKey=`${record.type}:${clone.id}`;render();markDirty("Elemento duplicado.");}
