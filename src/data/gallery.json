@@ -1,0 +1,156 @@
+{
+  "title": "Galería 360 · prueba",
+  "rooms": [
+    {
+      "id": "sala-1",
+      "label": "Sala 1",
+      "panorama": "public/panorama/sala-1.jpg",
+      "initialView": {
+        "x": 780,
+        "y": 390
+      },
+      "artworks": [
+        {
+          "id": "obra-1",
+          "title": "Umbral I",
+          "image": "public/gallery/obra-1.svg",
+          "x": 1135,
+          "y": 355,
+          "width": 180,
+          "action": "zoom"
+        },
+        {
+          "id": "obra-2",
+          "title": "Materia curva",
+          "image": "public/gallery/obra-2.svg",
+          "x": 690,
+          "y": 385,
+          "width": 220,
+          "action": "zoom"
+        }
+      ],
+      "portals": [
+        {
+          "label": "Ir a Sala 2",
+          "room": "sala-2",
+          "x": 1490,
+          "y": 390
+        }
+      ]
+    },
+    {
+      "id": "sala-2",
+      "label": "Sala 2",
+      "panorama": "public/panorama/sala-2.jpg",
+      "initialView": {
+        "x": 770,
+        "y": 380
+      },
+      "artworks": [
+        {
+          "id": "obra-3",
+          "title": "Núcleo",
+          "image": "public/gallery/obra-3.svg",
+          "x": 350,
+          "y": 390,
+          "width": 170,
+          "action": "zoom"
+        },
+        {
+          "id": "obra-4",
+          "title": "Doble corriente",
+          "image": "public/gallery/obra-4.svg",
+          "x": 1075,
+          "y": 390,
+          "width": 215,
+          "action": "zoom"
+        }
+      ],
+      "portals": [
+        {
+          "label": "Sala 1",
+          "room": "sala-1",
+          "x": 80,
+          "y": 390
+        },
+        {
+          "label": "Sala 3",
+          "room": "sala-3",
+          "x": 1460,
+          "y": 390
+        }
+      ]
+    },
+    {
+      "id": "sala-3",
+      "label": "Sala 3",
+      "panorama": "public/panorama/sala-3.jpg",
+      "initialView": {
+        "x": 768,
+        "y": 380
+      },
+      "artworks": [
+        {
+          "id": "obra-2b",
+          "title": "Materia curva II",
+          "image": "public/gallery/obra-2.svg",
+          "x": 520,
+          "y": 405,
+          "width": 240,
+          "action": "zoom"
+        },
+        {
+          "id": "obra-1b",
+          "title": "Umbral II",
+          "image": "public/gallery/obra-1.svg",
+          "x": 1210,
+          "y": 415,
+          "width": 155,
+          "action": "zoom"
+        }
+      ],
+      "portals": [
+        {
+          "label": "Sala 2",
+          "room": "sala-2",
+          "x": 120,
+          "y": 390
+        },
+        {
+          "label": "Sala 4",
+          "room": "sala-4",
+          "x": 1420,
+          "y": 390
+        }
+      ]
+    },
+    {
+      "id": "sala-4",
+      "label": "Sala 4",
+      "panorama": "public/panorama/sala-4.jpg",
+      "initialView": {
+        "x": 770,
+        "y": 390
+      },
+      "artworks": [
+        {
+          "id": "obra-4b",
+          "title": "Corriente final",
+          "image": "public/gallery/obra-4.svg",
+          "x": 770,
+          "y": 350,
+          "width": 260,
+          "action": "zoom"
+        }
+      ],
+      "portals": [
+        {
+          "label": "Volver a Sala 1",
+          "room": "sala-1",
+          "x": 80,
+          "y": 390
+        }
+      ]
+    }
+  ]
+}

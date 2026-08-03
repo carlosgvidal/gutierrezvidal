@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Galería 360 · versión de prueba</title>
+  <link rel="stylesheet" href="src/css/gallery-360.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.167.1/build/three.module.js",
+      "OrbitControls": "https://unpkg.com/three@0.167.1/examples/jsm/controls/OrbitControls.js"
+    }
+  }
+  </script>
+</head>
+<body>
+  <header class="gallery-shell gallery-shell--top" id="gallery-header">
+    <a class="gallery-brand" href="index.html">Carlos Adolfo Gutiérrez Vidal</a>
+    <nav aria-label="Galería">
+      <button id="room-menu" type="button">Salas</button>
+      <button id="toggle-shell" type="button">Vista inmersiva</button>
+    </nav>
+  </header>
+
+  <main class="gallery-main">
+    <section id="gallery-viewer" class="gallery-viewer" aria-label="Galería virtual panorámica">
+      <div id="gallery-overlay" class="gallery-overlay"></div>
+      <p class="gallery-help">Arrastra para recorrer · toca una obra para ampliarla</p>
+      <div id="room-picker" class="room-picker" hidden></div>
+    </section>
+  </main>
+
+  <footer class="gallery-shell gallery-shell--bottom" id="gallery-footer">
+    <span id="room-label">Sala</span>
+    <button id="toggle-footer" type="button">Ocultar pie</button>
+  </footer>
+
+  <button id="restore-shell" class="restore-shell" type="button" hidden aria-label="Mostrar navegación">Menú</button>
+
+  <dialog id="art-dialog" class="art-dialog">
+    <button id="art-close" class="art-close" type="button" aria-label="Cerrar">×</button>
+    <img id="art-image" alt="">
+    <h2 id="art-title"></h2>
+  </dialog>
+
+  <script type="module" src="src/js/gallery-360.js"></script>
+</body>
+</html>
