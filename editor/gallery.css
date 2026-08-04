@@ -88,3 +88,34 @@
   line-height: 1.25;
   opacity: .7;
 }
+
+
+/* v3.6 — administración de salas */
+.gallery-room-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.gallery-room-controls select {
+  min-width: 180px;
+}
+
+.gallery-room-controls button {
+  min-height: 40px;
+}
+
+@media (max-width: 760px) {
+  .gallery-room-controls {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .gallery-room-controls select,
+  .gallery-room-controls button {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+}

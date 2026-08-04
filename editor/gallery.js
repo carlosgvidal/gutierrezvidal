@@ -3,6 +3,10 @@
   const $ = selector => document.querySelector(selector);
   const status = $("#gallery-status");
   const roomSelect = $("#gallery-room-select");
+  const addRoomButton = $("#gallery-add-room");
+  const duplicateRoomButton = $("#gallery-duplicate-room");
+  const deleteRoomButton = $("#gallery-delete-room");
+  const newRoomPanorama = $("#gallery-new-room-panorama");
   const roomLabelInput = $("#gallery-room-label");
   const panoramaFile = $("#gallery-panorama-file");
   const panoramaAlt = $("#gallery-panorama-alt");
@@ -77,6 +81,29 @@
 
   function setStatus(message){ status.textContent = message; }
   function room(){ return data?.rooms?.find(value=>value.id===currentRoomId) || null; }
+  function uniqueRoomId(label="sala"){
+    const base=slugify(label).replace(/^archivo$/,"sala") || "sala";
+    const existing=new Set((data?.rooms||[]).map(value=>value.id));
+    if(!existing.has(base)) return base;
+    let index=2;
+    while(existing.has(`${base}-${index}`)) index++;
+    return `${base}-${index}`;
+  }
+  function roomNameFromFile(file){
+    const source=cleanText(file?.name).replace(/\.[^.]+$/,"").replace(/[-_]+/g," ");
+    return source ? source.replace(/\b\w/g,letter=>letter.toUpperCase()) : `Sala ${(data?.rooms?.length||0)+1}`;
+  }
+  async function imageDimensions(url){
+    return new Promise(resolve=>{
+      const image=new Image();
+      image.onload=()=>resolve({
+        width:image.naturalWidth||1536,
+        height:image.naturalHeight||768
+      });
+      image.onerror=()=>resolve({width:1536,height:768});
+      image.src=url;
+    });
+  }
   function allItems(value=room()){
     if(!value) return [];
     return [
@@ -270,6 +297,96 @@
     return record;
   }
   function render(){renderRoomOptions();syncRoomFields();renderStage();renderList();select(selectedKey);}
+  async function addRoomFromFile(file){
+    if(!file) return null;
+    const suggested=roomNameFromFile(file);
+    const requested=prompt("Nombre de la nueva sala:",suggested);
+    if(requested===null) return null;
+    const label=cleanText(requested)||suggested;
+
+    setStatus("Preparando nueva sala…");
+    const panorama=await uploadAsset(file,"panorama");
+    const dimensions=await imageDimensions(assetURL(panorama));
+    const id=uniqueRoomId(label);
+
+    const value={
+      id,
+      label,
+      panorama,
+      alt:`Panorama de ${label}`,
+      width:dimensions.width,
+      height:dimensions.height,
+      initialView:{
+        x:Math.round(dimensions.width/2),
+        y:Math.round(dimensions.height/2)
+      },
+      artworks:[],
+      portals:[],
+      texts:[]
+    };
+
+    data.rooms.push(value);
+    currentRoomId=id;
+    selectedKey="";
+    render();
+    markDirty(`Sala “${label}” agregada. Ya puedes añadir obras, textos y tránsitos.`);
+    return value;
+  }
+
+  function duplicateRoom(){
+    const source=room();
+    if(!source) return null;
+
+    const clone=JSON.parse(JSON.stringify(source));
+    clone.id=uniqueRoomId(`${source.label}-copia`);
+    clone.label=`${source.label} · copia`;
+
+    for(const item of clone.artworks||[]) item.id=uid("obra");
+    for(const item of clone.portals||[]) item.id=uid("transito");
+    for(const item of clone.texts||[]) item.id=uid("texto");
+
+    data.rooms.push(clone);
+    currentRoomId=clone.id;
+    selectedKey="";
+    render();
+    markDirty(`Sala “${clone.label}” duplicada.`);
+    return clone;
+  }
+
+  function deleteRoom(){
+    const value=room();
+    if(!value) return false;
+    if(data.rooms.length<=1){
+      setStatus("La galería necesita conservar al menos una sala.");
+      return false;
+    }
+
+    const incoming=[];
+    for(const candidate of data.rooms){
+      if(candidate.id===value.id) continue;
+      for(const portal of candidate.portals||[]){
+        if(portal.room===value.id) incoming.push({candidate,portal});
+      }
+    }
+
+    const warning=incoming.length
+      ? `\n\nTambién se eliminarán ${incoming.length} tránsito(s) que apuntan a esta sala.`
+      : "";
+
+    if(!confirm(`¿Eliminar la sala “${value.label}”?${warning}`)) return false;
+
+    for(const {candidate,portal} of incoming){
+      candidate.portals=candidate.portals.filter(item=>item.id!==portal.id);
+    }
+
+    data.rooms=data.rooms.filter(candidate=>candidate.id!==value.id);
+    currentRoomId=data.rooms[0].id;
+    selectedKey="";
+    render();
+    markDirty(`Sala “${value.label}” eliminada.`);
+    return true;
+  }
+
   function addArtwork(){const value=room();if(!value)return;const item={id:uid("obra"),title:"Nueva obra",image:"",x:Math.round(value.width/2),y:Math.round(value.height/2),width:180,depth:9.4,curve:0.12,rotationX:0,rotationY:0,rotationZ:0,action:"zoom",link:"",published:true};value.artworks.push(item);selectedKey=`artwork:${item.id}`;render();markDirty("Obra agregada. Selecciona su imagen y ubicación.");itemFields.title.select();}
   function addPortal(){const value=room();if(!value)return;const target=data.rooms.find(candidate=>candidate.id!==value.id)?.id||value.id;const item={id:uid("transito"),label:"Cambiar de sala",room:target,x:Math.round(value.width/2),y:Math.round(value.height/2),published:true};value.portals.push(item);selectedKey=`portal:${item.id}`;render();markDirty("Punto de tránsito agregado.");itemFields.portalLabel.select();}
   function addText(){const value=room();if(!value)return;const item={id:uid("texto"),heading:"Encabezado",subheading:"Subcabeza",description:"Escribe aquí la descripción editorial de la pieza.",x:Math.round(value.width/2),y:Math.round(value.height/2),width:440,align:"left",headingSize:54,bodySize:18,theme:"light",published:true};value.texts=value.texts||[];value.texts.push(item);selectedKey=`text:${item.id}`;render();markDirty("Texto editorial agregado. Arrástralo y edita su contenido.");itemFields.textHeading.select();}
@@ -300,6 +417,23 @@
   function prepareDownload(blob){if(downloadURL)URL.revokeObjectURL(downloadURL);downloadURL=URL.createObjectURL(blob);readyDownload.href=downloadURL;readyDownload.download=`gutierrezvidal-galeria-${new Date().toISOString().slice(0,10)}.zip`;readyDownload.hidden=false;}
   async function buildZip(){const saved=await persist();const zip=new JSZip();zip.file("src/data/gallery.json",saved.serialized);zip.file("imagenes.html",saved.html);for(const path of saved.paths){if(path==="src/data/gallery.json"||path==="imagenes.html")continue;zip.file(path,saved.patches[path]);}zip.file("INSTRUCCIONES.txt","ACTUALIZACIÓN DE GALERÍA 360\n\nCopia estos archivos sobre la raíz del sitio existente.\n");const blob=await zip.generateAsync({type:"blob",compression:"DEFLATE",compressionOptions:{level:6}});prepareDownload(blob);return saved;}
 
+  addRoomButton.addEventListener("click",()=>newRoomPanorama.click());
+  newRoomPanorama.addEventListener("change",async event=>{
+    const file=event.target.files?.[0];
+    event.target.value="";
+    if(!file) return;
+    addRoomButton.disabled=true;
+    try{
+      await addRoomFromFile(file);
+    }catch(error){
+      setStatus(`No se pudo agregar la sala: ${error.message}`);
+    }finally{
+      addRoomButton.disabled=false;
+    }
+  });
+  duplicateRoomButton.addEventListener("click",duplicateRoom);
+  deleteRoomButton.addEventListener("click",deleteRoom);
+
   roomSelect.addEventListener("change",()=>{if(room()){room().label=cleanText(roomLabelInput.value)||room().label;room().alt=cleanText(panoramaAlt.value);}currentRoomId=roomSelect.value;selectedKey="";render();markDirty("Sala seleccionada.");});
   roomLabelInput.addEventListener("input",()=>{const value=room();if(!value)return;value.label=roomLabelInput.value;const roomOption=roomSelect.querySelector(`option[value="${CSS.escape(value.id)}"]`);if(roomOption)roomOption.textContent=value.label;const portalOption=itemFields.portalRoom.querySelector(`option[value="${CSS.escape(value.id)}"]`);if(portalOption)portalOption.textContent=value.label;markDirty();});
   panoramaAlt.addEventListener("input",()=>{if(room())room().alt=panoramaAlt.value;markDirty();});
@@ -315,10 +449,10 @@
   saveDownloadButton.addEventListener("click",async()=>{saveButton.disabled=saveDownloadButton.disabled=true;setStatus("Guardando y preparando ZIP…");try{await buildZip();setStatus("ZIP preparado. Si no inició la descarga, pulsa «Descargar ZIP preparado».");readyDownload.click();}catch(error){setStatus(`No se pudo guardar: ${error.message}`);}finally{saveButton.disabled=saveDownloadButton.disabled=false;}});
   window.addEventListener("beforeunload",event=>{if(!dirty)return;event.preventDefault();event.returnValue="";});
   window.addEventListener("unload",revokeURLs);
-  window.GVGalleryEditor={getData:()=>JSON.parse(JSON.stringify(data)),addArtwork,addPortal,addText,select,removeItem,persist};
+  window.GVGalleryEditor={getData:()=>JSON.parse(JSON.stringify(data)),addRoomFromFile,duplicateRoom,deleteRoom,addArtwork,addPortal,addText,select,removeItem,persist};
 
   async function load(){
-    try{await refreshObjectURLs();pageSource=await GVPatches.getFile("imagenes.html");loadPageFields();const workspace=await GVPatches.status();const draft=readDraft();const draftTime=draft?.savedAt?Date.parse(draft.savedAt):0;const workspaceTime=workspace.updatedAt?Date.parse(workspace.updatedAt):0;if(draft?.data&&draftTime>workspaceTime){data=draft.data;applyPageState(draft.page||{});currentRoomId=draft.currentRoomId||data.rooms?.[0]?.id||"";selectedKey=draft.selectedKey||"";setStatus(`Borrador local recuperado (${new Date(draft.savedAt).toLocaleString("es-MX")}).`);}else{data=JSON.parse(await GVPatches.getFile("src/data/gallery.json"));currentRoomId=data.rooms?.[0]?.id||"";}normalize();render();setStatus(`${data.rooms.length} salas cargadas. Selecciona una obra o agrega un hotspot.`);}catch(error){setStatus(`No se pudo cargar la galería: ${error.message}`);addArtworkButton.disabled=addPortalButton.disabled=saveButton.disabled=saveDownloadButton.disabled=true;}
+    try{await refreshObjectURLs();pageSource=await GVPatches.getFile("imagenes.html");loadPageFields();const workspace=await GVPatches.status();const draft=readDraft();const draftTime=draft?.savedAt?Date.parse(draft.savedAt):0;const workspaceTime=workspace.updatedAt?Date.parse(workspace.updatedAt):0;if(draft?.data&&draftTime>workspaceTime){data=draft.data;applyPageState(draft.page||{});currentRoomId=draft.currentRoomId||data.rooms?.[0]?.id||"";selectedKey=draft.selectedKey||"";setStatus(`Borrador local recuperado (${new Date(draft.savedAt).toLocaleString("es-MX")}).`);}else{data=JSON.parse(await GVPatches.getFile("src/data/gallery.json"));currentRoomId=data.rooms?.[0]?.id||"";}normalize();render();setStatus(`${data.rooms.length} salas cargadas. Selecciona una obra o agrega un hotspot.`);}catch(error){setStatus(`No se pudo cargar la galería: ${error.message}`);addRoomButton.disabled=duplicateRoomButton.disabled=deleteRoomButton.disabled=addArtworkButton.disabled=addPortalButton.disabled=addTextButton.disabled=saveButton.disabled=saveDownloadButton.disabled=true;}
   }
   load();
 })();

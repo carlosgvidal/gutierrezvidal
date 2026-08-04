@@ -19,7 +19,7 @@
 
   <header class="editor-header">
     <div><p class="eyebrow">CMS</p><h1>Galería 360</h1></div>
-    <p class="privacy">Edita directamente <code>imagenes.html</code>, las cuatro salas, las panorámicas y todos los hotspots visuales.</p>
+    <p class="privacy">Edita directamente <code>imagenes.html</code>, las salas, las panorámicas y todos los hotspots visuales.</p>
   </header>
 
   <p id="gallery-status" class="status status-box" role="status">Cargando galería publicada…</p>
@@ -46,8 +46,14 @@
     <div class="step-number">02</div>
     <div>
       <div class="gallery-toolbar">
-        <div><h2>Sala actual</h2><p class="field-help">Selecciona una sala para modificar su panorama y sus elementos.</p></div>
-        <select id="gallery-room-select" aria-label="Sala actual"></select>
+        <div><h2>Sala actual</h2><p class="field-help">Selecciona una sala o crea una nueva a partir de una panorámica.</p></div>
+        <div class="gallery-room-controls">
+          <select id="gallery-room-select" aria-label="Sala actual"></select>
+          <button id="gallery-add-room" class="primary" type="button">Agregar sala</button>
+          <button id="gallery-duplicate-room" class="secondary" type="button">Duplicar sala</button>
+          <button id="gallery-delete-room" class="secondary" type="button">Eliminar sala</button>
+          <input id="gallery-new-room-panorama" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        </div>
       </div>
       <div class="gallery-form-grid">
         <label><span>Nombre de la sala</span><input id="gallery-room-label" type="text" required></label>
