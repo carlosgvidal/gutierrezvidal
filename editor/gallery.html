@@ -64,6 +64,7 @@
         <div class="actions actions-left">
           <button id="gallery-add-artwork" class="primary" type="button">Agregar obra</button>
           <button id="gallery-add-portal" class="secondary" type="button">Agregar tránsito</button>
+          <button id="gallery-add-text" class="secondary" type="button">Agregar texto editorial</button>
         </div>
       </div>
       <div id="gallery-stage" class="gallery-stage" aria-label="Editor visual de la galería">
@@ -108,6 +109,32 @@
         <div id="gallery-portal-fields" hidden>
           <label><span>Etiqueta</span><input id="gallery-portal-label" type="text"></label>
           <label><span>Sala de destino</span><select id="gallery-portal-room"></select></label>
+        </div>
+
+        <div id="gallery-text-fields" hidden>
+          <label><span>Encabezado</span><input id="gallery-text-heading" type="text" maxlength="160"></label>
+          <label><span>Subcabeza</span><input id="gallery-text-subheading" type="text" maxlength="240"></label>
+          <label><span>Descripción</span><textarea id="gallery-text-description" rows="7" maxlength="1600"></textarea></label>
+          <div class="gallery-form-grid">
+            <label><span>Ancho del bloque</span><input id="gallery-text-width" type="number" min="220" max="900" step="10"></label>
+            <label><span>Alineación</span>
+              <select id="gallery-text-align">
+                <option value="left">Izquierda</option>
+                <option value="center">Centro</option>
+                <option value="right">Derecha</option>
+              </select>
+            </label>
+            <label><span>Tamaño del encabezado</span><input id="gallery-text-heading-size" type="number" min="24" max="120" step="1"></label>
+            <label><span>Tamaño de la descripción</span><input id="gallery-text-body-size" type="number" min="12" max="36" step="1"></label>
+            <label><span>Fondo</span>
+              <select id="gallery-text-theme">
+                <option value="light">Claro</option>
+                <option value="dark">Oscuro</option>
+                <option value="transparent">Transparente</option>
+              </select>
+            </label>
+          </div>
+          <p class="field-help">El bloque puede arrastrarse sobre el panorama igual que una obra. La posición y el ancho se conservan en cada sala.</p>
         </div>
 
         <label class="check-field"><input id="gallery-item-published" type="checkbox" checked><span>Publicado</span></label>

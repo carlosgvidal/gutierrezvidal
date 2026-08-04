@@ -46,6 +46,7 @@ scene.add(artworkGroup);
 
 let room = null;
 let portals = [];
+let editorialTexts = [];
 let panoramaTexture = null;
 let artworkMeshes = [];
 const projected = new THREE.Vector3();
@@ -176,6 +177,43 @@ function createPortal(item,currentRoom){
   };
 }
 
+function createEditorialText(item,currentRoom){
+  const article=document.createElement("article");
+  article.className=`gallery-editorial-hotspot gallery-editorial-hotspot--${item.theme || "light"}`;
+  article.style.width=`${clamp(number(item.width,440),220,900)}px`;
+  article.style.textAlign=["left","center","right"].includes(item.align)?item.align:"left";
+  article.style.setProperty("--gallery-heading-size",`${clamp(number(item.headingSize,54),24,120)}px`);
+  article.style.setProperty("--gallery-body-size",`${clamp(number(item.bodySize,18),12,36)}px`);
+
+  const heading=document.createElement("h2");
+  heading.textContent=item.heading || "";
+  article.appendChild(heading);
+
+  if(item.subheading){
+    const subheading=document.createElement("p");
+    subheading.className="gallery-editorial-hotspot__subheading";
+    subheading.textContent=item.subheading;
+    article.appendChild(subheading);
+  }
+
+  if(item.description){
+    const description=document.createElement("p");
+    description.className="gallery-editorial-hotspot__description";
+    description.textContent=item.description;
+    article.appendChild(description);
+  }
+
+  overlay.appendChild(article);
+  return {
+    element:article,
+    position:pixelToVector(
+      item.x,item.y,
+      currentRoom.width || 1536,
+      currentRoom.height || 768
+    )
+  };
+}
+
 function openArtwork(item){
   if(item.action === "link" && item.link){
     window.open(item.link,"_blank","noopener");
@@ -197,6 +235,9 @@ async function loadRoom(id){
   portals=(next.portals||[])
     .filter(item=>item.published!==false)
     .map(item=>createPortal(item,next));
+  editorialTexts=(next.texts||[])
+    .filter(item=>item.published!==false)
+    .map(item=>createEditorialText(item,next));
 
   disposeArtworkMeshes();
   const publishedArtworks=(next.artworks||[]).filter(item=>item.published!==false);
@@ -225,7 +266,7 @@ function updatePortals(){
   const rect=viewer.getBoundingClientRect();
   camera.updateMatrixWorld();
 
-  for(const item of portals){
+  for(const item of [...portals,...editorialTexts]){
     cameraSpace.copy(item.position).applyMatrix4(camera.matrixWorldInverse);
     projected.copy(item.position).project(camera);
     const visible=cameraSpace.z<-.01 && projected.z>=-1 && projected.z<=1 &&

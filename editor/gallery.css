@@ -63,3 +63,28 @@
     grid-template-columns: 1fr;
   }
 }
+
+
+/* v3.5 — textos editoriales */
+.gallery-stage-text {
+  display: grid;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--ink);
+  background: rgba(250,249,246,.92);
+  color: var(--ink);
+  text-align: left;
+}
+
+.gallery-stage-text strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.gallery-stage-text span {
+  display: block;
+  font-size: 11px;
+  line-height: 1.25;
+  opacity: .7;
+}
