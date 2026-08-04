@@ -138,15 +138,170 @@
         "y": 390
       },
       "artworks": [],
-      "portals": [],
+      "portals": [
+        {
+          "id": "transito-msf4c7wm-888oaw",
+          "label": "Ve a la playa",
+          "room": "retrato-de-bibiana-padilla-maltos-copia",
+          "x": 1088,
+          "y": 359,
+          "published": true
+        },
+        {
+          "id": "transito-msf4g9lv-ju1hxk",
+          "label": "Camina hacia Madrid",
+          "room": "soledad-adonde-vayas-2004-copia",
+          "x": 124,
+          "y": 582,
+          "published": true
+        }
+      ],
       "texts": [
         {
           "id": "texto-msf25fzd-zutimp",
           "heading": "Soledad adonde vayas, 2004",
           "subheading": "Plata sobre gelatina",
           "description": "El cartel nombra a una mujer, pero la ciudad lee otra cosa. «Soledad. Adonde vayas»: entre el nombre propio y la frase publicitaria se abre una sentencia involuntaria. El rostro, rozado por el reflejo, permanece adherido a una estructura de paso, rodeado de comercios cerrados y signos incompletos. La fotografía registra así el instante en que la publicidad deja de anunciar y comienza a confesar: no importa hacia dónde se dirija el cuerpo, algo de la ausencia viaja con él. ¿Es la soledad aquello que dejamos atrás o la forma más persistente de nuestra compañía?",
+          "x": 1774,
+          "y": 339,
+          "width": 440,
+          "align": "left",
+          "headingSize": 54,
+          "bodySize": 18,
+          "theme": "transparent",
+          "published": true
+        }
+      ]
+    },
+    {
+      "id": "retrato-de-bibiana-padilla-maltos-copia",
+      "label": "No gracias, 2023",
+      "panorama": "public/panorama/galeria-retrato-de-bibiana-padilla-maltos-copia.jpg",
+      "alt": "No gracias, 2023",
+      "width": 1774,
+      "height": 887,
+      "initialView": {
+        "x": 780,
+        "y": 390
+      },
+      "artworks": [],
+      "portals": [
+        {
+          "id": "transito-msf3ig56-jw5ejv",
+          "label": "Dos avisos distintos",
+          "room": "no-gracias-2023-copia",
+          "x": 1311,
+          "y": 201,
+          "published": true
+        }
+      ],
+      "texts": [
+        {
+          "id": "texto-msf3ig56-3z48s0",
+          "heading": "No gracias, 2023",
+          "subheading": "Fotografía digital",
+          "description": "La hospitalidad aprende aquí el idioma del rechazo. «NO GRACIAS», inscrito en la madera y firmado por una marca turística, ya no parece una respuesta, sino una frontera: una cortesía que excluye. Más allá del letrero, varios cuerpos descansan y juegan frente a un mar inquieto, como si la vida común persistiera a pesar del mandato. La fotografía contrapone así dos regímenes del paisaje: la playa como espacio compartido y la costa como territorio administrado por el consumo. ¿Quién puede decir no, a quién se le dice y qué forma de pertenencia queda fuera de ese agradecimiento?",
+          "x": 1588,
+          "y": 593,
+          "width": 440,
+          "align": "left",
+          "headingSize": 54,
+          "bodySize": 18,
+          "theme": "transparent",
+          "published": true
+        }
+      ]
+    },
+    {
+      "id": "no-gracias-2023-copia",
+      "label": "Dos avisos, 2000",
+      "panorama": "public/panorama/galeria-no-gracias-2023-copia.jpg",
+      "alt": "Dos avisos, 2000",
+      "width": 1774,
+      "height": 887,
+      "initialView": {
+        "x": 780,
+        "y": 390
+      },
+      "artworks": [],
+      "portals": [
+        {
+          "id": "transito-msf4hdqj-9pal79",
+          "label": "Salta a la azotea",
+          "room": "dos-avisos-2000-copia",
           "x": 887,
-          "y": 444,
+          "y": 675,
+          "published": true
+        }
+      ],
+      "texts": [
+        {
+          "id": "texto-msf4hdqj-pf15qw",
+          "heading": "De la serie My Own Private Evita, 2000",
+          "subheading": "Electrografía",
+          "description": "Dos enunciados comparecen como órdenes cuyo sentido se ha desplazado. En el primero, el caballero —figura de integridad, rango y dominio— se disuelve hasta esparcir el yo; en el segundo, un «usted» moviliza al señor Bribiesca y convierte a quien lee en agente involuntario de una acción que desconoce. Entre la dispersión del sujeto y la activación del nombre propio, el lenguaje deja de describir: opera. La tipografía irregular, casi erosionada, hace visible esa inestabilidad. Leer es entonces obedecer por un instante, prestar el cuerpo a una frase. ¿Quién moviliza a quién cuando las palabras nos incluyen antes de que podamos comprenderlas?",
+          "x": 898,
+          "y": 435,
+          "width": 440,
+          "align": "left",
+          "headingSize": 54,
+          "bodySize": 18,
+          "theme": "transparent",
+          "published": true
+        }
+      ]
+    },
+    {
+      "id": "dos-avisos-2000-copia",
+      "label": "La luchadora, 1993",
+      "panorama": "public/panorama/galeria-dos-avisos-2000-copia.png",
+      "alt": "La luchadora, 1993",
+      "width": 1774,
+      "height": 887,
+      "initialView": {
+        "x": 780,
+        "y": 390
+      },
+      "artworks": [],
+      "portals": [],
+      "texts": [
+        {
+          "id": "texto-msf5wvxz-nf8fx0",
+          "heading": "La luchadora, 1993",
+          "subheading": "Plata sobre gelatina",
+          "description": "La máscara promete un personaje; el cuerpo, en cambio, se repliega. Arrodillada sobre el concreto, con el rostro sostenido entre las manos, la figura desplaza la iconografía del luchador —fuerza, espectáculo, invulnerabilidad— hacia una escena de cansancio o espera. No sabemos si se oculta detrás de la máscara o si sólo gracias a ella puede exponerse. Contra el muro áspero, la identidad aparece como una superficie que protege tanto como pesa. La fotografía no revela quién está debajo: pregunta qué queda del sujeto cuando el personaje ya no puede sostenerlo.",
+          "x": 1427,
+          "y": 449,
+          "width": 440,
+          "align": "left",
+          "headingSize": 54,
+          "bodySize": 18,
+          "theme": "transparent",
+          "published": true
+        }
+      ]
+    },
+    {
+      "id": "soledad-adonde-vayas-2004-copia",
+      "label": "Vallecas, 1994",
+      "panorama": "public/panorama/galeria-soledad-adonde-vayas-2004-copia.png",
+      "alt": "Vallecas, 1994",
+      "width": 1774,
+      "height": 887,
+      "initialView": {
+        "x": 770,
+        "y": 390
+      },
+      "artworks": [],
+      "portals": [],
+      "texts": [
+        {
+          "id": "texto-msf69fe8-9gi4tu",
+          "heading": "Vallecas, 1994",
+          "subheading": "Plata sobre gelatina",
+          "description": "En el Vallecas de 1994, la fachada se ofrece como una escritura doméstica: la repetición del ladrillo y la clausura de las ventanas componen una cuadrícula severa, apenas interrumpida por unas flores expuestas al sol. Las telas protegen la intimidad, pero también la hacen visible; cada cubierta niega la mirada y, al mismo tiempo, deja sobre el muro la huella de una vida interior. La luz no revela: recorta, endurece, construye otra arquitectura hecha de sombras. ¿Cuánto de una casa aparece, precisamente, cuando decide ocultarse?",
+          "x": 1455,
+          "y": 345,
           "width": 440,
           "align": "left",
           "headingSize": 54,
