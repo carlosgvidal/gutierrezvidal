@@ -42,174 +42,119 @@
     },
     {
       "id": "sala-2",
-      "label": "Sala 2",
-      "panorama": "public/panorama/sala-2.jpg",
-      "alt": "Panorama de Sala 2",
-      "width": 1536,
-      "height": 768,
+      "label": "Armas de Toledo, 1994",
+      "panorama": "public/panorama/galeria-sala-2.jpg",
+      "alt": "Armas de Toledo, 1994",
+      "width": 1774,
+      "height": 887,
       "initialView": {
         "x": 770,
         "y": 380
       },
-      "artworks": [
-        {
-          "id": "obra-3",
-          "title": "Núcleo",
-          "image": "public/gallery/obra-3.svg",
-          "x": 350,
-          "y": 390,
-          "width": 170,
-          "depth": 9.4,
-          "curve": 0.12,
-          "rotationX": 0,
-          "rotationY": 0,
-          "rotationZ": 0,
-          "action": "zoom",
-          "link": "",
-          "published": true
-        },
-        {
-          "id": "obra-4",
-          "title": "Doble corriente",
-          "image": "public/gallery/obra-4.svg",
-          "x": 1075,
-          "y": 390,
-          "width": 215,
-          "depth": 9.4,
-          "curve": 0.12,
-          "rotationX": 0,
-          "rotationY": 0,
-          "rotationZ": 0,
-          "action": "zoom",
-          "link": "",
-          "published": true
-        }
-      ],
+      "artworks": [],
       "portals": [
         {
           "id": "transito-sala-2-1",
-          "label": "Sala 1",
-          "room": "sala-1",
-          "x": 80,
-          "y": 390,
+          "label": "Visita otra ciudad",
+          "room": "sala-4",
+          "x": 497,
+          "y": 576,
           "published": true
         },
         {
           "id": "transito-sala-2-2",
-          "label": "Sala 3",
+          "label": "Compra algo",
           "room": "sala-3",
-          "x": 1460,
-          "y": 390,
+          "x": 1650,
+          "y": 483,
           "published": true
         }
       ],
-      "texts": []
+      "texts": [
+        {
+          "id": "texto-msez3bhn-ubxa6q",
+          "heading": "Armas de Toledo, 1994",
+          "subheading": "Plata sobre gelatina",
+          "description": "Una señal peatonal, concebida para administrar el movimiento, ha sido ocupada por la historia. Sobre el cuerpo anónimo que cruza se acumulan consignas, papeles mutilados y rectángulos que ocultan aquello que ya no puede leerse. En el centro persiste una demanda: impedir el cierre de una fábrica de armas. La paradoja permanece abierta: el trabajo y la violencia comparten la misma superficie, mientras la protesta convierte un signo del orden en archivo precario del conflicto. ¿Qué debe proteger una sociedad cuando la subsistencia de unos depende de la maquinaria destinada a herir a otros?",
+          "x": 469,
+          "y": 367,
+          "width": 440,
+          "align": "left",
+          "headingSize": 54,
+          "bodySize": 18,
+          "theme": "transparent",
+          "published": true
+        }
+      ]
     },
     {
       "id": "sala-3",
-      "label": "Sala 3",
-      "panorama": "public/panorama/sala-3.jpg",
-      "alt": "Panorama de Sala 3",
-      "width": 1536,
-      "height": 768,
+      "label": "AGDP 480 Series, 2022",
+      "panorama": "public/panorama/galeria-sala-3.jpg",
+      "alt": "AGDP 480 Series, 2022",
+      "width": 1774,
+      "height": 887,
       "initialView": {
         "x": 768,
         "y": 380
       },
-      "artworks": [
-        {
-          "id": "obra-2b",
-          "title": "Materia curva II",
-          "image": "public/gallery/obra-2.svg",
-          "x": 520,
-          "y": 405,
-          "width": 240,
-          "depth": 9.4,
-          "curve": 0.12,
-          "rotationX": 0,
-          "rotationY": 0,
-          "rotationZ": 0,
-          "action": "zoom",
-          "link": "",
-          "published": true
-        },
-        {
-          "id": "obra-1b",
-          "title": "Umbral II",
-          "image": "public/gallery/obra-1.svg",
-          "x": 1210,
-          "y": 415,
-          "width": 155,
-          "depth": 9.4,
-          "curve": 0.12,
-          "rotationX": 0,
-          "rotationY": 0,
-          "rotationZ": 0,
-          "action": "zoom",
-          "link": "",
-          "published": true
-        }
-      ],
+      "artworks": [],
       "portals": [
         {
           "id": "transito-sala-3-1",
-          "label": "Sala 2",
+          "label": "Regresa a la calle",
           "room": "sala-2",
-          "x": 120,
-          "y": 390,
-          "published": true
-        },
-        {
-          "id": "transito-sala-3-2",
-          "label": "Sala 4",
-          "room": "sala-4",
-          "x": 1420,
-          "y": 390,
+          "x": 460,
+          "y": 706,
           "published": true
         }
       ],
-      "texts": []
+      "texts": [
+        {
+          "id": "texto-msf159og-rygwq6",
+          "heading": "AGDP 480 Series, 2022",
+          "subheading": "Sublimación",
+          "description": "La habitación no contiene una colección: ensaya un régimen de circulación. Mediante la sublimación sobre tela y polímero, la serie 480 de A GROSS DOMESTIC PRODUCT. traslada su vocabulario gráfico a prendas, bolsos, calzado y otros objetos destinados a acompañar el cuerpo. Dispuestas entre piedra, ladrillo y madera, las piezas introducen la gramática contemporánea de la mercancía en una arquitectura atravesada por el tiempo. El muestrario se vuelve así tienda, archivo y cámara de pruebas: ¿en qué momento un objeto de uso deja de vestirnos para comenzar a exhibir el valor que nos organiza?",
+          "x": 1774,
+          "y": 319,
+          "width": 440,
+          "align": "left",
+          "headingSize": 54,
+          "bodySize": 18,
+          "theme": "transparent",
+          "published": true
+        }
+      ]
     },
     {
       "id": "sala-4",
-      "label": "Sala 4",
-      "panorama": "public/panorama/sala-4.jpg",
-      "alt": "Panorama de Sala 4",
-      "width": 1536,
-      "height": 768,
+      "label": "Soledad adonde vayas, 2004",
+      "panorama": "public/panorama/galeria-sala-4.jpg",
+      "alt": "Soledad adonde vayas, 2004",
+      "width": 1774,
+      "height": 887,
       "initialView": {
         "x": 770,
         "y": 390
       },
-      "artworks": [
+      "artworks": [],
+      "portals": [],
+      "texts": [
         {
-          "id": "obra-4b",
-          "title": "Corriente final",
-          "image": "public/gallery/obra-4.svg",
-          "x": 770,
-          "y": 350,
-          "width": 260,
-          "depth": 9.4,
-          "curve": 0.12,
-          "rotationX": 0,
-          "rotationY": 0,
-          "rotationZ": 0,
-          "action": "zoom",
-          "link": "",
+          "id": "texto-msf25fzd-zutimp",
+          "heading": "Soledad adonde vayas, 2004",
+          "subheading": "Plata sobre gelatina",
+          "description": "El cartel nombra a una mujer, pero la ciudad lee otra cosa. «Soledad. Adonde vayas»: entre el nombre propio y la frase publicitaria se abre una sentencia involuntaria. El rostro, rozado por el reflejo, permanece adherido a una estructura de paso, rodeado de comercios cerrados y signos incompletos. La fotografía registra así el instante en que la publicidad deja de anunciar y comienza a confesar: no importa hacia dónde se dirija el cuerpo, algo de la ausencia viaja con él. ¿Es la soledad aquello que dejamos atrás o la forma más persistente de nuestra compañía?",
+          "x": 887,
+          "y": 444,
+          "width": 440,
+          "align": "left",
+          "headingSize": 54,
+          "bodySize": 18,
+          "theme": "transparent",
           "published": true
         }
-      ],
-      "portals": [
-        {
-          "id": "transito-sala-4-1",
-          "label": "Volver a Sala 1",
-          "room": "sala-1",
-          "x": 80,
-          "y": 390,
-          "published": true
-        }
-      ],
-      "texts": []
+      ]
     }
   ]
 }
