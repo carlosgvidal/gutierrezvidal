@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Limes · Ingeniería de Fronteras Dinámicas</title>
+<link rel="stylesheet" href="css/limes.css">
+</head>
+<body>
+<header><b>Limes</b> <small>Ingeniería de Fronteras Dinámicas · v0.34-refactor</small></header>
+<main>
+<section>
+<h3>Análisis textual</h3>
+<textarea id="txt" placeholder="Pegue aquí el texto..."></textarea>
+<button id="analyzeBtn">Analizar</button>
+<button id="transferBtn" disabled>Transferir actores al simulador</button>
+<div id="out"></div>
+</section>
+<section>
+<h3>Simulación</h3>
+<div class="variable-guide">
+ <div><b>x · Posición</b><span>Ubicación del actor en el espacio estratégico, de 0 a 100.</span></div>
+ <div><b>c · Capacidad</b><span>Recursos relativos para incidir sobre el sistema.</span></div>
+ <div><b>s · Saliencia</b><span>Prioridad o intensidad con que el actor sostiene el asunto.</span></div>
+ <div><b>r · Rigidez</b><span>Resistencia estructural del actor a modificar su posición inicial.</span></div>
+ <div><b>ρ · Riesgo</b><span>Curvatura de utilidad: menor de 1 implica propensión al riesgo; mayor de 1, aversión.</span></div>
+ <div><b>σ · Incertidumbre</b><span>Magnitud individual de perturbación Monte Carlo. 0 elimina variación; 1 usa el rango base.</span></div>
+ <div><b>Ser</b><span>Identidad, valores y umbrales no negociables.</span></div>
+ <div><b>Estar</b><span>Condiciones, posición y contexto de inserción.</span></div>
+ <div><b>Decir</b><span>Capacidad discursiva, narrativa y de representación.</span></div>
+ <div><b>Hacer</b><span>Agencia, intervención y disposición a actuar.</span></div>
+</div>
+<span class="concept-note">Los estados Ser, Estar, Decir y Hacer son editables. Al ejecutar la simulación, el sistema los normaliza para que su suma sea 1.</span>
+<table id="actors">
+<thead><tr><th>Actor</th><th>x</th><th>c</th><th>s</th><th>r</th><th>ρ</th><th>σ</th><th>Ser</th><th>Estar</th><th>Decir</th><th>Hacer</th></tr></thead>
+<tbody>
+<tr><td><input value="Actor A"></td><td><input type="number" value="80"></td><td><input type="number" value="60"></td><td><input type="number" step="0.1" value="0.9"></td><td><input type="number" step="0.1" value="1.2"></td><td><input type="number" step="0.1" value="1.1"></td><td><input type="number" step="0.1" min="0" value="1.0"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td></tr>
+<tr><td><input value="Actor B"></td><td><input type="number" value="20"></td><td><input type="number" value="30"></td><td><input type="number" step="0.1" value="0.8"></td><td><input type="number" step="0.1" value="0.8"></td><td><input type="number" step="0.1" value="0.8"></td><td><input type="number" step="0.1" min="0" value="1.0"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td></tr>
+<tr><td><input value="Actor C"></td><td><input type="number" value="55"></td><td><input type="number" value="20"></td><td><input type="number" step="0.1" value="0.5"></td><td><input type="number" step="0.1" value="1.0"></td><td><input type="number" step="0.1" value="1.0"></td><td><input type="number" step="0.1" min="0" value="1.0"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td><td><input type="number" step="0.01" value="0.25"></td></tr>
+</tbody>
+</table>
+<div class="simulation-control">
+ <div>
+  <label for="focalActor">Actor focal</label>
+  <select id="focalActor"></select>
+ </div>
+ <div>
+  <label for="simulationSeed">Semilla reproducible</label>
+  <input id="simulationSeed" type="text" value="FD-2026" spellcheck="false">
+ </div>
+</div>
+<button id="simulateBtn">Simular</button>
+<button id="reportBtn">Generar informe</button>
+<button id="testsBtn">Validar modelo</button>
+<div id="sim"></div>
+<div id="reportView"></div><div id="testResults"></div>
+<svg id="g" viewBox="0 0 500 160" preserveAspectRatio="xMidYMin meet"></svg>
+</section>
+</main>
+<script src="js/config/lexicons.js" defer></script>
+<script src="js/text/normalize.js" defer></script>
+<script src="js/text/relations.js" defer></script>
+<script src="js/text/actors.js" defer></script>
+<script src="js/model/dynamics.js" defer></script>
+<script src="js/model/montecarlo.js" defer></script>
+<script src="js/interpretation/recommendations.js" defer></script>
+<script src="js/model/engine.js" defer></script>
+<script src="js/ui/analysis-view.js" defer></script>
+<script src="js/ui/simulation-view.js" defer></script>
+<script src="js/ui/report.js" defer></script>
+<script src="js/tests/self-tests.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>
