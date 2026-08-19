@@ -7,11 +7,16 @@
 <link rel="stylesheet" href="css/limes.css">
 </head>
 <body>
-<header><b>Limes</b> <small>Ingeniería de Fronteras Dinámicas · v0.35-refinement-1</small></header>
+<header><b>Limes</b> <small>Ingeniería de Fronteras Dinámicas · v0.36-semantic-integrity</small></header>
 <main>
 <section>
 <h3>Análisis textual</h3>
 <textarea id="txt" placeholder="Pegue aquí el texto..."></textarea>
+<div class="issue-control">
+<label for="issueInput">Cuestión estratégica · issue</label>
+<input id="issueInput" type="text" placeholder="Ej. aprobación de la reforma, abandono de los niños, acceso al territorio">
+<span class="concept-note">Define la frontera concreta respecto de la cual debe interpretarse x. Si se deja vacía, Limes puede analizar el texto, pero no autoriza inferencias estratégicas automáticas.</span>
+</div>
 <button id="analyzeBtn">Analizar</button>
 <button id="transferBtn" disabled>Transferir actores al simulador</button>
 <div id="out"></div>
@@ -19,7 +24,7 @@
 <section>
 <h3>Simulación</h3>
 <div class="variable-guide">
- <div><b>x · Posición estratégica</b><span>Ubicación relacional del actor respecto de la controversia, de 0 a 100. La orientación del eje no implica una ideología fija.</span></div>
+ <div><b>x · Posición estratégica</b><span>Ubicación relacional del actor respecto de la cuestión estratégica declarada. “?” significa evidencia insuficiente; nunca se sustituye por 50.</span></div>
  <div><b>v · Valencia discursiva</b><span>Tonalidad léxica del discurso del actor, de −1 a +1. Se informa por separado y no determina x.</span></div>
  <div><b>c · Capacidad</b><span>Recursos relativos para incidir sobre el sistema.</span></div>
  <div><b>s · Saliencia</b><span>Prioridad o intensidad con que el actor sostiene el asunto.</span></div>

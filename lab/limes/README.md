@@ -1,4 +1,4 @@
-# Limes v0.35-refinement-1
+# Limes v0.36-refinement-1
 
 Primera etapa de refinamiento conceptual construida sobre v0.34-refactor. Mantiene la arquitectura modular y modifica de forma controlada dos fundamentos: la definición de posición estratégica `x` y el cálculo de amenaza.
 
@@ -25,7 +25,7 @@ Primera etapa de refinamiento conceptual construida sobre v0.34-refactor. Mantie
 
 Abra `index.html` en un navegador moderno. No requiere instalación ni servidor.
 
-## Cambios de v0.35
+## Cambios de v0.36
 
 - `x` ya no se deriva de positividad/negatividad léxica. Se estima inicialmente como geometría relacional entre actores: cooperación aproxima; conflicto y control separan; otras relaciones generan distancias intermedias.
 - Se incorpora `v` (valencia discursiva), en escala `-1..+1`, para conservar la información léxica sin confundirla con posición estratégica. En esta etapa `v` es descriptiva y no empuja directamente la dinámica de `x`.
@@ -37,3 +37,8 @@ Abra `index.html` en un navegador moderno. No requiere instalación ni servidor.
 ## Límites deliberados
 
 Esta versión todavía conserva la normalización composicional de Ser/Estar/Decir/Hacer y las heurísticas vigentes para `c`, `s`, `r`, `ρ` y `σ`. Esos componentes quedan fuera de esta primera etapa para poder atribuir los cambios observados a `x`, `v` y amenazas.
+
+
+## v0.36 · Integridad semántica
+
+Esta etapa impide convertir desconocimiento en neutralidad: `x` puede quedar sin valor hasta que exista evidencia relacional o intervención manual. Introduce `issue` como cuestión estratégica explícita, endurece la detección de actores para evitar falsos positivos por mayúscula inicial y condiciona simulación/informe a una base mínima de evidencia.

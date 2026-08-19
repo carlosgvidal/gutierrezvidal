@@ -12,3 +12,5 @@ document.getElementById("reportBtn").addEventListener("click", generateReport);
 document.querySelector("#actors tbody").addEventListener("input", refreshFocalSelector);
 document.getElementById("testsBtn").onclick = runSelfTests;
 refreshFocalSelector();
+
+document.getElementById("issueInput").addEventListener("input",()=>{lastEngine=null;});

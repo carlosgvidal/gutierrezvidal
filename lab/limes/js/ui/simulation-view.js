@@ -2,7 +2,7 @@ function renderSimulation(result){
  const {input,engine,conv,concentration,state,strategy,negotiations,mc,focalInput,focalFinal,focalThreatsReceived,focalThreatsIssued,focalNegotiations}=result;
  const finalA=engine.actors;
  const eq=engine.finalEquilibrium;
- document.getElementById("sim").innerHTML=`<div class="card"><b>Convención metodológica</b><span class="concept-note">Las métricas compuestas de esta versión se presentan como puntajes o medidas heurísticas. Sólo las utilidades esperadas conservan interpretación formal dentro del modelo; ninguna cifra se presenta como probabilidad empíricamente calibrada salvo que se indique expresamente.</span></div><div class="card"><b>Motor dinámico</b><span class="concept-note">Síntesis del ciclo causal completo. La posición x opera como coordenada relacional de la controversia; la valencia v se conserva como observación discursiva separada. La amenaza surge sólo cuando desafiar mejora la utilidad respecto del statu quo sistémico estimado.</span>
+ document.getElementById("sim").innerHTML=`<div class="card"><b>Cuestión estratégica</b><span class="concept-note">${escapeHtml(result.issue)}</span></div><div class="card"><b>Convención metodológica</b><span class="concept-note">Robustez numérica ≠ confianza epistemológica. Las métricas compuestas de esta versión se presentan como puntajes o medidas heurísticas. Sólo las utilidades esperadas conservan interpretación formal dentro del modelo; ninguna cifra se presenta como probabilidad empíricamente calibrada salvo que se indique expresamente.</span></div><div class="card"><b>Motor dinámico</b><span class="concept-note">Síntesis del ciclo causal completo. La posición x opera como coordenada relacional de la controversia; la valencia v se conserva como observación discursiva separada. La amenaza surge sólo cuando desafiar mejora la utilidad respecto del statu quo sistémico estimado.</span>
  <div class="metric-line"><span class="metric-label">Punto de convergencia</span><span class="metric-value">${conv.toFixed(2)}</span><span class="metric-help">Posición agregada hacia la que gravita el sistema, ponderada por capacidad y saliencia.</span></div>
  <div class="metric-line"><span class="metric-label">Puntaje de concentración</span><span class="metric-value">${concentration.toFixed(1)}</span><span class="metric-help">Medida heurística de dispersión espacial alrededor del punto de convergencia; no representa una probabilidad.</span></div>
  <div class="metric-line"><span class="metric-label">Estado estacionario</span><span class="metric-value">${eq.stable?"alcanzado":"no alcanzado"} · ${eq.iteration} iteración${eq.iteration===1?"":"es"}</span><span class="metric-help">Condición operacional alcanzada cuando movimiento, cambio de estados y amenaza activa caen bajo umbrales internos; no implica equilibrio de Nash.</span></div>
@@ -22,7 +22,7 @@ function renderSimulation(result){
  <div class="card"><b>Afinidades coalicionales</b><span class="concept-note">Proximidades estratégicas bilaterales estimadas por distancia y poder conjunto; no equivalen por sí mismas a coaliciones constituidas.</span>${strategy.coalitions.length?strategy.coalitions.map(c=>`<div class="list-item">${escapeHtml(c.a)} + ${escapeHtml(c.b)} <span class="badge">${c.p}</span></div>`).join(""):"Ninguna"}</div>
  <div class="card"><b>Matriz de amenazas causal</b><span class="concept-note">Desafíos direccionales con utilidad esperada positiva. El statu quo se evalúa en el punto estratégico agregado vigente, no en el ideal propio del actor; así el desafío puede ser racional cuando ofrece una mejora neta.</span>${strategy.threats.length?strategy.threats.map(t=>`<div class="list-item">${escapeHtml(t.from)} → ${escapeHtml(t.to)} <span class="badge">EU ${t.eu.toFixed(3)}</span><small>Intensidad ${t.intensity.toFixed(3)} · P(éxito) ${t.probability.toFixed(3)} · éxito ${t.success.toFixed(3)} · fracaso ${t.failure.toFixed(3)} · costo ${t.cost.toFixed(3)} · statu quo ${t.statusQuo.toFixed(3)}</small></div>`).join(""):"Sin amenazas con utilidad esperada positiva."}</div>
  <div class="card focal-card"><b>Recomendaciones causales</b><span class="concept-note">Acciones derivadas de relaciones específicas entre actor focal, amenazas, negociación, coaliciones, convergencia, equilibrio e incertidumbre.</span>${renderRecommendations(result.recommendations)}</div>
- <div class="card"><b>Monte Carlo (500 simulaciones)</b><span class="concept-note">Prueba reproducible con incertidumbre individual por actor. La misma semilla y los mismos datos producen exactamente el mismo resultado.</span>
+ <div class="card"><b>Monte Carlo (500 simulaciones)</b><span class="concept-note">Prueba reproducible con incertidumbre individual por actor. La misma semilla y los mismos datos producen exactamente el mismo resultado. Este puntaje describe estabilidad frente a perturbaciones de las entradas aceptadas; no valida la calidad semántica de esas entradas.</span>
  <div class="metric-line"><span class="metric-label">Semilla</span><span class="metric-value">${escapeHtml(mc.seed)}</span><span class="metric-help">Identificador del generador pseudoaleatorio reproducible.</span></div>
  <div class="metric-line"><span class="metric-label">Convergencia media</span><span class="metric-value">${mc.mean.toFixed(2)}</span><span class="metric-help">Promedio de los puntos de convergencia obtenidos.</span></div>
  <div class="metric-line"><span class="metric-label">Intervalo 90%</span><span class="metric-value">${mc.p05.toFixed(2)} – ${mc.p95.toFixed(2)}</span><span class="metric-help">Rango central que contiene el 90% de los resultados simulados.</span></div>
@@ -32,10 +32,15 @@ function renderSimulation(result){
  drawEngine(finalA,conv,engine.history);
 }
 function simulate(){
- const actors=readActors();
- if(!actors.length){
+ const actors=readActors(),issue=getStrategicIssue();
+ if(!issue){
   lastEngine=null;
-  document.getElementById("sim").innerHTML='<div class="card">No hay actores válidos para simular.</div>';
+  document.getElementById("sim").innerHTML='<div class="card epistemic-warning"><b>Simulación en espera</b><span class="concept-note">Declare la cuestión estratégica respecto de la cual se interpretará x.</span></div>';
+  document.getElementById("g").innerHTML="";return;
+ }
+ if(actors.length<2){
+  lastEngine=null;
+  document.getElementById("sim").innerHTML='<div class="card">Se requieren al menos dos actores con posición x conocida. Los campos “?” representan desconocimiento, no neutralidad.</div>';
   document.getElementById("g").innerHTML="";
   return;
  }

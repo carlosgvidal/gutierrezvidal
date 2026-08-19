@@ -32,3 +32,12 @@ Se añadieron pruebas para:
 ### Fuera de alcance de esta etapa
 
 Se conservan sin redefinir la normalización de Ser/Estar/Decir/Hacer y las heurísticas de `c`, `s`, `r`, `ρ` y `σ`.
+
+
+## v0.36-semantic-integrity
+- `issue` explícito antes de simulación estratégica.
+- `x = null` cuando no existe evidencia suficiente; 50 deja de representar desconocimiento.
+- Detección de actores endurecida: mayúsculas iniciales aisladas no bastan, se separan coordinaciones y se filtran conectores/exclamaciones frecuentes.
+- Simulación exige al menos dos actores con `x` conocido.
+- Informe distingue robustez numérica de confianza epistemológica y evita recomendar coaliciones frente a amenazas inexistentes.
+- Nuevas pruebas de integridad semántica.

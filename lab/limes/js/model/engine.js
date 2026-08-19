@@ -1,4 +1,7 @@
 function buildSimulationResult(inputActors,runs=500,focalId=0,seed="FD-2026"){
+ const issue=getStrategicIssue();
+ if(!issue)throw new Error("Debe declararse una cuestión estratégica antes de simular.");
+ if(inputActors.length<2)throw new Error("Se requieren al menos dos actores con posición x conocida.");
  const engine=runSimulationCycle(inputActors,12);
  const conv=convergence(engine.actors);
  const concentration=concentrationScore(engine.actors,conv);
@@ -17,7 +20,8 @@ function buildSimulationResult(inputActors,runs=500,focalId=0,seed="FD-2026"){
  const focalThreatsIssued=strategy.threats.filter(t=>t.from===focalFinal?.n);
  const focalNegotiations=negotiations.filter(p=>p.a===focalFinal?.n||p.b===focalFinal?.n);
  const result={
-  signature:actorSignature(inputActors),
+  signature:actorSignature(inputActors)+"|issue:"+issue,
+  issue,
   input:normalizedInput,
   engine,conv,concentration,state,strategy,negotiations,mc,seed:String(seed),
   focalId:safeFocalId,

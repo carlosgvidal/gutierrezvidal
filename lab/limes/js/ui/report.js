@@ -1,10 +1,13 @@
 function generateReport(){
  const out=document.getElementById("out").innerText.trim();
- const actors=readActors();
- if(!actors.length)return;
+ const actors=readActors(),issue=getStrategicIssue();
+ if(!issue||actors.length<2){
+  document.getElementById("reportView").innerHTML=`<div class="card epistemic-warning"><b>Informe no generado</b><span class="concept-note">${!issue?"Falta declarar la cuestión estratégica. ":""}${actors.length<2?"Se requieren al menos dos actores con x conocido.":""} Limes no sustituye información desconocida por neutralidad.</span></div>`;
+  return;
+ }
  focalActorId=getFocalActorId();
  const seed=getSimulationSeed();
- const signature=actorSignature(actors);
+ const signature=actorSignature(actors)+"|issue:"+issue;
  const result=lastEngine&&lastEngine.signature===signature&&lastEngine.focalId===focalActorId&&lastEngine.seed===seed?lastEngine:buildSimulationResult(actors,500,focalActorId,seed);
  lastEngine=result;
  const finalA=result.engine.actors;
@@ -13,9 +16,7 @@ function generateReport(){
  const report=`INFORME DE CONSULTORÍA — LIMES
 ================================
 
-1. RESUMEN EJECUTIVO
-
-${executiveSummary}
+1. RESUMEN EJECUTIVO\n\nCuestión estratégica: ${issue}\n\n${executiveSummary}
 
 2. RECOMENDACIONES PARA LA TOMA DE DECISIONES
 
@@ -25,7 +26,7 @@ ${reportRecommendations(result.recommendations)}
 
 3. LECTURA DEL ESCENARIO
 
-El punto de convergencia (${result.conv.toFixed(2)} en la escala de 0 a 100) es la posición hacia la que gravita el conjunto del sistema una vez que todos los actores negocian, forman coaliciones y evalúan amenazas entre sí. El puntaje de concentración (${result.concentration.toFixed(1)}%) indica qué tan agrupados terminan los actores alrededor de ese punto: valores altos sugieren consenso, valores bajos sugieren polarización persistente.
+El punto de convergencia (${result.conv.toFixed(2)} en la escala de 0 a 100) se refiere exclusivamente a «${issue}» y es la posición hacia la que gravita el conjunto del sistema una vez que todos los actores negocian, forman coaliciones y evalúan amenazas entre sí. El puntaje de concentración (${result.concentration.toFixed(1)}%) indica qué tan agrupados terminan los actores alrededor de ese punto: valores altos sugieren consenso, valores bajos sugieren polarización persistente.
 
 El sistema ${eq.stable?`alcanzó un estado estacionario tras ${eq.iteration} iteración${eq.iteration===1?"":"es"}`:`no alcanzó un estado estacionario tras las ${eq.iteration} iteraciones ejecutadas`}, lo que ${eq.stable?"da mayor certeza al escenario descrito":"significa que el escenario sigue en movimiento y conviene reevaluarlo con información nueva antes de tomar decisiones irreversibles"}.
 
@@ -48,9 +49,9 @@ ${(()=>{const highConf=detectedRelations.filter(r=>r.confidence>=0.7);const lowC
 
 4.3 Configuración del escenario
 
-x = posición estratégica (0–100) · c = capacidad relativa · s = saliencia (0–1) · r = rigidez (0.6–2) · ρ = perfil de riesgo (0.5–2) · σ = incertidumbre individual (0–3) · Ser/Estar/Decir/Hacer = composición semiótica normalizada a 1.
+issue = ${issue} · x = posición estratégica respecto de issue (0–100; desconocido no equivale a 50) · v = valencia discursiva (−1 a +1) · c = capacidad relativa · s = saliencia (0–1) · r = rigidez (0.6–2) · ρ = perfil de riesgo (0.5–2) · σ = incertidumbre individual (0–3) · Ser/Estar/Decir/Hacer = composición semiótica normalizada a 1.
 
-${result.input.map(a=>"- "+a.n+" | x="+a.x.toFixed(2)+" c="+a.c+" s="+a.s+" r="+a.r+" ρ="+a.rho+" σ="+a.uncertainty+" | Ser="+a.states.ser.toFixed(3)+" Estar="+a.states.estar.toFixed(3)+" Decir="+a.states.decir.toFixed(3)+" Hacer="+a.states.hacer.toFixed(3)).join("\n")}
+${result.input.map(a=>"- "+a.n+" | x="+a.x.toFixed(2)+" v="+a.v.toFixed(2)+" c="+a.c+" s="+a.s+" r="+a.r+" ρ="+a.rho+" σ="+a.uncertainty+" | Ser="+a.states.ser.toFixed(3)+" Estar="+a.states.estar.toFixed(3)+" Decir="+a.states.decir.toFixed(3)+" Hacer="+a.states.hacer.toFixed(3)).join("\n")}
 
 4.4 Actor focal — datos crudos
 
@@ -62,7 +63,7 @@ Amenazas recibidas: ${result.focalThreatsReceived.length} · Amenazas emitidas: 
 4.5 Incertidumbre (Monte Carlo)
 
 Semilla: ${result.mc.seed} · Simulaciones: ${result.mc.runs}
-Convergencia media: ${result.mc.mean.toFixed(2)} · Intervalo 90%: ${result.mc.p05.toFixed(2)} – ${result.mc.p95.toFixed(2)} · Desviación estándar: ${result.mc.sd.toFixed(2)} · Robustez: ${result.mc.robustness.toFixed(1)}%
+Convergencia media: ${result.mc.mean.toFixed(2)} · Intervalo 90%: ${result.mc.p05.toFixed(2)} – ${result.mc.p95.toFixed(2)} · Desviación estándar: ${result.mc.sd.toFixed(2)} · Robustez numérica: ${result.mc.robustness.toFixed(1)}%\nNota: robustez numérica no equivale a confianza epistemológica en la extracción de actores, relaciones o posiciones.
 
 4.6 Acuerdos bilateralmente racionales
 

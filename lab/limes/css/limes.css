@@ -477,3 +477,9 @@ svg{
  th,td{padding:5px}
  input{padding:6px;min-width:54px}
 }
+
+.issue-control{margin:0 0 12px;padding:12px;background:var(--surface-1);border:1px solid var(--line-strong);border-radius:2px}
+.issue-control label{display:block;margin-bottom:6px;color:var(--ink);font-size:12px;font-weight:700}
+.issue-control input{width:100%}
+.unknown-input{border-style:dashed!important;background:var(--surface-2)!important}
+.epistemic-warning{border-color:var(--accent)!important}

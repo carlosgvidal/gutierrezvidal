@@ -52,7 +52,7 @@ function runSelfTests(){
 
  t('Valencia discursiva separada de posición',()=>{
   const a=inferActorVariables({name:"A",count:2,score:4,type:"actor",contexts:["A rechaza una crisis y denuncia una amenaza."],relationProfile:{cooperation:0,conflict:0,control:0,communication:0,transformation:0,net:0,outgoing:[],incoming:[]}},0);
-  return a.x===50&&a.v<0;
+  return a.x===null&&a.v<0;
  });
  t('Geometría relacional separa actores en conflicto',()=>{
   const actors=[{name:"A",x:50},{name:"B",x:50}];
@@ -68,6 +68,19 @@ function runSelfTests(){
   ];
   const pairs=evaluateStrategicField(normalizeActors(raw));
   return pairs.some(p=>p.threatEUA>0||p.threatEUB>0);
+ });
+ t('Mayúscula inicial aislada no crea actor',()=>{
+  const names=extractActors("Pero me dan mucha lástima. Dijo el padre que debían partir. Hänsel miró a Gretel. Hänsel volvió a mirar a Gretel.").map(a=>actorKey(a.name));
+  return !names.includes("pero")&&!names.includes("dijo")&&names.includes("hansel")&&names.includes("gretel");
+ });
+ t('Coordinación no crea actor compuesto',()=>{
+  const names=extractActors("Hänsel y Gretel caminaron. Hänsel habló con Gretel. Gretel respondió a Hänsel.").map(a=>actorKey(a.name));
+  return !names.includes("hansel y gretel");
+ });
+ t('Sin relaciones, x permanece desconocida',()=>{
+  const actors=[{name:"A",x:null},{name:"B",x:null}];
+  const out=inferStrategicPositions(actors,[]);
+  return out.every(a=>a.x===null&&a.xKnown===false);
  });
  const ok=tests.every(x=>x.ok);
  document.getElementById('testResults').innerHTML='<div class="card"><b>Validación automática</b>'+tests.map(x=>`<div class="list-item">${x.ok?'✔':'✖'} ${x.name}${x.msg?': '+x.msg:''}</div>`).join('')+`<div class="list-item"><b>Resultado:</b> ${ok?'APROBADO':'FALLÓ'}</div></div>`;

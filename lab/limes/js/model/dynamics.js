@@ -17,7 +17,10 @@ function readActors(){
   return {
    id:index,
    n:i[0].value.trim(),
-   x:+i[1].value,
+   x:i[1].value.trim()===""?null:+i[1].value,
+   xConfidence:Number(r.dataset.xConfidence||0),
+   xMethod:r.dataset.xMethod||"manual",
+   xSource:r.dataset.inferred==="true"?"inferido":"manual",
    v:+i[2].value,
    c:+i[3].value,
    s:+i[4].value,

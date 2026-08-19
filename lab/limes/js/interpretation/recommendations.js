@@ -1,7 +1,7 @@
 function actorSignature(actors){return JSON.stringify(actors.map(a=>({n:a.n,x:a.x,c:a.c,s:a.s,r:a.r,rho:a.rho,uncertainty:a.uncertainty,states:a.states})));}
 
 function describeDominantState(state){
- const labels={ser:"identidad y valores",estar:"su posición institucional",decir:"su narrativa pública",hacer:"su capacidad de acción"};
+ const labels={ser:"identidad y valores",estar:"sus condiciones de contexto e inserción",decir:"su narrativa pública",hacer:"su capacidad de acción"};
  return labels[state]||state;
 }
 function buildExecutiveSummary(result){
@@ -45,7 +45,7 @@ function buildExecutiveSummary(result){
 
  if(strongestCoalition){
   const partner=strongestCoalition.a===focal.n?strongestCoalition.b:strongestCoalition.a;
-  sentences.push(`Su afinidad estratégica más fuerte es con ${partner}, un vínculo que puede consolidarse para ganar capacidad conjunta frente a terceros.`);
+  sentences.push(`Su afinidad estratégica calculada más fuerte es con ${partner}. Esta proximidad no se interpreta como alianza ni como recomendación de coordinación salvo que exista evidencia adicional.`);
  }
 
  if(!eq.stable){
@@ -55,7 +55,7 @@ function buildExecutiveSummary(result){
  if(result.mc.robustness<70){
   sentences.push(`La prueba de robustez (Monte Carlo, ${result.mc.runs} simulaciones) muestra dispersión considerable en los resultados posibles —intervalo de ${result.mc.p05.toFixed(1)} a ${result.mc.p95.toFixed(1)}—, por lo que cualquier decisión debería contemplar más de un escenario y no fijarse rígidamente al punto medio.`);
  }else{
-  sentences.push(`La prueba de robustez (Monte Carlo, ${result.mc.runs} simulaciones) confirma que este resultado es estable frente a variaciones razonables en los datos de entrada (${result.mc.robustness.toFixed(0)}% de robustez), lo que da mayor confianza para actuar sobre esta lectura.`);
+  sentences.push(`La prueba de robustez (Monte Carlo, ${result.mc.runs} simulaciones) indica que el resultado es numéricamente estable frente a las perturbaciones modeladas (${result.mc.robustness.toFixed(0)}% de robustez), Esto no incrementa por sí mismo la confianza epistemológica en las entradas.`);
  }
 
  const topRecommendation=result.recommendations&&result.recommendations[0];
@@ -128,18 +128,12 @@ function buildCausalRecommendations(result){
   });
  }
 
- if(focalCoalitions.length){
+ if(focalCoalitions.length&&result.strategy.threats.length){
   const strongest=focalCoalitions.sort((a,b)=>Number(b.p)-Number(a.p))[0];
   const partner=strongest.a===focal.n?strongest.b:strongest.a;
   recs.push({
-   cause:`La afinidad coalicional bilateral más alta del actor focal es con ${partner}, con fuerza ${strongest.p}.`,
-   action:`Consolidar coordinación con ${partner} para aumentar capacidad conjunta y modificar la probabilidad relativa de éxito frente a amenazas externas.`,
-   priority:"media"
-  });
- }else{
-  recs.push({
-   cause:"El actor focal no presenta afinidades coalicionales bilaterales por encima del umbral.",
-   action:"Explorar alianzas con el actor más próximo en posición y con suficiente capacidad para alterar el balance estratégico.",
+   cause:`Existe amenaza activa en el sistema y la afinidad bilateral más alta del actor focal es con ${partner}, con fuerza ${strongest.p}.`,
+   action:`Evaluar coordinación con ${partner}; tratar la afinidad como indicio y no como coalición constituida.`,
    priority:"media"
   });
  }
@@ -187,7 +181,7 @@ function buildCausalRecommendations(result){
  }else if(dominantState==="estar"){
   recs.push({
    cause:`Estar es el estado dominante del actor focal (${(focal.states.estar*100).toFixed(1)}%).`,
-   action:"Modificar condiciones de contexto, acceso o inserción institucional antes de intentar un desplazamiento discursivo.",
+   action:"Examinar primero las condiciones de contexto, acceso e inserción del actor antes de atribuir el resultado a su discurso o voluntad.",
    priority:"media"
   });
  }
