@@ -1,20 +1,27 @@
-# Limes v0.40-theory-core
+# Limes v0.41 · Scenario Builder
 
-Rama experimental independiente. No deriva matemáticamente de v0.33–v0.37.
+Rama experimental independiente basada en el núcleo v0.40.
 
-Objetivo: implementar el núcleo mínimo de la Teoría de Fronteras Dinámicas como modelo de intercambio comunicativo y cambio esperado de comportamiento.
+## Propósito
 
-Abrir `index.html` en un navegador para usar el prototipo. Ejecutar:
+Construir escenarios declarados por el analista antes de desarrollar lectura automática de corpus.
 
-```bash
-node test-core.js
-```
+La herramienta permite:
 
-para validar el núcleo matemático.
+- declarar issue y contexto;
+- definir actores con Ser, Estar y Hacer independientes;
+- declarar operaciones comunicativas entre actores;
+- especificar D, φ y G;
+- calcular trazabilidad de R, X, brecha, ΔH y H final;
+- exportar reporte TXT y JSON.
 
-Documentos:
-- `THEORY.md`: formulación conceptual.
-- `MODEL_SPEC.md`: variables y ecuaciones.
-- `VALIDATION.md`: contrato de pruebas.
+## Núcleo matemático
 
-Esta versión no contiene un parser lingüístico profundo. El análisis de corpus se mantiene fuera del motor hasta disponer de una capa de evidencia/eventos suficientemente validada.
+R = S × E  
+X = R × D × φ  
+ΔH = (G − H) × X  
+H' = H + ΔH
+
+## Límites
+
+No hay parser textual. No se calcula utilidad esperada. No se modelan todavía ΔEstar ni ΔSer.
