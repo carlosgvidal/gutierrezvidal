@@ -3,10 +3,10 @@ function readActors(){
  return rows.map((r,index)=>{
   const i=r.querySelectorAll("input");
   const rawStates={
-   ser:+i[7].value,
-   estar:+i[8].value,
-   decir:+i[9].value,
-   hacer:+i[10].value
+   ser:+i[8].value,
+   estar:+i[9].value,
+   decir:+i[10].value,
+   hacer:+i[11].value
   };
   const states=normalizeStates({
    ser:Number.isFinite(rawStates.ser)?Math.max(0,rawStates.ser):.25,
@@ -18,14 +18,15 @@ function readActors(){
    id:index,
    n:i[0].value.trim(),
    x:+i[1].value,
-   c:+i[2].value,
-   s:+i[3].value,
-   r:+i[4].value,
-   rho:+i[5].value,
-   uncertainty:+i[6].value,
+   v:+i[2].value,
+   c:+i[3].value,
+   s:+i[4].value,
+   r:+i[5].value,
+   rho:+i[6].value,
+   uncertainty:+i[7].value,
    states
   };
- }).filter(a=>a.n&&Number.isFinite(a.x)&&Number.isFinite(a.c)&&Number.isFinite(a.s)&&Number.isFinite(a.r)&&Number.isFinite(a.rho)&&Number.isFinite(a.uncertainty)&&a.c>0);
+ }).filter(a=>a.n&&Number.isFinite(a.x)&&Number.isFinite(a.v)&&Number.isFinite(a.c)&&Number.isFinite(a.s)&&Number.isFinite(a.r)&&Number.isFinite(a.rho)&&Number.isFinite(a.uncertainty)&&a.c>0);
 }
 function normalizeActors(actors){
  const total=actors.reduce((sum,a)=>sum+a.c,0);
@@ -33,6 +34,7 @@ function normalizeActors(actors){
   ...a,
   id:Number.isInteger(a.id)?a.id:index,
   x:clamp(a.x/100)*100,
+  v:clamp(Number.isFinite(a.v)?a.v:0,-1,1),
   c:Math.max(1,a.c),
   cn:a.c/Math.max(1,total),
   s:clamp(a.s,.2,1),
@@ -75,6 +77,8 @@ function pijCoalition(actors,i,j){
 }
 function evaluateStrategicField(actors){
  const pairs=[];
+ const strategicWeight=actors.reduce((sum,a)=>sum+a.cn*a.s,0);
+ const statusQuoPoint=strategicWeight?actors.reduce((sum,a)=>sum+a.x*a.cn*a.s,0)/strategicWeight:50;
  for(let i=0;i<actors.length;i++){
   for(let j=i+1;j<actors.length;j++){
    const a=actors[i],b=actors[j];
@@ -105,16 +109,19 @@ function evaluateStrategicField(actors){
 
    const coalitionStrength=distance<=22?clamp(compatibility*.55+combinedPower*.45):0;
 
-   const statusQuoA=utility(a,a.x);
-   const statusQuoB=utility(b,b.x);
+   const statusQuoA=utility(a,statusQuoPoint);
+   const statusQuoB=utility(b,statusQuoPoint);
    const challengeCostA=.03+.07*(distance/100)*a.s+.04*(1-a.states.hacer);
    const challengeCostB=.03+.07*(distance/100)*b.s+.04*(1-b.states.hacer);
    const successUtilityA=utility(a,a.x);
    const failureUtilityA=utility(a,b.x);
    const successUtilityB=utility(b,b.x);
    const failureUtilityB=utility(b,a.x);
-   const expectedChallengeA=probabilityA*successUtilityA+probabilityB*failureUtilityA-challengeCostA;
-   const expectedChallengeB=probabilityB*successUtilityB+probabilityA*failureUtilityB-challengeCostB;
+   const pTotal=Math.max(.000001,probabilityA+probabilityB);
+   const contestProbabilityA=probabilityA/pTotal;
+   const contestProbabilityB=probabilityB/pTotal;
+   const expectedChallengeA=contestProbabilityA*successUtilityA+contestProbabilityB*failureUtilityA-challengeCostA;
+   const expectedChallengeB=contestProbabilityB*successUtilityB+contestProbabilityA*failureUtilityB-challengeCostB;
    const threatEUA=expectedChallengeA-statusQuoA;
    const threatEUB=expectedChallengeB-statusQuoB;
    const threatAB=Math.max(0,threatEUA)*a.s*a.states.hacer*(1-negotiation);
@@ -122,7 +129,7 @@ function evaluateStrategicField(actors){
 
    pairs.push({
     i,j,a:a.n,b:b.n,distance,bargainingPoint,
-    probabilityA,probabilityB,
+    probabilityA,probabilityB,contestProbabilityA,contestProbabilityB,statusQuoPoint,
     conflictUtilityA,conflictUtilityB,
     agreementUtilityA,agreementUtilityB,
     gainA,gainB,nashGain,individualRationality,
@@ -233,7 +240,7 @@ function summarizeStrategy(pairs){
    from:p.a,to:p.b,
    eu:p.threatEUA,
    intensity:p.threatAB,
-   probability:p.probabilityA,
+   probability:p.contestProbabilityA,
    success:p.successUtilityA,
    failure:p.failureUtilityA,
    cost:p.challengeCostA,
@@ -243,7 +250,7 @@ function summarizeStrategy(pairs){
    from:p.b,to:p.a,
    eu:p.threatEUB,
    intensity:p.threatBA,
-   probability:p.probabilityB,
+   probability:p.contestProbabilityB,
    success:p.successUtilityB,
    failure:p.failureUtilityB,
    cost:p.challengeCostB,

@@ -49,10 +49,15 @@ function extractActors(raw){
   .slice(0,12);
  const provisional=base.map((a,index)=>({...a,index}));
  detectedRelations=extractRelations(raw,provisional);
- return provisional.map((a,index)=>inferActorVariables({...a,relationProfile:actorRelationProfile(a.name,detectedRelations)},index));
+ const inferred=provisional.map((a,index)=>inferActorVariables({...a,relationProfile:actorRelationProfile(a.name,detectedRelations)},index));
+ return inferStrategicPositions(inferred,detectedRelations);
 }
 
 function dimensionDensity(text,words){const plain=stripAccents(text.toLowerCase());let c=0;words.forEach(w=>c+=stemMatches(stripAccents(w),plain));return c;}
+function inferDiscursiveValence(positive,negative){
+ const evidence=positive+negative;
+ return evidence?clamp((positive-negative)/evidence,-1,1):0;
+}
 function inferActorVariables(actor,index){
  const text=actor.contexts.join(" "),plain=stripAccents(text.toLowerCase());
  const positive=posWords.reduce((n,w)=>n+stemMatches(w,plain),0);
@@ -62,8 +67,7 @@ function inferActorVariables(actor,index){
  const rel=actor.relationProfile||{cooperation:0,conflict:0,control:0,communication:0,transformation:0,net:0,outgoing:[],incoming:[]};
  const dims={ser:dimensionDensity(text,lex.ser),estar:dimensionDensity(text,lex.estar),decir:dimensionDensity(text,lex.decir),hacer:dimensionDensity(text,lex.hacer)};
  const dsum=Math.max(1,dims.ser+dims.estar+dims.decir+dims.hacer);
- const polarity=positive-negative+rel.net;
- const x=clamp((50+polarity*7)/100)*100;
+ const v=inferDiscursiveValence(positive,negative);
  const c=clamp((20+actor.count*12+power*10+rel.control*6+rel.outgoing.length*2)/100,.1,1)*100;
  const s=clamp(.35+actor.score*.05+actions*.05+rel.conflict*.04+rel.transformation*.04,.2,1);
  const r=clamp(1+(dims.ser/dsum)*.45+(actor.type==="institución"?.12:0)+rel.conflict*.025-rel.cooperation*.02-actions*.02,.6,2);
@@ -71,10 +75,55 @@ function inferActorVariables(actor,index){
  const states={
   ser:clamp((dims.ser/dsum)*.7+Math.max(0,negative)*.08+r*.12+rel.conflict*.025),
   estar:clamp((dims.estar/dsum)*.75+power*.06+c/500+rel.control*.03),
-  decir:clamp((dims.decir/dsum)*.75+actor.score*.025+Math.abs(polarity)*.04+rel.communication*.04),
+  decir:clamp((dims.decir/dsum)*.75+actor.score*.025+Math.abs(v)*.12+rel.communication*.04),
   hacer:clamp((dims.hacer/dsum)*.7+actions*.08+s*.18+rel.transformation*.05+rel.outgoing.length*.015)
  };
  const evidence=actor.score+actor.count+rel.outgoing.length+rel.incoming.length;
  const uncertainty=clamp(1-(evidence/(evidence+10)),.2,1.5);
- return {...actor,x:Math.round(x),c:Math.round(c),s:+s.toFixed(2),r:+r.toFixed(2),rho:+rho.toFixed(2),uncertainty:+uncertainty.toFixed(2),states,relations:rel};
+ return {...actor,x:50,v:+v.toFixed(2),valenceEvidence:positive+negative,c:Math.round(c),s:+s.toFixed(2),r:+r.toFixed(2),rho:+rho.toFixed(2),uncertainty:+uncertainty.toFixed(2),states,relations:rel};
+}
+
+function inferStrategicPositions(actors,relations){
+ if(!actors.length)return actors;
+ const usable=relations.filter(r=>r.confidence>=.55&&r.sourceIndex!==r.targetIndex);
+ if(!usable.length)return actors.map(a=>({...a,x:50,xConfidence:0,xMethod:"sin evidencia relacional"}));
+ const desiredDistance={cooperacion:8,conflicto:58,control:38,comunicacion:16,transformacion:26,"acción":24};
+ const strongestSeparation=[...usable].filter(r=>r.type==="conflicto"||r.type==="control").sort((a,b)=>b.confidence-a.confidence)[0];
+ const positions=actors.map(()=>50);
+ if(strongestSeparation){
+  positions[strongestSeparation.sourceIndex]=24;
+  positions[strongestSeparation.targetIndex]=76;
+ }else{
+  const strongest=[...usable].sort((a,b)=>b.confidence-a.confidence)[0];
+  positions[strongest.sourceIndex]=44;
+  positions[strongest.targetIndex]=56;
+ }
+ for(let step=0;step<180;step++){
+  const grad=actors.map(()=>0),weights=actors.map(()=>0);
+  usable.forEach(r=>{
+   const i=r.sourceIndex,j=r.targetIndex,w=.4+.6*r.confidence;
+   const target=desiredDistance[r.type]??24;
+   let diff=positions[j]-positions[i];
+   let sign=diff===0?(i<j?1:-1):Math.sign(diff);
+   const err=Math.abs(diff)-target;
+   const force=err*.018*w;
+   grad[i]+=force*sign; grad[j]-=force*sign;
+   weights[i]+=w;weights[j]+=w;
+  });
+  const mean=positions.reduce((s,x)=>s+x,0)/positions.length;
+  positions.forEach((x,i)=>{
+   const centerForce=(mean-50)*.015;
+   positions[i]=clamp((x+(grad[i]/Math.max(1,weights[i]))-centerForce)/100)*100;
+  });
+ }
+ const centeredMean=positions.reduce((sum,x)=>sum+x,0)/positions.length;
+ const scaled=positions.map(x=>clamp((x+(50-centeredMean))/100)*100);
+ const relationWeight=actors.map(()=>0);
+ usable.forEach(r=>{relationWeight[r.sourceIndex]+=r.confidence;relationWeight[r.targetIndex]+=r.confidence;});
+ return actors.map((a,i)=>({
+  ...a,
+  x:+scaled[i].toFixed(1),
+  xConfidence:+clamp(relationWeight[i]/3,0,1).toFixed(2),
+  xMethod:"geometría relacional"
+ }));
 }

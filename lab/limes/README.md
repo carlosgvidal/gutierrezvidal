@@ -1,6 +1,6 @@
-# Limes v0.34-refactor
+# Limes v0.35-refinement-1
 
-Refactor arquitectónico de Limes v0.33. Esta versión separa la aplicación monolítica en archivos por responsabilidad sin introducir frameworks ni dependencias externas y procura conservar el comportamiento de v0.33.
+Primera etapa de refinamiento conceptual construida sobre v0.34-refactor. Mantiene la arquitectura modular y modifica de forma controlada dos fundamentos: la definición de posición estratégica `x` y el cálculo de amenaza.
 
 ## Estructura
 
@@ -25,6 +25,15 @@ Refactor arquitectónico de Limes v0.33. Esta versión separa la aplicación mon
 
 Abra `index.html` en un navegador moderno. No requiere instalación ni servidor.
 
-## Criterio de esta versión
+## Cambios de v0.35
 
-La v0.34-refactor es deliberadamente conservadora: reorganiza el código antes de modificar las hipótesis del modelo. Las revisiones conceptuales de `x`, Ser/Estar/Decir/Hacer, incertidumbre y trazabilidad de inferencias quedan preparadas para una siguiente iteración.
+- `x` ya no se deriva de positividad/negatividad léxica. Se estima inicialmente como geometría relacional entre actores: cooperación aproxima; conflicto y control separan; otras relaciones generan distancias intermedias.
+- Se incorpora `v` (valencia discursiva), en escala `-1..+1`, para conservar la información léxica sin confundirla con posición estratégica. En esta etapa `v` es descriptiva y no empuja directamente la dinámica de `x`.
+- El eje 0–100 deja de etiquetarse como tradición–innovación y pasa a ser un eje relacional sin semántica ideológica fija.
+- La amenaza compara el desafío contra un statu quo sistémico estimado en el centro estratégico vigente, en lugar de comparar contra el punto ideal propio (que hacía imposible una utilidad esperada positiva de desafío).
+- Se normalizan explícitamente las probabilidades de prevalecer del par antes de calcular utilidad esperada de desafío.
+- Se añadieron pruebas automáticas para separación `x/v`, geometría relacional y activación no degenerada de amenazas.
+
+## Límites deliberados
+
+Esta versión todavía conserva la normalización composicional de Ser/Estar/Decir/Hacer y las heurísticas vigentes para `c`, `s`, `r`, `ρ` y `σ`. Esos componentes quedan fuera de esta primera etapa para poder atribuir los cambios observados a `x`, `v` y amenazas.

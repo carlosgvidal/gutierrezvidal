@@ -2,7 +2,7 @@ function validateActors(actors){
  const errors=[];
  actors.forEach((a,i)=>{
   if(!a.n)errors.push(`Actor ${i+1}: nombre vacío`);
-  ['x','c','s','r','rho','uncertainty'].forEach(k=>{if(!Number.isFinite(a[k]))errors.push(`Actor ${a.n}: ${k} inválido`);});
+  ['x','v','c','s','r','rho','uncertainty'].forEach(k=>{if(!Number.isFinite(a[k]))errors.push(`Actor ${a.n}: ${k} inválido`);});
   const st=a.states; const sum=st.ser+st.estar+st.decir+st.hacer;
   if(Math.abs(sum-1)>1e-6)errors.push(`Actor ${a.n}: estados no normalizados`);
  });
@@ -34,7 +34,7 @@ function runSelfTests(){
    relationProfile:{cooperation:0,conflict:0,control:0,communication:0,transformation:0,net:0,outgoing:[],incoming:[]}
   };
   const out=inferActorVariables(probe,0);
-  return out.x!==50||out.s>.35;
+  return out.v<0||out.s>.35;
  });
  t('Estados del sistema no colapsan a 100/0/0/0 en texto político típico',()=>{
   const t="El gobierno federal anunció una reforma. El Congreso exigió un informe. El gobierno defendió la propuesta.";
@@ -48,6 +48,26 @@ function runSelfTests(){
   const plain=stripAccents("las empresas rechazaron la medida y amenazaron con acudir a tribunales; el gobierno acuso a la oposicion".toLowerCase());
   const conflictHits=relationVerbs.conflicto.reduce((n,w)=>n+stemMatches(w,plain),0);
   return conflictHits>=3;
+ });
+
+ t('Valencia discursiva separada de posición',()=>{
+  const a=inferActorVariables({name:"A",count:2,score:4,type:"actor",contexts:["A rechaza una crisis y denuncia una amenaza."],relationProfile:{cooperation:0,conflict:0,control:0,communication:0,transformation:0,net:0,outgoing:[],incoming:[]}},0);
+  return a.x===50&&a.v<0;
+ });
+ t('Geometría relacional separa actores en conflicto',()=>{
+  const actors=[{name:"A",x:50},{name:"B",x:50}];
+  const rel=[{sourceIndex:0,targetIndex:1,type:"conflicto",confidence:.9}];
+  const out=inferStrategicPositions(actors,rel);
+  return Math.abs(out[0].x-out[1].x)>30;
+ });
+ t('Amenaza puede activarse frente a statu quo sistémico',()=>{
+  const raw=[
+   {id:0,n:"A",x:20,v:0,c:80,s:1,r:1,rho:1,uncertainty:0,states:{ser:.15,estar:.15,decir:.2,hacer:.5}},
+   {id:1,n:"B",x:80,v:0,c:20,s:.8,r:1,rho:1,uncertainty:0,states:{ser:.25,estar:.25,decir:.25,hacer:.25}},
+   {id:2,n:"C",x:25,v:0,c:50,s:.9,r:1,rho:1,uncertainty:0,states:{ser:.25,estar:.25,decir:.25,hacer:.25}}
+  ];
+  const pairs=evaluateStrategicField(normalizeActors(raw));
+  return pairs.some(p=>p.threatEUA>0||p.threatEUB>0);
  });
  const ok=tests.every(x=>x.ok);
  document.getElementById('testResults').innerHTML='<div class="card"><b>Validación automática</b>'+tests.map(x=>`<div class="list-item">${x.ok?'✔':'✖'} ${x.name}${x.msg?': '+x.msg:''}</div>`).join('')+`<div class="list-item"><b>Resultado:</b> ${ok?'APROBADO':'FALLÓ'}</div></div>`;
