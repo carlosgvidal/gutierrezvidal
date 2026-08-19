@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Limes v0.45 · Lexicon Corpus</title>
+<title>Limes v0.46 · Event Phases</title>
 <style>
 :root{--paper:#f3f0e7;--surface:#e9e4d7;--surface2:#ded8c9;--ink:#1f2a24;--muted:#68726b;--line:#b7af9a;--accent:#9b3b29;--accent2:#4b6455}
 *{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif}
@@ -28,7 +28,7 @@ button.primary{background:var(--ink);color:var(--paper)}button.danger{border-col
 </style>
 </head>
 <body>
-<header><div><b>Limes</b><span>v0.45 · lexicon-corpus</span></div><small>Diccionario + perfiles de corpus · texto → eventos → escenario</small></header>
+<header><div><b>Limes</b><span>v0.46 · event-phases</span></div><small>Diccionario + corpus · eventos por fase → escenario</small></header>
 <main>
 <section>
 <h2>Texto fuente</h2>
@@ -92,7 +92,7 @@ global.LimesCore={clamp01,validateActor,validateInteraction,symbolicResources,pr
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],n=v=>{const x=Number(v);return Number.isFinite(x)?x:NaN;};let lastScenario=null,lastTextAnalysis=null;
 const stop=new Set("el la los las un una unos unas de del y e o u en por para con sin sobre entre hacia que quien quienes como cuando donde desde hasta se es son fue eran ser estar hay más mas menos muy este esta estos estas ese esa esos esas al lo le les su sus".split(" "));
 const DICTIONARY={
- falseActors:["pero","dijo","anduvieron","espera","vamos","dios","abriose","abrióse","acercose","acercóse","ahi","ahí","alli","allí","entonces","cuando","como","porque","aunque","finalmente","colorin","colorín","mañana","despues","después"],
+ falseActors:["pero","dijo","anduvieron","espera","vamos","dios","abriose","abrióse","acercose","acercóse","ahi","ahí","alli","allí","entonces","cuando","como","porque","aunque","finalmente","colorin","colorín","mañana","despues","después","ahora","algún","algun","alguna","alguno","aqui","aquí"],
  rolePhrases:["marca","campaña","publico meta","público meta","compradores","clientes","consumidores","ciudadanos","electores","audiencia","gobierno","oposicion","oposición","empresa","institucion","institución","padre","madrastra","bruja","mujer","niños","ninos","hermanitos","hijos","estudiantes","pacientes","trabajadores","comunidad","usuarios","docentes","escuela","hospital","organización","organizacion","equipo"],
  functions:{
   ser:["identidad","valor","valores","distinción","distincion","pertenencia","memoria","autor","rareza","prestigio","lujo","simbólico","simbolico","deseo","familia","padre","madrastra","niños","ninos","hermanitos","vida","muerte","confianza","creencia","tradición","tradicion","cultura","lealtad","miedo"],
@@ -140,7 +140,7 @@ function detectActors(raw){
   let key=strip(name.toLowerCase());
   key=key.replace(/^(el|la|los|las|un|una)\s+/,"");
   if(!key||stop.has(key)||falseActors.has(key)||key.length<3)return;
-  if(kind==="nombre"&&/^(acerc|abr|volc|anduv|esper|vamos|dij|ahi|alli)/i.test(key))return;
+  if(kind==="nombre"&&/^(acerc|abr|volc|anduv|esper|vamos|dij|ahi|alli|ahora|algun|algún)/i.test(key))return;
   if(/^(el pobre|la pobre|los viejos|este cuento)$/i.test(strip(name.toLowerCase())))return;
   const display=key==="ninos"?"niños":name;
   const e=reg.get(key)||{name:display,count:0,kind,contexts:[]};
@@ -194,7 +194,7 @@ function renderTextAnalysis(a){
  <div class="metric"><span>Conceptos dominantes</span><span>${a.concepts.map(c=>`${escapeHtml(c[0])} (${c[1]})`).join(", ")||"—"}</span></div>
  <div class="metric"><span>Señales S/E/D/H</span><b>S=${a.scores.S} · E=${a.scores.E} · D=${a.scores.D} · H=${a.scores.H}</b></div>
  <h3>Escenario sugerido</h3><div class="candidate"><b>${escapeHtml(a.scenario.issue)}</b><span class="badge">${escapeHtml(a.scenario.kind)}</span><div class="snippet">${escapeHtml(a.scenario.note)}</div><div class="snippet">Fuente principal: ${escapeHtml(a.scenario.source)} → ${escapeHtml(a.scenario.target)} · operaciones sugeridas: ${a.events.length}</div></div>
- <h3>Eventos candidatos</h3>${a.events.map(ev=>`<div class="candidate"><b>${escapeHtml(ev.source)} → ${escapeHtml(ev.target)}</b><span class="badge">${escapeHtml(ev.type)}</span><span class="badge">${ev.polarity}</span><div class="snippet">${escapeHtml(ev.sentence)}</div></div>`).join("")||"<div class='snippet'>Sin eventos suficientes; se usará una operación genérica editable.</div>"}
+ <h3>Eventos candidatos</h3>${a.events.map(ev=>`<div class="candidate"><b>${escapeHtml(ev.source)} → ${escapeHtml(ev.target)}</b><span class="badge">${escapeHtml(ev.type)}</span><span class="badge">${ev.polarity}</span><span class="badge">${escapeHtml(ev.phase||"fase")}</span><div class="snippet">${escapeHtml(ev.sentence)}</div></div>`).join("")||"<div class='snippet'>Sin eventos suficientes; se usará una operación genérica editable.</div>"}
  <h3>Candidatos</h3>${a.actors.map(x=>`<div class="candidate"><b>${escapeHtml(x.name)}</b><span class="badge">${escapeHtml(x.kind)}</span><span class="badge">${x.count}</span>${x.contexts.map(c=>`<div class="snippet">${escapeHtml(c)}</div>`).join("")}</div>`).join("")||"—"}
  <h3>Evidencia por función</h3>${["S","E","D","H","phi","G"].map(k=>`<div class="candidate"><b>${k}</b>${a.evidence[k].map(c=>`<div class="snippet">${escapeHtml(c)}</div>`).join("")||"<div class='snippet'>Sin evidencia léxica directa.</div>"}</div>`).join("")}`;
 }
@@ -220,23 +220,64 @@ function chooseCollectiveTarget(names,profile){
  }
  return actorByPattern(names,profile.target)||names.find(n=>!profile.source.test(n))||names[1]||"Receptor";
 }
+function speechOnly(sent){
+ const p=strip(sent.toLowerCase()).replace(/[^\p{L}\s]/gu," ").trim();
+ const words=p.split(/\s+/).filter(Boolean);
+ const speech=new Set(["dijo","respondio","respondió","exclamo","exclamó","pregunto","preguntó","suspiro","suspiró","grito","gritó","contesto","contestó","añadio","añadió","replico","replicó"]);
+ const functionals=new Set(["finalmente","entonces","luego","despues","después","no","obstante","a","su","mujer","padre","hermana","hermanita","el","la","los","las","un","una"]);
+ const hasSpeech=words.some(w=>speech.has(w));
+ const nonTrivial=words.filter(w=>!speech.has(w)&&!functionals.has(w));
+ return hasSpeech&&nonTrivial.length<=1;
+}
+function hasOperationalSignal(sent){
+ const p=strip(sent.toLowerCase());
+ if(speechOnly(sent))return false;
+ return !!(
+  score(lex.coercion,sent)||
+  score(lex.resistance,sent)||
+  score(lex.coordination,sent)||
+  score(lex.operation,sent)||
+  /\b(abandon|encerr|horno|matar|muerte|hambre|riesgo|huir|escap|regres|volver|guijarro|miga|pan|tesoro|perlas|piedras|compr|vot|particip|adopt|inscrib|asist|rechaz|acept)\b/i.test(p)
+ );
+}
 function operationFromSentence(sent){
+ if(!hasOperationalSignal(sent))return null;
  const c=score(lex.coercion,sent),r=score(lex.resistance,sent),co=score(lex.coordination,sent),d=score(lex.decir,sent)+score(lex.operation,sent),p=score(lex.positive,sent),b=score(lex.barrier,sent);
- if(c||b>=2||/abandon|encerr|horno|matar|muerte|hambre|riesgo/i.test(strip(sent)))return {type:"coerción",polarity:"negativa"};
- if(r)return {type:"resistencia",polarity:"positiva"};
+ const norm=strip(sent.toLowerCase());
+ if(c||b>=2||/abandon|encerr|horno|matar|muerte|hambre|riesgo|prohib|castig|somete/i.test(norm))return {type:"coerción",polarity:"negativa"};
+ if(r||/guijarro|miga|escap|huir|regres|volver|salv|engañ|engana|resist/i.test(norm))return {type:"resistencia",polarity:"positiva"};
  if(co)return {type:"coordinación",polarity:"positiva"};
  if(d&&p)return {type:"persuasión",polarity:"positiva"};
- if(d)return {type:"persuasión",polarity:"positiva"};
+ if(d&&/\b(busca|intenta|pretende|propone|ofrece|promete|convoca|recomienda)\b/i.test(norm))return {type:"persuasión",polarity:"positiva"};
  return null;
+}
+function phaseLabel(profile,index,total,sent,op){
+ const norm=strip(sent.toLowerCase());
+ if(profile.id==="narrativa"){
+  if(/abandon|bosque|hambre|llevar.*ninos|llevar.*niños/.test(norm))return "Fase 1 · abandono / pérdida de agencia";
+  if(/guijarro|piedrec|luna|camino|volver|regres/.test(norm))return "Fase 2 · orientación / resistencia";
+  if(/miga|pan|pajaro|pájaro|segundo/.test(norm))return "Fase 3 · retorno fallido / desorientación";
+  if(/bruja|horno|encerr|engord|muerte/.test(norm))return "Fase 4 · amenaza máxima / captura";
+  if(/engañ|engana|empuj|quem|escap|salv/.test(norm))return "Fase 5 · contraacción / escape";
+  if(/perlas|piedras|tesoro|felices|acabaron las penas|padre/.test(norm)&&op?.polarity==="positiva")return "Fase 6 · retorno / agencia restaurada";
+ }
+ return `Fase ${index+1}`;
+}
+function sentenceActors(names,sent){
+ const norm=strip(sent.toLowerCase());
+ return names.filter(n=>{
+  const key=strip(n.toLowerCase()).replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,"\\s+");
+  return new RegExp("\\b"+key+"\\b","i").test(norm);
+ });
 }
 function extractEvents(a,scenario){
  const profile=a.profile, names=a.actors.map(x=>x.name), sents=splitSentences(a.raw), events=[];
  const defaultSource=scenario.source, defaultTarget=scenario.target;
- sents.forEach(sent=>{
+ sents.forEach((sent,idx)=>{
   const op=operationFromSentence(sent);
   if(!op)return;
   let source=defaultSource,target=defaultTarget,type=op.type,polarity=op.polarity;
-  const present=names.filter(n=>new RegExp("\\b"+strip(n.toLowerCase()).replace(/[.*+?^${}()|[\]\\]/g,"\\$&").replace(/\s+/g,"\\s+")+"\\b","i").test(strip(sent.toLowerCase())));
+  const present=sentenceActors(names,sent);
   if(profile.id==="narrativa"){
    const threat=present.find(n=>/bruja|madrastra|padre|mujer/i.test(n));
    const child=present.find(n=>/hänsel|hansel|gretel|niños|ninos|hijos|hermanitos/i.test(n));
@@ -249,17 +290,31 @@ function extractEvents(a,scenario){
    source=present.find(n=>profile.source.test(n))||defaultSource;
    target=present.find(n=>profile.target.test(n))||defaultTarget;
   }
-  const D=Math.max(.20,Math.min(.90,.35+score(lex.operation,sent)*.06+score(lex.decir,sent)*.05+score(lex.coercion,sent)*.07+score(lex.resistance,sent)*.07));
+  const D=Math.max(.20,Math.min(.90,.33+score(lex.operation,sent)*.06+score(lex.decir,sent)*.035+score(lex.coercion,sent)*.08+score(lex.resistance,sent)*.08+score(lex.hacer,sent)*.025));
   const phi=Math.max(.15,Math.min(.85,.62-score(lex.barrier,sent)*.09+score(lex.positive,sent)*.04));
   const G=polarity==="negativa"?profile.lowG:profile.highG;
-  events.push({source,target,type,polarity,D,phi,G,sentence:sent,evidence:{D:sent,phi:sent,G:sent}});
+  const phase=phaseLabel(profile,idx,sents.length,sent,{type,polarity});
+  events.push({source,target,type,polarity,phase,index:idx,D,phi,G,sentence:sent,evidence:{phase,D:sent,phi:sent,G:sent}});
  });
+ // Keep temporal order; remove exact duplicates only, not repeated phases.
  const unique=[];
  events.forEach(e=>{
-  const k=e.source+"|"+e.target+"|"+e.type+"|"+e.polarity+"|"+e.G.toFixed(2);
+  const k=e.index+"|"+e.source+"|"+e.target+"|"+e.type+"|"+e.sentence.slice(0,60);
   if(!unique.some(x=>x._key===k))unique.push({...e,_key:k});
  });
- return unique.slice(0,5).map(({_key,...e})=>e);
+ return unique.slice(0,8).map(({_key,...e})=>e);
+}
+function initialHFromEvents(profile,a,events){
+ if(!events.length)return suggestedValue("H",a);
+ if(profile.id==="narrativa"){
+  const first=events[0];
+  if(first.polarity==="negativa")return .25;
+  if(/felices|acabaron las penas|tesoro|perlas|piedras preciosas/i.test(a.raw))return .55;
+  return .35;
+ }
+ const neg=events.find(e=>e.polarity==="negativa");
+ if(neg&&events.indexOf(neg)===0)return Math.max(.10,Math.min(.40,suggestedValue("H",a)));
+ return suggestedValue("H",a);
 }
 function inferScenario(a){
  const selected=selectProfile(a.raw);
@@ -292,10 +347,7 @@ function inferScenario(a){
   const first=events[0];
   scenario.source=first.source; scenario.target=first.target; scenario.type=first.type; scenario.D=first.D; scenario.phi=first.phi; scenario.G=first.G;
  }
- if(profile.id==="narrativa"){
-  const raw=strip(a.raw.toLowerCase());
-  scenario.H=/vivieron|felices|acabaron las penas|perlas|piedras preciosas|retorno|volvio|volvió/.test(raw)?.78:Math.max(.15,Math.min(.55,.22+a.scores.H*.04-a.scores.barrier*.025));
- }
+ scenario.H=initialHFromEvents(profile,a,events);
  return scenario;
 }
 function applyScenarioFields(s){
@@ -338,7 +390,7 @@ function loadTextEvidence(){
    $("#actors tbody").insertAdjacentHTML("beforeend",`<tr><td><input value="${escapeHtml(ev.source)}"></td><td><input value="emisor/contexto"></td><td><select class="hmode"><option value="no">no</option><option value="sí">sí</option></select></td><td><input type="number" step=".01" min="0" max="1" value="${S.toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${E.toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value=".25"></td><td class="derived">—</td><td><textarea class="evS">${escapeHtml(sourceEvidenceS)}</textarea><textarea class="evE">${escapeHtml(sourceEvidenceE)}</textarea><textarea class="evH">Actor contextual generado desde evento textual.</textarea></td><td><button class="smallbtn danger removeActor">×</button></td></tr>`);
   }
  });
- $("#ops tbody").innerHTML=events.map(ev=>`<tr><td><select class="source"></select></td><td><select class="target"></select></td><td><select class="optype"><option>${escapeHtml(ev.type||"persuasión")}</option><option>persuasión</option><option>seducción</option><option>coordinación</option><option>información redundante</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.D||s.D||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.phi||s.phi||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.G||s.G||.5).toFixed(2)}"></td><td><textarea class="evD">${escapeHtml(ev.evidence?.D||ev.sentence||a.evidence.D.join(" "))}</textarea><textarea class="evPhi">${escapeHtml(ev.evidence?.phi||ev.sentence||a.evidence.phi.join(" "))}</textarea><textarea class="evG">${escapeHtml(ev.evidence?.G||ev.sentence||s.note)}</textarea></td><td><button class="smallbtn danger removeOp">×</button></td></tr>`).join("");
+ $("#ops tbody").innerHTML=events.map(ev=>`<tr data-phase="${escapeHtml(ev.phase||"")}"><td><select class="source"></select></td><td><select class="target"></select></td><td><select class="optype"><option>${escapeHtml(ev.type||"persuasión")}</option><option>persuasión</option><option>seducción</option><option>coordinación</option><option>información redundante</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.D||s.D||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.phi||s.phi||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.G||s.G||.5).toFixed(2)}"></td><td><textarea class="evD">${escapeHtml(ev.evidence?.D||ev.sentence||a.evidence.D.join(" "))}</textarea><textarea class="evPhi">${escapeHtml(ev.evidence?.phi||ev.sentence||a.evidence.phi.join(" "))}</textarea><textarea class="evG">${escapeHtml(ev.evidence?.G||ev.sentence||s.note)}</textarea></td><td><button class="smallbtn danger removeOp">×</button></td></tr>`).join("");
  refreshDerived();
  opRows().forEach((row,i)=>{const ev=events[i];row.querySelector(".source").value=ev.source||source;row.querySelector(".target").value=ev.target||target;});
 }
@@ -348,13 +400,13 @@ function interpretH(v){const a=nearestAnchor(v);return `${v.toFixed(3)} · cerca
 function actorRows(){return $$("#actors tbody tr");}function opRows(){return $$("#ops tbody tr");}
 function readActors(){return actorRows().map(r=>{const i=r.querySelectorAll("input");return{id:i[0].value.trim(),role:i[1].value.trim(),hmode:r.querySelector(".hmode")?.value||"sí",S:n(i[2].value),E:n(i[3].value),H:n(i[4].value),evidence:{S:r.querySelector(".evS")?.value.trim()||"",E:r.querySelector(".evE")?.value.trim()||"",H:r.querySelector(".evH")?.value.trim()||""}};});}
 function actorIds(){return readActors().filter(a=>a.id).map(a=>a.id);}
-function readOperations(){const issue=$("#issue").value.trim();return opRows().map(r=>{const inputs=r.querySelectorAll("input");return{issue,source:r.querySelector(".source").value,target:r.querySelector(".target").value,type:r.querySelector(".optype").value,D:n(inputs[0].value),phi:n(inputs[1].value),G:n(inputs[2].value),evidence:{D:r.querySelector(".evD")?.value.trim()||"",phi:r.querySelector(".evPhi")?.value.trim()||"",G:r.querySelector(".evG")?.value.trim()||""}};});}
+function readOperations(){const issue=$("#issue").value.trim();return opRows().map(r=>{const inputs=r.querySelectorAll("input");return{issue,source:r.querySelector(".source").value,target:r.querySelector(".target").value,type:r.querySelector(".optype").value,D:n(inputs[0].value),phi:n(inputs[1].value),G:n(inputs[2].value),evidence:{phase:r.dataset.phase||"",D:r.querySelector(".evD")?.value.trim()||"",phi:r.querySelector(".evPhi")?.value.trim()||"",G:r.querySelector(".evG")?.value.trim()||""}};});}
 function syncSelects(){const ids=actorIds();opRows().forEach(r=>{const s=r.querySelector(".source"),t=r.querySelector(".target"),ps=s.value||ids[0]||"",pt=t.value||ids[1]||ids[0]||"";const html=ids.map(id=>`<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`).join("");s.innerHTML=html;t.innerHTML=html;s.value=ids.includes(ps)?ps:(ids[0]||"");t.value=ids.includes(pt)?pt:(ids[1]||ids[0]||"");});}
 function refreshDerived(){const A=readActors();actorRows().forEach((r,k)=>{try{r.querySelector(".derived").textContent=LimesCore.symbolicResources(A[k]).toFixed(3);}catch(e){r.querySelector(".derived").textContent="?";}});syncSelects();}
 function classifyMovement(d){const a=Math.abs(d);if(a<.01)return"movimiento mínimo";if(a<.05)return"movimiento bajo";if(a<.15)return"movimiento medio";return"movimiento alto";}function direction(d){return d>0?"aumenta":d<0?"disminuye":"permanece estable";}
-function buildScenario(){const issue=$("#issue").value.trim(),actors=readActors(),operations=readOperations();if(!issue)throw new Error("Debe declararse una cuestión específica.");if(actors.length<2)throw new Error("Se requieren al menos dos actores.");if(!operations.length)throw new Error("Se requiere al menos una operación comunicativa.");return{version:"v0.45-lexicon-corpus",issue,note:$("#scenarioNote").value.trim(),hScale:hScale(),textAnalysis:lastTextAnalysis,input:{actors,operations},result:LimesCore.runSequence(actors,operations)};}
-function renderScenario(s){lastScenario=s;$("#status").className="card ok";$("#status").innerHTML=`<b>Issue</b><p>${escapeHtml(s.issue)}</p><p class="note">${escapeHtml(s.note||"Sin descripción adicional.")}</p><div class="metric"><span>H mide</span><b>${escapeHtml(s.hScale.label)}</b></div>`;$("#results").innerHTML=s.result.history.map((r,i)=>`<div class="card"><b>Operación ${i+1}: ${escapeHtml(r.source)} → ${escapeHtml(r.target)}</b><span class="badge">${escapeHtml(r.type||"operación")}</span><div class="metric"><span>R</span><b>${r.R.toFixed(3)}</b></div><div class="metric"><span>D · φ · X</span><b>${r.D.toFixed(3)} · ${r.phi.toFixed(3)} · ${r.X.toFixed(3)}</b></div><div class="metric"><span>H antes</span><b>${interpretH(r.Hbefore)}</b></div><div class="metric"><span>G</span><b>${interpretH(r.G)}</b></div><div class="metric"><span>ΔH</span><b>${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · ${classifyMovement(r.deltaH)}</b></div><div class="metric"><span>H después</span><b>${interpretH(r.Hafter)}</b></div></div>`).join("")+`<div class="card"><b>Estado final</b>${s.result.actors.map(a=>`<div class="metric"><span>${escapeHtml(a.id)}</span><b>${a.hmode==="sí"?interpretH(a.H):"H no evaluado en esta escala"}</b></div>`).join("")}</div>`;$("#report").textContent=buildReport(s);}
-function buildReport(s){const lines=[];lines.push("REPORTE DE ESCENARIO — LIMES v0.45","======================================","","Issue: "+s.issue);if(s.note)lines.push("Contexto: "+s.note);lines.push("","Escala H: "+s.hScale.label);Object.entries(s.hScale.anchors).forEach(([k,v])=>lines.push(`- ${k}: ${v}`));if(s.textAnalysis){lines.push("","0. TEXTO FUENTE / EVIDENCIA PRELIMINAR");lines.push(`Perfil de corpus: ${s.textAnalysis.profile?.label||"—"} (${s.textAnalysis.profileScore||0})`);lines.push(`Actores candidatos: ${s.textAnalysis.actors.map(a=>a.name).join(", ")||"—"}`);lines.push(`Eventos candidatos: ${(s.textAnalysis.events||[]).map(e=>e.source+"→"+e.target+"["+e.type+"/"+e.polarity+"]").join(", ")||"—"}`);lines.push(`Conceptos dominantes: ${s.textAnalysis.concepts.map(c=>c[0]+"("+c[1]+")").join(", ")}`);}lines.push("","1. ACTORES");s.input.actors.forEach(a=>{lines.push(`- ${a.id}${a.role?` (${a.role})`:""} | S=${a.S.toFixed(3)} E=${a.E.toFixed(3)} H inicial=${a.H.toFixed(3)} R=${(a.S*a.E).toFixed(3)} | H evaluable=${a.hmode}`);if(a.evidence.S)lines.push(`  Evidencia S: ${a.evidence.S}`);if(a.evidence.E)lines.push(`  Evidencia E: ${a.evidence.E}`);if(a.evidence.H)lines.push(`  Evidencia H: ${a.evidence.H}`);});lines.push("","2. OPERACIONES Y DESPLAZAMIENTOS ESPERADOS");s.result.history.forEach((r,i)=>{lines.push(`${i+1}. ${r.source} → ${r.target} | tipo=${r.type||"operación"}`);lines.push(`   R=${r.R.toFixed(3)} · D=${r.D.toFixed(3)} · φ=${r.phi.toFixed(3)} · X=${r.X.toFixed(3)}`);lines.push(`   H antes=${r.Hbefore.toFixed(3)} · G=${r.G.toFixed(3)} · ΔH=${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · H después=${r.Hafter.toFixed(3)}`);lines.push(`   Lectura: el Hacer de ${r.target} ${direction(r.deltaH)} hacia ${r.G.toFixed(3)} con ${classifyMovement(r.deltaH)}.`);if(r.evidence.D)lines.push(`   Evidencia D: ${r.evidence.D}`);if(r.evidence.phi)lines.push(`   Evidencia φ: ${r.evidence.phi}`);if(r.evidence.G)lines.push(`   Evidencia G: ${r.evidence.G}`);});lines.push("","3. ESTADO FINAL");s.input.actors.forEach(a=>{const final=s.result.actors.find(x=>x.id===a.id)||a;lines.push(`- ${a.id}: ${a.hmode==="sí"?interpretH(final.H):"H no evaluado en esta escala"}`);});lines.push("","Nota metodológica: el texto aporta evidencia preliminar; los valores numéricos siguen siendo declarados y deben ser confirmados por el analista.");return lines.join("\n");}
+function buildScenario(){const issue=$("#issue").value.trim(),actors=readActors(),operations=readOperations();if(!issue)throw new Error("Debe declararse una cuestión específica.");if(actors.length<2)throw new Error("Se requieren al menos dos actores.");if(!operations.length)throw new Error("Se requiere al menos una operación comunicativa.");return{version:"v0.46-event-phases",issue,note:$("#scenarioNote").value.trim(),hScale:hScale(),textAnalysis:lastTextAnalysis,input:{actors,operations},result:LimesCore.runSequence(actors,operations)};}
+function renderScenario(s){lastScenario=s;$("#status").className="card ok";$("#status").innerHTML=`<b>Issue</b><p>${escapeHtml(s.issue)}</p><p class="note">${escapeHtml(s.note||"Sin descripción adicional.")}</p><div class="metric"><span>H mide</span><b>${escapeHtml(s.hScale.label)}</b></div>`;$("#results").innerHTML=s.result.history.map((r,i)=>`<div class="card"><b>Operación ${i+1}: ${escapeHtml(r.source)} → ${escapeHtml(r.target)}</b><span class="badge">${escapeHtml(r.type||"operación")}</span>${r.evidence?.phase?`<span class="badge">${escapeHtml(r.evidence.phase)}</span>`:""}<div class="metric"><span>R</span><b>${r.R.toFixed(3)}</b></div><div class="metric"><span>D · φ · X</span><b>${r.D.toFixed(3)} · ${r.phi.toFixed(3)} · ${r.X.toFixed(3)}</b></div><div class="metric"><span>H antes</span><b>${interpretH(r.Hbefore)}</b></div><div class="metric"><span>G</span><b>${interpretH(r.G)}</b></div><div class="metric"><span>ΔH</span><b>${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · ${classifyMovement(r.deltaH)}</b></div><div class="metric"><span>H después</span><b>${interpretH(r.Hafter)}</b></div></div>`).join("")+`<div class="card"><b>Estado final</b>${s.result.actors.map(a=>`<div class="metric"><span>${escapeHtml(a.id)}</span><b>${a.hmode==="sí"?interpretH(a.H):"H no evaluado en esta escala"}</b></div>`).join("")}</div>`;$("#report").textContent=buildReport(s);}
+function buildReport(s){const lines=[];lines.push("REPORTE DE ESCENARIO — LIMES v0.46","======================================","","Issue: "+s.issue);if(s.note)lines.push("Contexto: "+s.note);lines.push("","Escala H: "+s.hScale.label);Object.entries(s.hScale.anchors).forEach(([k,v])=>lines.push(`- ${k}: ${v}`));if(s.textAnalysis){lines.push("","0. TEXTO FUENTE / EVIDENCIA PRELIMINAR");lines.push(`Perfil de corpus: ${s.textAnalysis.profile?.label||"—"} (${s.textAnalysis.profileScore||0})`);lines.push(`Actores candidatos: ${s.textAnalysis.actors.map(a=>a.name).join(", ")||"—"}`);lines.push(`Eventos candidatos: ${(s.textAnalysis.events||[]).map(e=>e.source+"→"+e.target+"["+e.type+"/"+e.polarity+"/"+(e.phase||"fase")+"]").join(", ")||"—"}`);lines.push(`Conceptos dominantes: ${s.textAnalysis.concepts.map(c=>c[0]+"("+c[1]+")").join(", ")}`);}lines.push("","1. ACTORES");s.input.actors.forEach(a=>{lines.push(`- ${a.id}${a.role?` (${a.role})`:""} | S=${a.S.toFixed(3)} E=${a.E.toFixed(3)} H inicial=${a.H.toFixed(3)} R=${(a.S*a.E).toFixed(3)} | H evaluable=${a.hmode}`);if(a.evidence.S)lines.push(`  Evidencia S: ${a.evidence.S}`);if(a.evidence.E)lines.push(`  Evidencia E: ${a.evidence.E}`);if(a.evidence.H)lines.push(`  Evidencia H: ${a.evidence.H}`);});lines.push("","2. OPERACIONES Y DESPLAZAMIENTOS ESPERADOS");s.result.history.forEach((r,i)=>{lines.push(`${i+1}. ${r.source} → ${r.target} | tipo=${r.type||"operación"}${r.evidence?.phase?` | ${r.evidence.phase}`:""}`);lines.push(`   R=${r.R.toFixed(3)} · D=${r.D.toFixed(3)} · φ=${r.phi.toFixed(3)} · X=${r.X.toFixed(3)}`);lines.push(`   H antes=${r.Hbefore.toFixed(3)} · G=${r.G.toFixed(3)} · ΔH=${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · H después=${r.Hafter.toFixed(3)}`);lines.push(`   Lectura: el Hacer de ${r.target} ${direction(r.deltaH)} hacia ${r.G.toFixed(3)} con ${classifyMovement(r.deltaH)}.`);if(r.evidence.D)lines.push(`   Evidencia D: ${r.evidence.D}`);if(r.evidence.phi)lines.push(`   Evidencia φ: ${r.evidence.phi}`);if(r.evidence.G)lines.push(`   Evidencia G: ${r.evidence.G}`);});lines.push("","3. ESTADO FINAL");s.input.actors.forEach(a=>{const final=s.result.actors.find(x=>x.id===a.id)||a;lines.push(`- ${a.id}: ${a.hmode==="sí"?interpretH(final.H):"H no evaluado en esta escala"}`);});lines.push("","Nota metodológica: el texto aporta evidencia preliminar; los valores numéricos siguen siendo declarados y deben ser confirmados por el analista.");return lines.join("\n");}
 function download(name,content,type){const blob=new Blob([content],{type}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 $("#analyzeText").onclick=()=>{try{analyzeText();}catch(e){$("#textOut").innerHTML=`<b>Error</b><p>${escapeHtml(e.message)}</p>`;}};$("#loadTextEvidence").onclick=()=>{try{loadTextEvidence();}catch(e){alert(e.message);}};
 $("#actors").addEventListener("input",refreshDerived);$("#actors").addEventListener("click",e=>{if(e.target.classList.contains("removeActor")){e.target.closest("tr").remove();refreshDerived();}});$("#ops").addEventListener("click",e=>{if(e.target.classList.contains("removeOp")){e.target.closest("tr").remove();refreshDerived();}});

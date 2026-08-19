@@ -1,17 +1,16 @@
-# Limes v0.45 · Lexicon Corpus
+# Limes v0.46 · Event Phases
 
-Versión previa a corpus entrenado. Introduce un diccionario teórico y perfiles de corpus para que el análisis textual funcione más allá de casos específicos.
+Capa textual con fases de evento.
 
 ## Cambios principales
 
-- Diccionario centralizado de señales para Ser, Estar, Decir, Hacer, barrera, coerción, resistencia y coordinación.
-- Perfiles de corpus: consumo, política, narrativa, salud, educación, organización y genérico.
-- Selección automática de perfil según el texto.
-- Generación de issue, contexto y escala H desde el perfil detectado.
-- Extracción de eventos candidatos source → target con tipo y polaridad.
-- Generación de secuencias de operaciones, no sólo una operación única.
-- Para operaciones coercitivas/negativas, G se orienta hacia disminución de H del receptor.
-- Fallback genérico editable para textos fuera de perfiles conocidos.
+- Elimina eventos basados sólo en verbos de habla como “dijo” cuando no hay operación transformadora.
+- Genera eventos con fase, tipo y polaridad.
+- Calcula el H inicial sugerido desde el primer evento/fase, no desde el desenlace completo.
+- Mantiene operaciones coercitivas con G bajo y operaciones de resistencia con G alto.
+- Refuerza filtros de falsos actores residuales como Ahora, Algún, Acercóse, Ahí.
+- Reporte y resultados muestran fase por operación.
+- La evidencia se conserva por evento/oración.
 
 ## Núcleo matemático intacto
 
@@ -19,7 +18,3 @@ R = S × E
 X = R × D × φ  
 ΔH = (G − H) × X  
 H' = H + ΔH
-
-## Nota
-
-Esto no reemplaza un corpus anotado. Es una capa intermedia: diccionario + perfiles + eventos heurísticos, con confirmación del analista.
