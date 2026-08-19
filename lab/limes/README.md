@@ -1,15 +1,16 @@
-# Limes v0.42 · Semantic Scales
+# Limes v0.43 · Text Evidence
 
-Etapa previa a la capa textual.
+Primera capa textual concreta.
 
-## Cambios principales
+## Función
 
-- Definición explícita de qué mide `H`.
-- Anclajes interpretativos para H = 0, .25, .50, .75, 1.
-- Evidencia declarada para `S`, `E`, `H` por actor.
-- Evidencia declarada para `D`, `φ`, `G` por operación.
-- Reporte enriquecido con escala, anclajes, evidencia y lectura de desplazamiento.
-- Exportación TXT y JSON.
+El texto no produce predicción automática. Produce:
+
+- actores candidatos;
+- conceptos dominantes;
+- señales preliminares S/E/D/H;
+- evidencia textual para Ser, Estar, Decir, Hacer, frontera y objetivo;
+- carga asistida de un escenario editable.
 
 ## Núcleo matemático intacto
 
@@ -18,6 +19,6 @@ X = R × D × φ
 ΔH = (G − H) × X  
 H' = H + ΔH
 
-## Límites
+## Seguridad epistemológica
 
-No hay parser textual. No hay utilidad esperada. No se modelan todavía ΔEstar ni ΔSer.
+Los valores sugeridos por texto son heurísticos y editables. El reporte marca que los números deben ser confirmados por el analista.
