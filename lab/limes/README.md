@@ -1,19 +1,25 @@
-# Limes v0.44 · Scenario From Text
+# Limes v0.45 · Lexicon Corpus
 
-Esta versión corrige la desconexión observada en v0.43: el análisis textual ya no sólo carga evidencia, sino que propone un escenario completo y editable.
+Versión previa a corpus entrenado. Introduce un diccionario teórico y perfiles de corpus para que el análisis textual funcione más allá de casos específicos.
 
 ## Cambios principales
 
-- Generación de issue, contexto y escala H desde el texto.
-- Perfiles iniciales para consumo, política y narrativa/supervivencia.
-- Detección más estricta de falsos actores narrativos frecuentes.
-- `H evaluable` separa emisores/contexto de receptores medidos por la escala.
-- El botón “Generar escenario desde texto” actualiza issue, descripción, escala, actores, operación y evidencia.
-- El núcleo matemático no cambia.
+- Diccionario centralizado de señales para Ser, Estar, Decir, Hacer, barrera, coerción, resistencia y coordinación.
+- Perfiles de corpus: consumo, política, narrativa, salud, educación, organización y genérico.
+- Selección automática de perfil según el texto.
+- Generación de issue, contexto y escala H desde el perfil detectado.
+- Extracción de eventos candidatos source → target con tipo y polaridad.
+- Generación de secuencias de operaciones, no sólo una operación única.
+- Para operaciones coercitivas/negativas, G se orienta hacia disminución de H del receptor.
+- Fallback genérico editable para textos fuera de perfiles conocidos.
 
-## Núcleo
+## Núcleo matemático intacto
 
 R = S × E  
 X = R × D × φ  
 ΔH = (G − H) × X  
 H' = H + ΔH
+
+## Nota
+
+Esto no reemplaza un corpus anotado. Es una capa intermedia: diccionario + perfiles + eventos heurísticos, con confirmación del analista.
