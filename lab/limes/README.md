@@ -1,16 +1,17 @@
-# Limes v0.46 · Event Phases
+# Limes v0.47 · Domain Profiles
 
-Capa textual con fases de evento.
+Capa textual con perfiles de dominio más finos.
 
 ## Cambios principales
 
-- Elimina eventos basados sólo en verbos de habla como “dijo” cuando no hay operación transformadora.
-- Genera eventos con fase, tipo y polaridad.
-- Calcula el H inicial sugerido desde el primer evento/fase, no desde el desenlace completo.
-- Mantiene operaciones coercitivas con G bajo y operaciones de resistencia con G alto.
-- Refuerza filtros de falsos actores residuales como Ahora, Algún, Acercóse, Ahí.
-- Reporte y resultados muestran fase por operación.
-- La evidencia se conserva por evento/oración.
+- Añade perfil `regulación / conflicto institucional`.
+- Separa política electoral, movilización social y regulación institucional.
+- Detecta eventos autoridad → actor regulado como regulación coercitiva.
+- Detecta eventos actor regulado → actor regulado como impugnación/demanda o resistencia pública.
+- Genera escala H regulatoria: capacidad del actor regulado para sostener actividad e impugnar restricción.
+- Limpia falsos actores periodísticos frecuentes: Indicaron, Aseguraron, Lamentaron, Dijeron, Agregó, Señaló, Explicó, Dinero, etc.
+- Normaliza actores regulatorios: `gobierno / autoridades` y `Comunidad de Pequeños Anfitriones`.
+- Mantiene las fases de v0.46 para narrativa y añade fases regulatorias.
 
 ## Núcleo matemático intacto
 
