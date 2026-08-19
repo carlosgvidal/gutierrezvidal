@@ -1,21 +1,17 @@
-# Limes v0.41 · Scenario Builder
+# Limes v0.42 · Semantic Scales
 
-Rama experimental independiente basada en el núcleo v0.40.
+Etapa previa a la capa textual.
 
-## Propósito
+## Cambios principales
 
-Construir escenarios declarados por el analista antes de desarrollar lectura automática de corpus.
+- Definición explícita de qué mide `H`.
+- Anclajes interpretativos para H = 0, .25, .50, .75, 1.
+- Evidencia declarada para `S`, `E`, `H` por actor.
+- Evidencia declarada para `D`, `φ`, `G` por operación.
+- Reporte enriquecido con escala, anclajes, evidencia y lectura de desplazamiento.
+- Exportación TXT y JSON.
 
-La herramienta permite:
-
-- declarar issue y contexto;
-- definir actores con Ser, Estar y Hacer independientes;
-- declarar operaciones comunicativas entre actores;
-- especificar D, φ y G;
-- calcular trazabilidad de R, X, brecha, ΔH y H final;
-- exportar reporte TXT y JSON.
-
-## Núcleo matemático
+## Núcleo matemático intacto
 
 R = S × E  
 X = R × D × φ  
@@ -24,4 +20,4 @@ H' = H + ΔH
 
 ## Límites
 
-No hay parser textual. No se calcula utilidad esperada. No se modelan todavía ΔEstar ni ΔSer.
+No hay parser textual. No hay utilidad esperada. No se modelan todavía ΔEstar ni ΔSer.

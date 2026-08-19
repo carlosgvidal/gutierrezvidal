@@ -3,314 +3,107 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Limes v0.41 · Scenario Builder</title>
+<title>Limes v0.42 · Semantic Scales</title>
 <style>
-:root{
- --paper:#f3f0e7;--surface:#e9e4d7;--surface2:#ded8c9;--ink:#1f2a24;--muted:#68726b;
- --line:#b7af9a;--accent:#9b3b29;--accent2:#4b6455;--warn:#9b3b29
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif}
+:root{--paper:#f3f0e7;--surface:#e9e4d7;--surface2:#ded8c9;--ink:#1f2a24;--muted:#68726b;--line:#b7af9a;--accent:#9b3b29;--accent2:#4b6455}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 Arial,Helvetica,sans-serif}
 header{padding:18px 24px;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;gap:20px;align-items:baseline;position:sticky;top:0;background:rgba(243,240,231,.96);z-index:5}
-header b{font-size:22px} header span{margin-left:8px;color:var(--accent);font:11px monospace;text-transform:uppercase;letter-spacing:.06em} header small{color:var(--muted)}
-main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:calc(100vh - 64px)}
-section{padding:24px;overflow:auto} section+section{border-left:2px solid var(--ink)}
-h2{font-size:20px;margin:10px 0 12px} h3{font-size:16px;margin:16px 0 8px}
-label{display:block;font-weight:700;font-size:12px;margin:5px 0}
-input,select,textarea{width:100%;padding:7px 8px;background:#fffdf8;border:1px solid var(--line);border-radius:2px;color:var(--ink);font:inherit}
-textarea{min-height:56px;resize:vertical}
-table{width:100%;border-collapse:collapse;margin:8px 0 12px;background:var(--surface)}
-th,td{border:1px solid var(--line);padding:7px;vertical-align:top}
+header b{font-size:22px}header span{margin-left:8px;color:var(--accent);font:11px monospace;text-transform:uppercase;letter-spacing:.06em}header small{color:var(--muted)}
+main{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:calc(100vh - 64px)}section{padding:24px;overflow:auto}section+section{border-left:2px solid var(--ink)}
+h2{font-size:20px;margin:10px 0 12px}label{display:block;font-weight:700;font-size:12px;margin:5px 0}
+input,select,textarea{width:100%;padding:7px 8px;background:#fffdf8;border:1px solid var(--line);border-radius:2px;color:var(--ink);font:inherit}textarea{min-height:54px;resize:vertical}
+table{width:100%;border-collapse:collapse;margin:8px 0 12px;background:var(--surface)}th,td{border:1px solid var(--line);padding:7px;vertical-align:top}
 th{text-align:left;font:10px monospace;text-transform:uppercase;letter-spacing:.05em;background:var(--surface2)}
-button{padding:9px 12px;margin:0 7px 12px 0;border:1px solid var(--ink);background:var(--surface);cursor:pointer}
-button.primary{background:var(--ink);color:var(--paper)} button.danger{border-color:var(--warn);color:var(--warn)}
-.note{color:var(--muted);font-size:12px}.derived{font-family:monospace;font-weight:700;white-space:nowrap}
-.card{border:1.5px solid var(--ink);background:var(--surface);padding:14px;margin:10px 0}
-.card.warn{border-color:var(--warn);color:var(--warn)}
-.card.ok{border-color:var(--accent2)}
-.metric{display:grid;grid-template-columns:190px 1fr;gap:8px;border-bottom:1px dashed var(--line);padding:5px 0}
-.metric:last-child{border-bottom:0}.metric b{font-family:monospace}
+button{padding:9px 12px;margin:0 7px 12px 0;border:1px solid var(--ink);background:var(--surface);cursor:pointer}button.primary{background:var(--ink);color:var(--paper)}button.danger{border-color:var(--accent);color:var(--accent)}
+.note{color:var(--muted);font-size:12px}.derived{font-family:monospace;font-weight:700;white-space:nowrap}.card{border:1.5px solid var(--ink);background:var(--surface);padding:14px;margin:10px 0}.card.ok{border-color:var(--accent2)}.card.warn{border-color:var(--accent);color:var(--accent)}
+.metric{display:grid;grid-template-columns:210px 1fr;gap:8px;border-bottom:1px dashed var(--line);padding:5px 0}.metric:last-child{border-bottom:0}.metric b{font-family:monospace}
 .flow{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}.flow div{padding:9px;border:1px solid var(--line);background:var(--surface)}.flow i{font-style:normal;color:var(--accent);font-weight:700}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.badge{display:inline-block;padding:2px 7px;border:1px solid var(--ink);font:10px monospace;text-transform:uppercase;margin-left:6px}
-.report{white-space:pre-wrap;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-.smallbtn{padding:5px 8px;margin:0;font-size:12px}
-@media(max-width:980px){main{grid-template-columns:1fr}section+section{border-left:0;border-top:2px solid var(--ink)}.grid,.grid3{grid-template-columns:1fr}}
+.badge{display:inline-block;padding:2px 7px;border:1px solid var(--ink);font:10px monospace;text-transform:uppercase;margin-left:6px}.report{white-space:pre-wrap;font:13px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.smallbtn{padding:5px 8px;margin:0;font-size:12px}
+.anchor-grid{display:grid;grid-template-columns:80px 1fr;gap:6px 10px}.anchor-grid b{font-family:monospace}.actor-evidence{min-width:220px}
+@media(max-width:980px){main{grid-template-columns:1fr}section+section{border-left:0;border-top:2px solid var(--ink)}}
 </style>
 </head>
 <body>
-<header>
- <div><b>Limes</b><span>v0.41 · scenario-builder</span></div>
- <small>Constructor de escenarios · intercambio comunicativo y ΔH esperado</small>
-</header>
-
+<header><div><b>Limes</b><span>v0.42 · semantic-scales</span></div><small>Escalas semánticas · evidencia declarada · ΔH esperado</small></header>
 <main>
 <section>
- <h2>Escenario</h2>
- <label>Issue / cuestión específica</label>
- <input id="issue" value="adopción de una conducta objetivo">
- <label>Descripción breve del escenario</label>
- <textarea id="scenarioNote">Declarar aquí el contexto interpretativo. Esta versión no infiere desde corpus: usa entradas declaradas por el analista.</textarea>
+<h2>Escenario</h2>
+<label>Issue / cuestión específica</label><input id="issue" value="disposición de compra de joyería de autor">
+<label>Descripción breve del escenario</label><textarea id="scenarioNote">Cambios en los hábitos de consumo simbólico de compradores potenciales de joyería de autor.</textarea>
+<div id="jscheck" class="card warn"><b>JS no ejecutado</b><p>Si este mensaje permanece, el navegador no está ejecutando JavaScript.</p></div>
 
- <div id="jscheck" class="card warn"><b>JS no ejecutado</b><p>Si este mensaje permanece, el navegador no está ejecutando JavaScript.</p></div>
+<h2>Escala de Hacer</h2>
+<p class="note">Defina qué conducta observable mide H. Esto evita que 0–1 sea una escala vacía.</p>
+<label>Variable H observada</label><input id="hLabel" value="disposición conductual a comprar una pieza de joyería de autor">
+<div class="anchor-grid">
+<b>0.00</b><input id="h0" value="rechazo o nula intención de compra">
+<b>0.25</b><input id="h25" value="curiosidad estética sin intención inmediata">
+<b>0.50</b><input id="h50" value="consideración activa de compra">
+<b>0.75</b><input id="h75" value="intención probable de compra">
+<b>1.00</b><input id="h100" value="compra decidida o prácticamente tomada">
+</div>
 
- <h2>Actores</h2>
- <p class="note">Ser, Estar y Hacer son independientes; no se normalizan. H es el comportamiento/posición observable respecto del issue.</p>
- <table id="actors">
-  <thead><tr><th>Actor</th><th>Rol</th><th>Ser S</th><th>Estar E</th><th>Hacer H</th><th>R=S×E</th><th></th></tr></thead>
-  <tbody>
-   <tr>
-    <td><input value="Campaña"></td><td><input value="emisor"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".80"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".70"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".25"></td>
-    <td class="derived">—</td><td><button class="smallbtn danger removeActor">×</button></td>
-   </tr>
-   <tr>
-    <td><input value="Público meta"></td><td><input value="receptor"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".55"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".60"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".20"></td>
-    <td class="derived">—</td><td><button class="smallbtn danger removeActor">×</button></td>
-   </tr>
-  </tbody>
- </table>
- <button id="addActor">Añadir actor</button>
+<h2>Actores</h2>
+<p class="note">Ser, Estar y Hacer son independientes; no se normalizan. Cada valor debe tener evidencia o justificación.</p>
+<table id="actors"><thead><tr><th>Actor</th><th>Rol</th><th>Ser S</th><th>Estar E</th><th>Hacer H</th><th>R=S×E</th><th>Evidencia S/E/H</th><th></th></tr></thead><tbody>
+<tr><td><input value="Marca / campaña"></td><td><input value="emisor"></td><td><input type="number" step=".01" min="0" max="1" value=".80"></td><td><input type="number" step=".01" min="0" max="1" value=".70"></td><td><input type="number" step=".01" min="0" max="1" value=".25"></td><td class="derived">—</td><td class="actor-evidence"><textarea class="evS">Identidad estética definida, relato de autor y valor simbólico de materiales.</textarea><textarea class="evE">Presencia disponible en canales de venta, redes y contexto de consumo aspiracional.</textarea><textarea class="evH">Su H no es la variable objetivo principal; se conserva como estado conductual inicial del emisor.</textarea></td><td><button class="smallbtn danger removeActor">×</button></td></tr>
+<tr><td><input value="Público meta"></td><td><input value="receptor"></td><td><input type="number" step=".01" min="0" max="1" value=".55"></td><td><input type="number" step=".01" min="0" max="1" value=".60"></td><td><input type="number" step=".01" min="0" max="1" value=".20"></td><td class="derived">—</td><td class="actor-evidence"><textarea class="evS">Interés latente por distinción, diseño y objetos con carga simbólica.</textarea><textarea class="evE">Capacidad parcial de acceso; exposición todavía irregular al bien.</textarea><textarea class="evH">Curiosidad inicial sin intención de compra inmediata.</textarea></td><td><button class="smallbtn danger removeActor">×</button></td></tr>
+</tbody></table>
+<button id="addActor">Añadir actor</button>
 
- <h2>Operaciones comunicativas</h2>
- <p class="note">D es movilización comunicativa efectiva; φ es porosidad de frontera; G es el Hacer buscado en el receptor.</p>
- <table id="ops">
-  <thead><tr><th>Emisor</th><th>Receptor</th><th>Tipo</th><th>D</th><th>φ</th><th>G</th><th>Evidencia / justificación</th><th></th></tr></thead>
-  <tbody>
-   <tr>
-    <td><select class="source"></select></td><td><select class="target"></select></td>
-    <td><select class="optype"><option>persuasión</option><option>coordinación</option><option>información redundante</option><option>seducción</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".70"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".50"></td>
-    <td><input type="number" step=".01" min="0" max="1" value=".80"></td>
-    <td><textarea>Operación declarada manualmente para probar el núcleo causal.</textarea></td>
-    <td><button class="smallbtn danger removeOp">×</button></td>
-   </tr>
-  </tbody>
- </table>
- <button id="addOp">Añadir operación</button>
- <button id="run" class="primary">Ejecutar escenario</button>
- <button id="exportTxt">Exportar reporte TXT</button>
- <button id="exportJson">Exportar JSON</button>
+<h2>Operaciones comunicativas</h2>
+<p class="note">D, φ y G deben estar semánticamente justificados. G es el Hacer buscado en el receptor, no intensidad.</p>
+<table id="ops"><thead><tr><th>Emisor</th><th>Receptor</th><th>Tipo</th><th>D</th><th>φ</th><th>G</th><th>Evidencia D/φ/G</th><th></th></tr></thead><tbody>
+<tr><td><select class="source"></select></td><td><select class="target"></select></td><td><select class="optype"><option>persuasión</option><option>coordinación</option><option>información redundante</option><option>seducción</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td><td><input type="number" step=".01" min="0" max="1" value=".70"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".80"></td><td><textarea class="evD">Narrativa de autor, rareza, diseño y valor material movilizados como argumento de compra.</textarea><textarea class="evPhi">Frontera parcialmente porosa: el público reconoce valor simbólico, pero percibe barreras de precio/acceso.</textarea><textarea class="evG">Busca llevar al receptor hacia intención probable de compra.</textarea></td><td><button class="smallbtn danger removeOp">×</button></td></tr>
+</tbody></table>
+<button id="addOp">Añadir operación</button><button id="run" class="primary">Ejecutar escenario</button><button id="exportTxt">Exportar reporte TXT</button><button id="exportJson">Exportar JSON</button>
 </section>
 
 <section>
- <h2>Resultado</h2>
- <div id="status" class="card">
-  <b>Convención</b>
-  <p>Esta rama no calcula utilidad esperada. Predice desplazamientos de H a partir de intercambios declarados.</p>
- </div>
- <div id="results"></div>
-
- <h2>Flujo causal</h2>
- <div class="flow">
-  <div>Ser + Estar</div><i>→</i><div>Recursos R</div><i>→</i><div>Decir D</div><i>→</i><div>Frontera φ</div><i>→</i><div>Intercambio X</div><i>→</i><div>Δ Hacer</div>
- </div>
-
- <h2>Reporte</h2>
- <div id="report" class="card report">Ejecute el escenario para generar un reporte.</div>
+<h2>Resultado</h2>
+<div id="status" class="card"><b>Convención</b><p>Esta rama no calcula utilidad esperada. Predice desplazamientos de H con escalas explícitas.</p></div>
+<div id="results"></div>
+<h2>Flujo causal</h2><div class="flow"><div>Ser + Estar</div><i>→</i><div>Recursos R</div><i>→</i><div>Decir D</div><i>→</i><div>Frontera φ</div><i>→</i><div>Intercambio X</div><i>→</i><div>Δ Hacer</div></div>
+<h2>Reporte</h2><div id="report" class="card report">Ejecute el escenario para generar un reporte.</div>
 </section>
 </main>
 
 <script>
 "use strict";
-
 (function(global){
- function clamp01(v){if(!Number.isFinite(v))throw new Error("Valor no numérico");return Math.max(0,Math.min(1,v));}
- function validateActor(actor){
-  if(!actor||!actor.id)throw new Error("Actor sin id");
-  for(const k of ["S","E","H"]){
-   if(!Number.isFinite(actor[k]))throw new Error(`Actor ${actor.id}: falta ${k}`);
-   if(actor[k]<0||actor[k]>1)throw new Error(`Actor ${actor.id}: ${k} fuera de [0,1]`);
-  }
-  return true;
- }
- function validateInteraction(op){
-  if(!op||!op.source||!op.target)throw new Error("Operación sin source/target");
-  for(const k of ["D","phi","G"]){
-   if(!Number.isFinite(op[k]))throw new Error(`Operación ${op.source}→${op.target}: falta ${k}`);
-   if(op[k]<0||op[k]>1)throw new Error(`Operación ${op.source}→${op.target}: ${k} fuera de [0,1]`);
-  }
-  return true;
- }
- function symbolicResources(actor){validateActor(actor);return actor.S*actor.E;}
- function effectiveExchange(source,op){validateActor(source);validateInteraction(op);return symbolicResources(source)*op.D*op.phi;}
- function predictInteraction(source,target,op){
-  validateActor(source);validateActor(target);validateInteraction(op);
-  if(source.id!==op.source||target.id!==op.target)throw new Error("Source/target no coincide con la operación");
-  const R=symbolicResources(source);
-  const X=R*op.D*op.phi;
-  const gap=op.G-target.H;
-  const deltaH=gap*X;
-  const Hafter=clamp01(target.H+deltaH);
-  return {issue:op.issue||"",source:source.id,target:target.id,type:op.type||"",evidence:op.evidence||"",S:source.S,E:source.E,R,D:op.D,phi:op.phi,X,G:op.G,Hbefore:target.H,gap,deltaH,Hafter};
- }
- function runSequence(actors,operations){
-  const state=new Map();
-  actors.forEach(a=>{validateActor(a);state.set(a.id,{...a});});
-  const history=[];
-  operations.forEach((op,index)=>{
-   validateInteraction(op);
-   const source=state.get(op.source),target=state.get(op.target);
-   if(!source||!target)throw new Error(`Operación ${index+1}: actor inexistente`);
-   const result=predictInteraction(source,target,op);
-   state.set(target.id,{...target,H:result.Hafter});
-   history.push({...result,index});
-  });
-  return {actors:[...state.values()],history};
- }
- global.LimesCore={clamp01,validateActor,validateInteraction,symbolicResources,effectiveExchange,predictInteraction,runSequence};
+function clamp01(v){if(!Number.isFinite(v))throw new Error("Valor no numérico");return Math.max(0,Math.min(1,v));}
+function validateActor(a){if(!a||!a.id)throw new Error("Actor sin id");for(const k of ["S","E","H"]){if(!Number.isFinite(a[k]))throw new Error(`Actor ${a.id}: falta ${k}`);if(a[k]<0||a[k]>1)throw new Error(`Actor ${a.id}: ${k} fuera de [0,1]`);}return true;}
+function validateInteraction(o){if(!o||!o.source||!o.target)throw new Error("Operación sin source/target");for(const k of ["D","phi","G"]){if(!Number.isFinite(o[k]))throw new Error(`Operación ${o.source}→${o.target}: falta ${k}`);if(o[k]<0||o[k]>1)throw new Error(`Operación ${o.source}→${o.target}: ${k} fuera de [0,1]`);}return true;}
+function symbolicResources(a){validateActor(a);return a.S*a.E;}
+function predictInteraction(source,target,op){validateActor(source);validateActor(target);validateInteraction(op);if(source.id!==op.source||target.id!==op.target)throw new Error("Source/target no coincide con la operación");const R=symbolicResources(source),X=R*op.D*op.phi,gap=op.G-target.H,deltaH=gap*X,Hafter=clamp01(target.H+deltaH);return{issue:op.issue||"",source:source.id,target:target.id,type:op.type||"",evidence:op.evidence||{},S:source.S,E:source.E,R,D:op.D,phi:op.phi,X,G:op.G,Hbefore:target.H,gap,deltaH,Hafter};}
+function runSequence(actors,ops){const state=new Map();actors.forEach(a=>{validateActor(a);state.set(a.id,{...a});});const history=[];ops.forEach((op,index)=>{validateInteraction(op);const source=state.get(op.source),target=state.get(op.target);if(!source||!target)throw new Error(`Operación ${index+1}: actor inexistente`);const result=predictInteraction(source,target,op);state.set(target.id,{...target,H:result.Hafter});history.push({...result,index});});return{actors:[...state.values()],history};}
+global.LimesCore={clamp01,validateActor,validateInteraction,symbolicResources,predictInteraction,runSequence};
 })(window);
 
-const $=s=>document.querySelector(s);
-const $$=s=>[...document.querySelectorAll(s)];
-const n=v=>{const x=Number(v);return Number.isFinite(x)?x:NaN;};
-let lastScenario=null;
-
-function actorRows(){return $$("#actors tbody tr");}
-function opRows(){return $$("#ops tbody tr");}
-function readActors(){
- return actorRows().map(r=>{
-  const i=r.querySelectorAll("input");
-  return {id:i[0].value.trim(),role:i[1].value.trim(),S:n(i[2].value),E:n(i[3].value),H:n(i[4].value)};
- });
-}
-function actorIds(){return readActors().filter(a=>a.id).map(a=>a.id);}
-function readOperations(){
- const issue=$("#issue").value.trim();
- return opRows().map(r=>{
-  const inputs=r.querySelectorAll("input");
-  return {
-   issue,
-   source:r.querySelector(".source").value,
-   target:r.querySelector(".target").value,
-   type:r.querySelector(".optype").value,
-   D:n(inputs[0].value),
-   phi:n(inputs[1].value),
-   G:n(inputs[2].value),
-   evidence:r.querySelector("textarea").value.trim()
-  };
- });
-}
-function syncSelects(){
- const ids=actorIds();
- opRows().forEach((r,idx)=>{
-  const source=r.querySelector(".source"),target=r.querySelector(".target");
-  const prevS=source.value||ids[0]||"",prevT=target.value||ids[1]||ids[0]||"";
-  const html=ids.map(id=>`<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`).join("");
-  source.innerHTML=html;target.innerHTML=html;
-  source.value=ids.includes(prevS)?prevS:(ids[0]||"");
-  target.value=ids.includes(prevT)?prevT:(ids[1]||ids[0]||"");
- });
-}
-function refreshDerived(){
- const A=readActors();
- actorRows().forEach((r,k)=>{
-  try{r.querySelector(".derived").textContent=LimesCore.symbolicResources(A[k]).toFixed(3);}
-  catch(e){r.querySelector(".derived").textContent="?";}
- });
- syncSelects();
-}
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],n=v=>{const x=Number(v);return Number.isFinite(x)?x:NaN;};let lastScenario=null;
 function escapeHtml(s){return String(s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch]));}
-function classifyMovement(delta){
- const a=Math.abs(delta);
- if(a<.01)return "movimiento mínimo";
- if(a<.05)return "movimiento bajo";
- if(a<.15)return "movimiento medio";
- return "movimiento alto";
-}
-function direction(delta){return delta>0?"aumenta":delta<0?"disminuye":"permanece estable";}
-function buildScenario(){
- const issue=$("#issue").value.trim();
- if(!issue)throw new Error("Debe declararse una cuestión específica.");
- const actors=readActors();
- const ops=readOperations();
- if(actors.length<2)throw new Error("Se requieren al menos dos actores.");
- if(!ops.length)throw new Error("Se requiere al menos una operación comunicativa.");
- const result=LimesCore.runSequence(actors,ops);
- return {version:"v0.41-scenario-builder",issue,note:$("#scenarioNote").value.trim(),input:{actors,operations:ops},result};
-}
-function renderScenario(s){
- lastScenario=s;
- $("#status").className="card ok";
- $("#status").innerHTML=`<b>Issue</b><p>${escapeHtml(s.issue)}</p><p class="note">${escapeHtml(s.note||"Sin descripción adicional.")}</p>`;
- $("#results").innerHTML=s.result.history.map((r,i)=>`<div class="card">
-  <b>Operación ${i+1}: ${escapeHtml(r.source)} → ${escapeHtml(r.target)}</b><span class="badge">${escapeHtml(r.type||"operación")}</span>
-  <p class="note">${escapeHtml(r.evidence||"Sin evidencia declarada.")}</p>
-  <div class="metric"><span>Recursos del emisor R=S×E</span><b>${r.R.toFixed(3)}</b></div>
-  <div class="metric"><span>Movilización D</span><b>${r.D.toFixed(3)}</b></div>
-  <div class="metric"><span>Porosidad φ</span><b>${r.phi.toFixed(3)}</b></div>
-  <div class="metric"><span>Intercambio efectivo X</span><b>${r.X.toFixed(3)}</b></div>
-  <div class="metric"><span>H receptor antes</span><b>${r.Hbefore.toFixed(3)}</b></div>
-  <div class="metric"><span>Objetivo G</span><b>${r.G.toFixed(3)}</b></div>
-  <div class="metric"><span>Brecha G−H</span><b>${r.gap>=0?"+":""}${r.gap.toFixed(3)}</b></div>
-  <div class="metric"><span>ΔH esperado</span><b>${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · ${classifyMovement(r.deltaH)}</b></div>
-  <div class="metric"><span>H receptor después</span><b>${r.Hafter.toFixed(3)}</b></div>
- </div>`).join("")+
- `<div class="card"><b>Estado final</b>${s.result.actors.map(a=>`<div class="metric"><span>${escapeHtml(a.id)}</span><b>H=${a.H.toFixed(3)}</b></div>`).join("")}</div>`;
- $("#report").textContent=buildReport(s);
-}
-function buildReport(s){
- const lines=[];
- lines.push("REPORTE DE ESCENARIO — LIMES v0.41");
- lines.push("======================================");
- lines.push("");
- lines.push("Issue: "+s.issue);
- if(s.note){lines.push("Contexto: "+s.note);}
- lines.push("");
- lines.push("1. ACTORES");
- s.input.actors.forEach(a=>{
-  lines.push(`- ${a.id}${a.role?` (${a.role})`:""} | S=${a.S.toFixed(3)} E=${a.E.toFixed(3)} H inicial=${a.H.toFixed(3)} R=${(a.S*a.E).toFixed(3)}`);
- });
- lines.push("");
- lines.push("2. OPERACIONES Y DESPLAZAMIENTOS ESPERADOS");
- s.result.history.forEach((r,i)=>{
-  lines.push(`${i+1}. ${r.source} → ${r.target} | tipo=${r.type||"operación"}`);
-  lines.push(`   R=${r.R.toFixed(3)} · D=${r.D.toFixed(3)} · φ=${r.phi.toFixed(3)} · X=${r.X.toFixed(3)}`);
-  lines.push(`   H antes=${r.Hbefore.toFixed(3)} · G=${r.G.toFixed(3)} · ΔH=${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · H después=${r.Hafter.toFixed(3)}`);
-  lines.push(`   Lectura: el Hacer de ${r.target} ${direction(r.deltaH)} hacia ${r.G.toFixed(3)} con ${classifyMovement(r.deltaH)}.`);
-  if(r.evidence)lines.push(`   Evidencia/justificación: ${r.evidence}`);
- });
- lines.push("");
- lines.push("3. ESTADO FINAL");
- s.result.actors.forEach(a=>lines.push(`- ${a.id}: H=${a.H.toFixed(3)}`));
- lines.push("");
- lines.push("Nota metodológica: este reporte no deriva de lectura automática de corpus. Las entradas fueron declaradas manualmente por el analista.");
- return lines.join("\n");
-}
-function download(name,content,type){
- const blob=new Blob([content],{type});
- const a=document.createElement("a");
- a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);
-}
-$("#actors").addEventListener("input",refreshDerived);
-$("#actors").addEventListener("click",e=>{if(e.target.classList.contains("removeActor")){e.target.closest("tr").remove();refreshDerived();}});
-$("#ops").addEventListener("click",e=>{if(e.target.classList.contains("removeOp")){e.target.closest("tr").remove();refreshDerived();}});
-$("#addActor").onclick=()=>{$("#actors tbody").insertAdjacentHTML("beforeend",`<tr>
- <td><input value="Actor ${actorRows().length+1}"></td><td><input value=""></td>
- <td><input type="number" step=".01" min="0" max="1" value=".50"></td>
- <td><input type="number" step=".01" min="0" max="1" value=".50"></td>
- <td><input type="number" step=".01" min="0" max="1" value=".50"></td>
- <td class="derived">—</td><td><button class="smallbtn danger removeActor">×</button></td>
- </tr>`);refreshDerived();};
-$("#addOp").onclick=()=>{$("#ops tbody").insertAdjacentHTML("beforeend",`<tr>
- <td><select class="source"></select></td><td><select class="target"></select></td>
- <td><select class="optype"><option>persuasión</option><option>coordinación</option><option>información redundante</option><option>seducción</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td>
- <td><input type="number" step=".01" min="0" max="1" value=".50"></td>
- <td><input type="number" step=".01" min="0" max="1" value=".50"></td>
- <td><input type="number" step=".01" min="0" max="1" value=".50"></td>
- <td><textarea></textarea></td><td><button class="smallbtn danger removeOp">×</button></td>
- </tr>`);refreshDerived();};
+function actorRows(){return $$("#actors tbody tr");}function opRows(){return $$("#ops tbody tr");}
+function hScale(){return{label:$("#hLabel").value.trim(),anchors:{"0.00":$("#h0").value.trim(),"0.25":$("#h25").value.trim(),"0.50":$("#h50").value.trim(),"0.75":$("#h75").value.trim(),"1.00":$("#h100").value.trim()}};}
+function nearestAnchor(v){const anchors=hScale().anchors,ks=Object.keys(anchors).map(Number),k=ks.reduce((b,x)=>Math.abs(x-v)<Math.abs(b-v)?x:b,ks[0]);return{value:k,label:anchors[k.toFixed(2)]||""};}
+function interpretH(v){const a=nearestAnchor(v);return `${v.toFixed(3)} · cercano a ${a.value.toFixed(2)}: ${a.label}`;}
+function readActors(){return actorRows().map(r=>{const i=r.querySelectorAll("input");return{id:i[0].value.trim(),role:i[1].value.trim(),S:n(i[2].value),E:n(i[3].value),H:n(i[4].value),evidence:{S:r.querySelector(".evS")?.value.trim()||"",E:r.querySelector(".evE")?.value.trim()||"",H:r.querySelector(".evH")?.value.trim()||""}};});}
+function actorIds(){return readActors().filter(a=>a.id).map(a=>a.id);}
+function readOperations(){const issue=$("#issue").value.trim();return opRows().map(r=>{const inputs=r.querySelectorAll("input");return{issue,source:r.querySelector(".source").value,target:r.querySelector(".target").value,type:r.querySelector(".optype").value,D:n(inputs[0].value),phi:n(inputs[1].value),G:n(inputs[2].value),evidence:{D:r.querySelector(".evD")?.value.trim()||"",phi:r.querySelector(".evPhi")?.value.trim()||"",G:r.querySelector(".evG")?.value.trim()||""}};});}
+function syncSelects(){const ids=actorIds();opRows().forEach(r=>{const s=r.querySelector(".source"),t=r.querySelector(".target"),ps=s.value||ids[0]||"",pt=t.value||ids[1]||ids[0]||"";const html=ids.map(id=>`<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`).join("");s.innerHTML=html;t.innerHTML=html;s.value=ids.includes(ps)?ps:(ids[0]||"");t.value=ids.includes(pt)?pt:(ids[1]||ids[0]||"");});}
+function refreshDerived(){const A=readActors();actorRows().forEach((r,k)=>{try{r.querySelector(".derived").textContent=LimesCore.symbolicResources(A[k]).toFixed(3);}catch(e){r.querySelector(".derived").textContent="?";}});syncSelects();}
+function classifyMovement(d){const a=Math.abs(d);if(a<.01)return"movimiento mínimo";if(a<.05)return"movimiento bajo";if(a<.15)return"movimiento medio";return"movimiento alto";}function direction(d){return d>0?"aumenta":d<0?"disminuye":"permanece estable";}
+function buildScenario(){const issue=$("#issue").value.trim(),scale=hScale();if(!issue)throw new Error("Debe declararse una cuestión específica.");if(!scale.label)throw new Error("Debe definirse qué mide H.");const actors=readActors(),operations=readOperations();if(actors.length<2)throw new Error("Se requieren al menos dos actores.");if(!operations.length)throw new Error("Se requiere al menos una operación comunicativa.");return{version:"v0.42-semantic-scales",issue,note:$("#scenarioNote").value.trim(),hScale:scale,input:{actors,operations},result:LimesCore.runSequence(actors,operations)};}
+function evidenceBlock(title,e){const pairs=Object.entries(e||{}).filter(([,v])=>v);if(!pairs.length)return"";return`<div class="card"><b>${escapeHtml(title)}</b>${pairs.map(([k,v])=>`<div class="metric"><span>${escapeHtml(k)}</span><span>${escapeHtml(v)}</span></div>`).join("")}</div>`;}
+function renderScenario(s){lastScenario=s;$("#status").className="card ok";$("#status").innerHTML=`<b>Issue</b><p>${escapeHtml(s.issue)}</p><p class="note">${escapeHtml(s.note||"Sin descripción adicional.")}</p><div class="metric"><span>H mide</span><b>${escapeHtml(s.hScale.label)}</b></div>`;$("#results").innerHTML=s.result.history.map((r,i)=>`<div class="card"><b>Operación ${i+1}: ${escapeHtml(r.source)} → ${escapeHtml(r.target)}</b><span class="badge">${escapeHtml(r.type||"operación")}</span>${evidenceBlock("Justificación declarada",r.evidence)}<div class="metric"><span>Recursos R=S×E</span><b>${r.R.toFixed(3)}</b></div><div class="metric"><span>Movilización D</span><b>${r.D.toFixed(3)}</b></div><div class="metric"><span>Porosidad φ</span><b>${r.phi.toFixed(3)}</b></div><div class="metric"><span>Intercambio efectivo X</span><b>${r.X.toFixed(3)}</b></div><div class="metric"><span>H antes</span><b>${interpretH(r.Hbefore)}</b></div><div class="metric"><span>Objetivo G</span><b>${interpretH(r.G)}</b></div><div class="metric"><span>Brecha G−H</span><b>${r.gap>=0?"+":""}${r.gap.toFixed(3)}</b></div><div class="metric"><span>ΔH esperado</span><b>${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · ${classifyMovement(r.deltaH)}</b></div><div class="metric"><span>H después</span><b>${interpretH(r.Hafter)}</b></div></div>`).join("")+`<div class="card"><b>Estado final</b>${s.result.actors.map(a=>`<div class="metric"><span>${escapeHtml(a.id)}</span><b>${interpretH(a.H)}</b></div>`).join("")}</div>`;$("#report").textContent=buildReport(s);}
+function buildReport(s){const lines=[];lines.push("REPORTE DE ESCENARIO — LIMES v0.42","======================================","","Issue: "+s.issue);if(s.note)lines.push("Contexto: "+s.note);lines.push("","Escala H: "+s.hScale.label);Object.entries(s.hScale.anchors).forEach(([k,v])=>lines.push(`- ${k}: ${v}`));lines.push("","1. ACTORES");s.input.actors.forEach(a=>{lines.push(`- ${a.id}${a.role?` (${a.role})`:""} | S=${a.S.toFixed(3)} E=${a.E.toFixed(3)} H inicial=${a.H.toFixed(3)} R=${(a.S*a.E).toFixed(3)}`);if(a.evidence.S)lines.push(`  Evidencia S: ${a.evidence.S}`);if(a.evidence.E)lines.push(`  Evidencia E: ${a.evidence.E}`);if(a.evidence.H)lines.push(`  Evidencia H: ${a.evidence.H}`);});lines.push("","2. OPERACIONES Y DESPLAZAMIENTOS ESPERADOS");s.result.history.forEach((r,i)=>{lines.push(`${i+1}. ${r.source} → ${r.target} | tipo=${r.type||"operación"}`);lines.push(`   R=${r.R.toFixed(3)} · D=${r.D.toFixed(3)} · φ=${r.phi.toFixed(3)} · X=${r.X.toFixed(3)}`);lines.push(`   H antes=${r.Hbefore.toFixed(3)} · G=${r.G.toFixed(3)} · ΔH=${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · H después=${r.Hafter.toFixed(3)}`);lines.push(`   Lectura: el Hacer de ${r.target} ${direction(r.deltaH)} hacia ${r.G.toFixed(3)} con ${classifyMovement(r.deltaH)}.`);if(r.evidence.D)lines.push(`   Evidencia D: ${r.evidence.D}`);if(r.evidence.phi)lines.push(`   Evidencia φ: ${r.evidence.phi}`);if(r.evidence.G)lines.push(`   Evidencia G: ${r.evidence.G}`);});lines.push("","3. ESTADO FINAL");s.result.actors.forEach(a=>lines.push(`- ${a.id}: ${interpretH(a.H)}`));lines.push("","Nota metodológica: este reporte no deriva de lectura automática de corpus. Las entradas fueron declaradas manualmente por el analista.");return lines.join("\n");}
+function download(name,content,type){const blob=new Blob([content],{type}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+$("#actors").addEventListener("input",refreshDerived);$("#actors").addEventListener("click",e=>{if(e.target.classList.contains("removeActor")){e.target.closest("tr").remove();refreshDerived();}});$("#ops").addEventListener("click",e=>{if(e.target.classList.contains("removeOp")){e.target.closest("tr").remove();refreshDerived();}});
+$("#addActor").onclick=()=>{$("#actors tbody").insertAdjacentHTML("beforeend",`<tr><td><input value="Actor ${actorRows().length+1}"></td><td><input value=""></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td class="derived">—</td><td class="actor-evidence"><textarea class="evS"></textarea><textarea class="evE"></textarea><textarea class="evH"></textarea></td><td><button class="smallbtn danger removeActor">×</button></td></tr>`);refreshDerived();};
+$("#addOp").onclick=()=>{$("#ops tbody").insertAdjacentHTML("beforeend",`<tr><td><select class="source"></select></td><td><select class="target"></select></td><td><select class="optype"><option>persuasión</option><option>coordinación</option><option>información redundante</option><option>seducción</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><textarea class="evD"></textarea><textarea class="evPhi"></textarea><textarea class="evG"></textarea></td><td><button class="smallbtn danger removeOp">×</button></td></tr>`);refreshDerived();};
 $("#run").onclick=()=>{try{renderScenario(buildScenario());}catch(e){$("#status").className="card warn";$("#status").innerHTML=`<b>No ejecutado</b><p>${escapeHtml(e.message)}</p>`;}};
-$("#exportTxt").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v041_reporte.txt",buildReport(lastScenario),"text/plain;charset=utf-8");};
-$("#exportJson").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v041_escenario.json",JSON.stringify(lastScenario,null,2),"application/json;charset=utf-8");};
-refreshDerived();
-const jscheck=$("#jscheck");if(jscheck){jscheck.className="card ok";jscheck.innerHTML="<b>JS activo</b><p>Interfaz y motor cargados correctamente.</p>";}
+$("#exportTxt").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v042_reporte.txt",buildReport(lastScenario),"text/plain;charset=utf-8");};
+$("#exportJson").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v042_escenario.json",JSON.stringify(lastScenario,null,2),"application/json;charset=utf-8");};
+refreshDerived();const jscheck=$("#jscheck");if(jscheck){jscheck.className="card ok";jscheck.innerHTML="<b>JS activo</b><p>Interfaz y motor cargados correctamente.</p>";}
 </script>
 </body>
 </html>
