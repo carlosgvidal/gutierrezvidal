@@ -28,11 +28,11 @@ button.primary{background:var(--ink);color:var(--paper)}button.danger{border-col
 </style>
 </head>
 <body>
-<header><div><b>Limes</b><span>v0.50 · semiotic-strategic-analysis</span></div><small>Concordancia · semiótica · juegos · escenarios · Limes Core</small></header>
+<header><div><b>Limes</b><span>v0.51 · semantic-interpretation-engine</span></div><small>Motor semántico · concordancia · semiótica · subjuegos · escenarios · Limes Core</small></header>
 <main>
 <section>
 <h2>Texto fuente</h2>
-<p class="note">El análisis se ejecuta por capas: concordancia contextual → relaciones lingüísticas → estructura semiótica → estructura estratégica → escenarios → tracks. El núcleo matemático se ejecuta sólo después.</p>
+<p class="note">El análisis se ejecuta por capas: interpretación semántica → concordancia → proposiciones → coreferencia de eventos → semiótica → juegos/subjuegos → escenarios → tracks. G_e permanece local al evento; Gτ describe el estado terminal del escenario.</p>
 <label>Corpus / información de entrada</label>
 <textarea id="corpus">La marca presenta una nueva colección de joyería de autor. La campaña enfatiza rareza, diseño y materiales preciosos para atraer a compradores que buscan distinción. El público meta muestra curiosidad estética, pero mantiene dudas por precio y acceso. La narrativa de autor busca transformar esa curiosidad en intención probable de compra.</textarea>
 <button id="analyzeText">Analizar texto</button>
@@ -81,6 +81,7 @@ button.primary{background:var(--ink);color:var(--paper)}button.danger{border-col
 </section>
 </main>
 
+<script src="semantic-engine.js"></script>
 <script>
 "use strict";
 (function(global){
@@ -88,7 +89,7 @@ function clamp01(v){if(!Number.isFinite(v))throw new Error("Valor no numérico")
 function validateActor(a){if(!a||!a.id)throw new Error("Actor sin id");for(const k of ["S","E","H"]){if(!Number.isFinite(a[k]))throw new Error(`Actor ${a.id}: falta ${k}`);if(a[k]<0||a[k]>1)throw new Error(`Actor ${a.id}: ${k} fuera de [0,1]`);}return true;}
 function validateInteraction(o){if(!o||!o.source||!o.target)throw new Error("Operación sin source/target");for(const k of ["D","phi","G"]){if(!Number.isFinite(o[k]))throw new Error(`Operación ${o.source}→${o.target}: falta ${k}`);if(o[k]<0||o[k]>1)throw new Error(`Operación ${o.source}→${o.target}: ${k} fuera de [0,1]`);}return true;}
 function symbolicResources(a){validateActor(a);return a.S*a.E;}
-function predictInteraction(source,target,op){validateActor(source);validateActor(target);validateInteraction(op);if(source.id!==op.source||target.id!==op.target)throw new Error("Source/target no coincide con la operación");const R=symbolicResources(source),X=R*op.D*op.phi,gap=op.G-target.H,deltaH=gap*X,Hafter=clamp01(target.H+deltaH);return{issue:op.issue||"",source:source.id,target:target.id,type:op.type||"",evidence:op.evidence||{},S:source.S,E:source.E,R,D:op.D,phi:op.phi,X,G:op.G,Hbefore:target.H,gap,deltaH,Hafter};}
+function predictInteraction(source,target,op){validateActor(source);validateActor(target);validateInteraction(op);if(source.id!==op.source||target.id!==op.target)throw new Error("Source/target no coincide con la operación");const R=symbolicResources(source),X=R*op.D*op.phi,gap=op.G-target.H,deltaH=gap*X,Hafter=clamp01(target.H+deltaH);return{issue:op.issue||"",source:source.id,target:target.id,stateTarget:op.stateTarget||target.id,actionTarget:op.actionTarget||target.id,type:op.type||"",semanticEventId:op.semanticEventId||"",confidence:op.confidence||"",terminalG:Number.isFinite(op.terminalG)?op.terminalG:null,evidence:op.evidence||{},S:source.S,E:source.E,R,D:op.D,phi:op.phi,X,G:op.G,Ge:op.G,Hbefore:target.H,gap,deltaH,Hafter};}
 function runSequence(actors,ops){const state=new Map();actors.forEach(a=>{validateActor(a);state.set(a.id,{...a});});const history=[];ops.forEach((op,index)=>{validateInteraction(op);const source=state.get(op.source),target=state.get(op.target);if(!source||!target)throw new Error(`Operación ${index+1}: actor inexistente`);const result=predictInteraction(source,target,op);state.set(target.id,{...target,H:result.Hafter});history.push({...result,index});});return{actors:[...state.values()],history};}
 global.LimesCore={clamp01,validateActor,validateInteraction,symbolicResources,predictInteraction,runSequence};
 })(window);
@@ -207,7 +208,7 @@ function renderTextAnalysis(a){
  ${observationSummaryHtml(a.observation)}
  <h3>5. Objeto de observación / tracks</h3>
  <h3>Escenario sugerido</h3><div class="candidate"><b>${escapeHtml(a.scenario.issue)}</b><span class="badge">${escapeHtml(a.scenario.kind)}</span><div class="snippet">${escapeHtml(a.scenario.note)}</div><div class="snippet">Fuente principal: ${escapeHtml(a.scenario.source)} → ${escapeHtml(a.scenario.target)} · operaciones sugeridas: ${a.events.length}</div></div>
- <h3>Eventos candidatos</h3>${a.events.map(ev=>`<div class="candidate"><b>${escapeHtml(ev.source)} → ${escapeHtml(ev.target)}</b><span class="badge">${escapeHtml(ev.type)}</span><span class="badge">${ev.polarity}</span><span class="badge">${escapeHtml(ev.phase||"fase")}</span><div class="snippet">${escapeHtml(ev.sentence)}</div></div>`).join("")||"<div class='snippet'>Sin eventos suficientes; se usará una operación genérica editable.</div>"}
+ <h3>Eventos candidatos</h3>${a.events.map(ev=>`<div class="candidate"><b>${escapeHtml(ev.source)} → ${escapeHtml(ev.actionTarget||ev.target)}</b><span class="badge">${escapeHtml(ev.type)}</span><span class="badge">${ev.polarity}</span><span class="badge">${escapeHtml(ev.phase||"fase")}</span><div class="snippet">H afectado: ${escapeHtml(ev.stateTarget||ev.target)} · evento semántico: ${escapeHtml(ev.semanticEventId||"—")} · evidencia=${ev.evidenceCount||1}</div><div class="snippet">${escapeHtml(ev.sentence)}</div></div>`).join("")||"<div class='snippet'>Sin eventos suficientes; se usará una operación genérica editable.</div>"}
  <h3>Candidatos</h3>${a.actors.map(x=>`<div class="candidate"><b>${escapeHtml(x.name)}</b><span class="badge">${escapeHtml(x.kind)}</span><span class="badge">${x.count}</span>${x.contexts.map(c=>`<div class="snippet">${escapeHtml(c)}</div>`).join("")}</div>`).join("")||"—"}
  <h3>Evidencia por función</h3>${["S","E","D","H","phi","G"].map(k=>`<div class="candidate"><b>${k}</b>${a.evidence[k].map(c=>`<div class="snippet">${escapeHtml(c)}</div>`).join("")||"<div class='snippet'>Sin evidencia léxica directa.</div>"}</div>`).join("")}`;
 }
@@ -324,7 +325,8 @@ function phaseLabel(profile,index,total,sent,op){
   if(op?.type==="orientación fallida")return "Fase 3 · retorno fallido / desorientación";
   if(op?.type==="captura / amenaza")return "Fase 4 · amenaza máxima / captura";
   if(op?.type==="contraacción / escape")return "Fase 5 · contraacción / escape";
-  if(op?.type==="retorno / agencia restaurada")return "Fase 6 · retorno / agencia restaurada";
+  if(op?.type==="adquisición de recursos")return "Fase 6a · inversión de carencia / adquisición de recursos";
+  if(op?.type==="retorno / agencia restaurada")return "Fase 6b · retorno / agencia restaurada";
  }
  return `Fase ${index+1}`;
 }
@@ -443,6 +445,8 @@ function selectEventCoverage(profile,events,raw){
  return events.slice(0,10);
 }
 function extractEvents(a,scenario){
+ const semanticEvents=semanticEventsFromGraph(a,scenario);
+ if(semanticEvents&&semanticEvents.length)return semanticEvents;
  const profile=a.profile, names=a.actors.map(x=>x.name), sents=splitSentences(a.raw), events=[];
  const defaultSource=scenario.source, defaultTarget=scenario.target;
  function addEvent(sent,idx,type,polarity,mode,source,target,overrides={}){
@@ -527,11 +531,116 @@ function initialHFromEvents(profile,a,events,mode){
  if(neg&&events.indexOf(neg)===0)return Math.max(.10,Math.min(.40,suggestedValue("H",a)));
  return suggestedValue("H",a);
 }
+
+function semanticEntitiesFor(profile,actors){
+ const out=[];
+ function add(name,aliases=[]){if(!out.some(x=>x.name===name))out.push({name,aliases});}
+ if(profile.id==="regulacion"){
+  add("Comunidad de Pequeños Anfitriones",["comunidad","anfitriones","anfitrion","pequeños anfitriones","pequenos anfitriones","sector productivo"]);
+  add("gobierno / autoridades",["gobierno","autoridades","autoridades capitalinas","gobierno de la ciudad de mexico","gobierno de la ciudad de méxico","congreso"]);
+ }else if(profile.id==="narrativa"){
+  add("Hänsel y Gretel",["niños","ninos","hijos","hermanitos","los dos hermanitos"]);
+  add("Hänsel",["hänsel","hansel","niño"]);
+  add("Gretel",["gretel","niña"]);
+  add("madrastra / mujer del padre",["madrastra","mujer del padre"]);
+  add("padre",["padre","leñador","lenador"]);
+  add("bruja",["bruja","vieja"]);
+ }else{
+  (actors||[]).forEach(a=>add(a.name,[]));
+ }
+ return out;
+}
+function semanticRelationsFromGraph(a){
+ const sem=a.semantic;if(!sem)return [];
+ return sem.propositions.map(p=>{
+  let source=p.subject||"",actionTarget=p.target||"",stateTarget=actionTarget;
+  const n=strip(p.text.toLowerCase());
+  if(a.profile.id==="regulacion"){
+   if(/comunidad|anfitrion/.test(n)&&/(rechaz|pid|exhort|impugn|ampar|argument|gener|impuesto sobre)/.test(n)){
+    source="Comunidad de Pequeños Anfitriones";
+    actionTarget=/gobierno|autoridad|congreso/.test(n)?"gobierno / autoridades":actionTarget;
+    stateTarget="Comunidad de Pequeños Anfitriones";
+   }else if(/autoridad|gobierno|reform|estableci|tope/.test(n)&&/(restric|limite|tope|regul|ley)/.test(n)){
+    source="gobierno / autoridades";actionTarget="Comunidad de Pequeños Anfitriones";stateTarget="Comunidad de Pequeños Anfitriones";
+   }
+  }
+  if(a.profile.id==="narrativa"){
+   stateTarget="Hänsel y Gretel";
+   if(p.family==="abandonment"){
+    if(/madrastra|mujer/.test(n))source="madrastra / mujer del padre";
+    else if(/padre|lenador|leñador/.test(n))source="padre";
+    actionTarget="Hänsel y Gretel";
+   }
+   if(p.family==="capture"){source="bruja";actionTarget="Hänsel y Gretel";}
+   if(p.family==="counteraction"){source="Gretel";actionTarget="bruja";}
+   if(/orientation/.test(p.family)){source=source||"Hänsel";actionTarget="Hänsel y Gretel";}
+   if(p.family==="return"||p.family==="restoration"||p.family==="resource_acquisition"){source="Hänsel y Gretel";actionTarget=source;}
+  }
+  return {index:p.sentenceIndex,sentence:p.text,source,target:actionTarget,actionTarget,stateTarget,verb:p.verb,mentioned:p.mentions,speechActor:"",negated:p.negated,modalities:p.modalities,temporal:p.temporal,actuality:p.actuality,family:p.family,confidence:p.operational?"media":"baja"};
+ });
+}
+function semanticEventsFromGraph(a,scenario){
+ const sem=a.semantic,profile=a.profile;
+ if(!sem||!["regulacion","narrativa"].includes(profile.id))return null;
+ const events=[];
+ function add(cluster,type,polarity,mode,source,actionTarget,stateTarget,vals={}){
+  const evidence=cluster.evidence.join(" / ");
+  let D=Math.max(.25,Math.min(.90,.34+Math.min(.24,cluster.evidenceCount*.07)+score(lex.operation,evidence)*.035+score(lex.decir,evidence)*.02));
+  let phi=Math.max(.12,Math.min(.90,.62-score(lex.barrier,evidence)*.06+score(lex.positive,evidence)*.025));
+  let G=polarity==="negativa"?profile.lowG:profile.highG;
+  if(profile.id==="regulacion"){
+   if(type==="regulación coercitiva"){G=.15;}
+   if(type==="impugnación / demanda"){G=.80;}
+   if(type==="argumentación económica / legitimación"){G=.72;}
+  }
+  if(profile.id==="narrativa"){
+   if(type==="abandono / coerción"){G=.05;}
+   if(type==="orientación / resistencia"){G=.90;phi=Math.max(phi,.62);}
+   if(type==="orientación fallida"){G=.35;phi=.12;}
+   if(type==="captura / amenaza"){G=.05;D=Math.max(D,.55);}
+   if(type==="contraacción / escape"){G=.95;D=Math.max(D,.80);phi=Math.max(phi,.75);}
+   if(type==="adquisición de recursos"){G=.85;D=Math.max(D,.65);phi=Math.max(phi,.75);}
+   if(type==="retorno / agencia restaurada"){G=1.00;D=Math.max(D,.90);phi=Math.max(phi,.90);}
+  }
+  D=vals.D??D;phi=vals.phi??phi;G=vals.G??G;
+  const phase=phaseLabel(profile,cluster.firstSentence,sem.concordance.sentenceCount,evidence,{type,polarity});
+  events.push({
+   source,actionTarget,target:stateTarget,stateTarget,type,polarity,mode,phase,index:cluster.firstSentence,
+   D,phi,G,Ge:G,gStatus:"local/mode-derived",sentence:limitEvidenceText(evidence,520),
+   semanticEventId:cluster.id,semanticFamily:cluster.family,evidenceCount:cluster.evidenceCount,confidence:cluster.confidence,
+   evidence:{phase,D:limitEvidenceText(evidence,420),phi:limitEvidenceText(evidence,420),G:`G_e=${G.toFixed(2)} local al evento (${type}). Evidencia: ${limitEvidenceText(evidence,300)}`}
+  });
+ }
+ sem.eventClusters.forEach(c=>{
+  if(profile.id==="regulacion"){
+   if(c.family==="regulatory_restriction")add(c,"regulación coercitiva","negativa","impacto_regulatorio","gobierno / autoridades","Comunidad de Pequeños Anfitriones","Comunidad de Pequeños Anfitriones");
+   else if(c.family==="regulatory_challenge")add(c,"impugnación / demanda","positiva","impugnacion","Comunidad de Pequeños Anfitriones","gobierno / autoridades","Comunidad de Pequeños Anfitriones");
+   else if(c.family==="economic_argument")add(c,"argumentación económica / legitimación","positiva","impugnacion","Comunidad de Pequeños Anfitriones","gobierno / autoridades","Comunidad de Pequeños Anfitriones");
+  }else if(profile.id==="narrativa"){
+   const evtext=strip(c.evidence.join(" ").toLowerCase());
+   if(c.family==="abandonment"){
+    const source=/madrastra|mujer/.test(evtext)?"madrastra / mujer del padre":(/padre|lenador|leñador/.test(evtext)?"padre":"madrastra / mujer del padre");
+    add(c,"abandono / coerción","negativa","amenaza",source,"Hänsel y Gretel","Hänsel y Gretel");
+   }else if(c.family==="orientation_success")add(c,"orientación / resistencia","positiva","resistencia","Hänsel","Hänsel y Gretel","Hänsel y Gretel");
+   else if(c.family==="orientation_failure")add(c,"orientación fallida","negativa","resistencia_fallida","Hänsel","Hänsel y Gretel","Hänsel y Gretel");
+   else if(c.family==="orientation_attempt")add(c,"orientación / intento","positiva","resistencia","Hänsel","Hänsel y Gretel","Hänsel y Gretel",{G:.65,phi:.30});
+   else if(c.family==="capture")add(c,"captura / amenaza","negativa","amenaza","bruja","Hänsel y Gretel","Hänsel y Gretel");
+   else if(c.family==="counteraction")add(c,"contraacción / escape","positiva","resolucion","Gretel","bruja","Hänsel y Gretel");
+   else if(c.family==="resource_acquisition")add(c,"adquisición de recursos","positiva","restauracion","Hänsel y Gretel","recursos / entorno","Hänsel y Gretel");
+   else if(c.family==="return"||c.family==="restoration")add(c,"retorno / agencia restaurada","positiva","resolucion","Hänsel y Gretel","hogar / estado restaurado","Hänsel y Gretel");
+  }
+ });
+ return events.sort((x,y)=>x.index-y.index);
+}
+
 function inferScenario(a){
  const selected=selectProfile(a.raw);
  a.profile=selected.profile;
  a.profileScore=selected.score;
  const profile=selected.profile;
+ if(globalThis.LimesSemantic){
+  a.semantic=LimesSemantic.analyze(a.raw,{profile:profile.id,entities:semanticEntitiesFor(profile,a.actors)});
+ }
  const names=a.actors.map(x=>x.name);
  const top=a.concepts[0]?.[0]||"conducta objetivo";
  const source=actorByPattern(names,profile.source)||names[0]||"Emisor";
@@ -693,7 +802,7 @@ function semioticStructure(a,relations){
  else oppositions=[["estado actual","estado objetivo"]];
  const programs=[];
  (a.events||[]).forEach((e,i)=>{
-  programs.push({id:`P${i+1}`,source:e.source,target:e.target,operation:e.type,objective:e.G,polarity:e.polarity,phase:e.phase,evidence:limitEvidenceText(e.sentence,220)});
+  programs.push({id:`P${i+1}`,source:e.source,actionTarget:e.actionTarget||e.target,stateTarget:e.stateTarget||e.target,operation:e.type,Ge:e.G,polarity:e.polarity,phase:e.phase,semanticEventId:e.semanticEventId||"",evidenceCount:e.evidenceCount||1,evidence:limitEvidenceText(e.sentence,220)});
  });
  const modalityMap={};
  relations.forEach(r=>{
@@ -736,11 +845,31 @@ function classifyGame(a,semiotic,relations){
  const confidence=score>=.8?"alta":score>=.6?"media":"baja";
  return {family,label:GAME_FAMILIES[family].label,confidence,score:Number(score.toFixed(2)),criteria:GAME_FAMILIES[family].criteria,evidence};
 }
+
+function deriveSubgames(a,relations){
+ const ev=a.events||[],out=[];
+ if(a.profile.id==="regulacion"){
+  const reg=ev.filter(e=>e.mode==="impacto_regulatorio");
+  const challenge=ev.filter(e=>e.mode==="impugnacion");
+  if(reg.length)out.push({id:"SG1",label:"imposición / implementación regulatoria",players:["gobierno / autoridades","Comunidad de Pequeños Anfitriones"],sequence:reg.map(e=>e.type),status:"observado"});
+  if(challenge.length)out.push({id:"SG2",label:"impugnación / respuesta institucional",players:["Comunidad de Pequeños Anfitriones","gobierno / autoridades"],sequence:challenge.map(e=>e.type),status:"respuesta observada; reacción de autoridad no establecida"});
+ }else if(a.profile.id==="narrativa"){
+  const abandon=ev.filter(e=>/abandono|orientación/.test(e.type));
+  const witch=ev.filter(e=>/captura|contraacción/.test(e.type));
+  const restore=ev.filter(e=>/adquisición|retorno/.test(e.type));
+  if(abandon.length)out.push({id:"SG1",label:"abandono ↔ orientación/retorno",players:["madrastra/padre","Hänsel y Gretel"],sequence:abandon.map(e=>e.type),status:"observado"});
+  if(witch.length)out.push({id:"SG2",label:"captura ↔ contraacción",players:["bruja","Hänsel y Gretel"],sequence:witch.map(e=>e.type),status:"observado"});
+  if(restore.length)out.push({id:"SG3",label:"restauración posterior a la amenaza",players:["Hänsel y Gretel","entorno/hogar"],sequence:restore.map(e=>e.type),status:"transformación; no necesariamente juego estratégico"});
+ }
+ return out;
+}
 function strategicStructure(a,semiotic,relations){
  const game=classifyGame(a,semiotic,relations),players=[];
  if(a.profile.id==="regulacion"){
-  players.push({id:"gobierno / autoridades",actions:["mantener","negociar/modificar","retirar"],preferences:explicitPreferenceEvidence(a.raw,"authority"),preferenceStatus:explicitPreferenceEvidence(a.raw,"authority").length?"parcialmente explícita":"indeterminada"});
-  players.push({id:"Comunidad de Pequeños Anfitriones",actions:["aceptar","negociar","impugnar/litigar","presionar públicamente","salir de la actividad"],preferences:explicitPreferenceEvidence(a.raw,"regulated"),preferenceStatus:"parcialmente explícita"});
+  const govPrefs=explicitPreferenceEvidence(a.raw,"authority"),regSeen=(a.events||[]).some(e=>e.mode==="impacto_regulatorio");
+  const comPrefs=explicitPreferenceEvidence(a.raw,"regulated"),impSeen=(a.events||[]).some(e=>e.mode==="impugnacion");
+  players.push({id:"gobierno / autoridades",actions:["mantener","negociar/modificar","retirar"],observedStrategy:regSeen?"establecer/aplicar restricción":"no establecida",revealedPreference:regSeen?"posible preferencia revelada por mantener/aplicar; no equivale a orden completo":"no establecida",preferences:govPrefs,preferenceStatus:govPrefs.length?"parcialmente explícita":"no explicitada"});
+  players.push({id:"Comunidad de Pequeños Anfitriones",actions:["aceptar","negociar","impugnar/litigar","presionar públicamente","salir de la actividad"],observedStrategy:impSeen?"impugnar/presionar":"no establecida",revealedPreference:impSeen?"preferencia revelada contra la restricción":"no establecida",preferences:comPrefs,preferenceStatus:comPrefs.length?"parcialmente explícita":"indeterminada"});
  }else if(a.profile.id==="narrativa"){
   players.push({id:"amenaza/oponente",actions:["abandonar","capturar","bloquear retorno"],preferences:["impedir retorno/agencia"],preferenceStatus:"inferida por programa"});
   players.push({id:"Hänsel y Gretel",actions:["orientarse","resistir","contraactuar","escapar","retornar"],preferences:["sobrevivir","escapar","retornar/restaurar agencia"],preferenceStatus:"apoyada por arco"});
@@ -748,29 +877,37 @@ function strategicStructure(a,semiotic,relations){
   const ids=[...new Set((a.events||[]).flatMap(e=>[e.source,e.target]).filter(Boolean))].slice(0,4);
   ids.forEach(id=>players.push({id,actions:[...new Set((a.events||[]).filter(e=>e.source===id).map(e=>e.type))],preferences:[],preferenceStatus:"indeterminada"}));
  }
- return {players,sequence:relations.filter(r=>r.source).slice(0,12).map(r=>({index:r.index,source:r.source,target:r.target,action:r.verb})),game,information:{asymmetry:/no se nos ha presentado|no hay diagnostico|no hay diagnóstico|desconoc|secreto|ocult/.test(strip(a.raw.toLowerCase()))?"presente/posible":"no establecida",repetition:"texto único; repetición estratégica no inferida"},confidence:game.confidence};
+ const subgames=deriveSubgames(a,relations);
+ const infoText=strip(a.raw.toLowerCase());
+ const information={
+  gap:/no se nos ha presentado|no hay diagnostico|no hay diagnóstico|no han obtenido respuesta|desconoc/.test(infoText)?"presente":"no establecida",
+  privateInformation:/secreto|ocult|informacion privada|información privada|tipo privado/.test(infoText)?"posible/presente":"no establecida",
+  asymmetry:/secreto|ocult|informacion privada|información privada/.test(infoText)?"posible":"no demostrada",
+  repetition:"texto único; repetición estratégica no inferida"
+ };
+ return {players,sequence:relations.filter(r=>r.source).slice(0,16).map(r=>({index:r.index,source:r.source,actionTarget:r.actionTarget||r.target,stateTarget:r.stateTarget||r.target,action:r.verb,actuality:r.actuality||"afirmado"})),subgames,game,information,confidence:game.confidence};
 }
 function strategicScenarios(a,strategic){
  const p=a.profile.id,out=[];
  if(p==="regulacion"){
-  out.push({id:"REG-MANTENER",label:"Mantener restricción",description:"La autoridad mantiene la restricción; el actor regulado continúa bajo capacidad operativa reducida.",actions:["autoridad: mantener","actor regulado: aceptar/impugnar"],derived:{impacto_regulatorio:{G:.20},impugnacion:{G:.78}},confidence:"estructural"});
-  out.push({id:"REG-NEGOCIAR",label:"Negociar / modificar",description:"Se abre una vía de negociación o revisión institucional y la restricción se modifica parcialmente.",actions:["autoridad: negociar/modificar","actor regulado: negociar/impugnar"],derived:{impacto_regulatorio:{G:.58},impugnacion:{G:.62}},confidence:"hipotético plausible"});
-  out.push({id:"REG-RETIRAR",label:"Retirar / eliminar restricción",description:"La restricción es retirada o sustancialmente eliminada.",actions:["autoridad: retirar","actor regulado: logra modificación"],derived:{impacto_regulatorio:{G:.88},impugnacion:{G:.90}},confidence:"hipotético plausible"});
+  out.push({id:"REG-MANTENER",label:"Mantener restricción",description:"La autoridad mantiene la restricción; el actor regulado continúa bajo capacidad operativa reducida.",actions:["autoridad: mantener","actor regulado: aceptar/impugnar"],derived:{impacto_regulatorio:{terminalG:.20},impugnacion:{terminalG:.78}},confidence:"estructural"});
+  out.push({id:"REG-NEGOCIAR",label:"Negociar / modificar",description:"Se abre una vía de negociación o revisión institucional y la restricción se modifica parcialmente.",actions:["autoridad: negociar/modificar","actor regulado: negociar/impugnar"],derived:{impacto_regulatorio:{terminalG:.58},impugnacion:{terminalG:.62}},confidence:"hipotético plausible"});
+  out.push({id:"REG-RETIRAR",label:"Retirar / eliminar restricción",description:"La restricción es retirada o sustancialmente eliminada.",actions:["autoridad: retirar","actor regulado: logra modificación"],derived:{impacto_regulatorio:{terminalG:.88},impugnacion:{terminalG:.90}},confidence:"hipotético plausible"});
  }else if(p==="narrativa"){
   const hasResolution=(a.events||[]).some(e=>e.type==="retorno / agencia restaurada");
-  out.push({id:"NAR-OBS",label:"Arco observado",description:"Secuencia de amenaza, respuesta y transformación reconstruida desde el texto.",actions:(a.events||[]).map(e=>`${e.source}: ${e.type}`).slice(0,8),derived:{supervivencia:{G:hasResolution?1.0:.75}},confidence:hasResolution?"apoyado por texto":"parcial"});
+  out.push({id:"NAR-OBS",label:"Arco observado",description:"Secuencia de amenaza, respuesta y transformación reconstruida desde el texto.",actions:(a.events||[]).map(e=>`${e.source}: ${e.type}`).slice(0,8),derived:{supervivencia:{terminalG:hasResolution?1.0:.75}},confidence:hasResolution?"apoyado por texto":"parcial"});
  }else{
-  out.push({id:"GEN-OBS",label:"Escenario observado",description:"Escenario derivado de operaciones detectadas; requiere validación analítica.",actions:(a.events||[]).map(e=>`${e.source}: ${e.type}`).slice(0,6),derived:{[a.scenario.issueMode||"adopcion"]:{G:a.scenario.G}},confidence:"parcial"});
+  out.push({id:"GEN-OBS",label:"Escenario observado",description:"Escenario derivado de operaciones detectadas; requiere validación analítica.",actions:(a.events||[]).map(e=>`${e.source}: ${e.type}`).slice(0,6),derived:{[a.scenario.issueMode||"adopcion"]:{terminalG:a.scenario.G}},confidence:"parcial"});
  }
  return out;
 }
 function buildSemioticStrategicAnalysis(a){
- const concordance=contextualConcordance(a.raw,a.actors);
- const relations=linguisticRelations(a.raw,a.actors,a.profile);
+ const concordance=a.semantic?.concordance||contextualConcordance(a.raw,a.actors);
+ const relations=a.semantic?semanticRelationsFromGraph(a):linguisticRelations(a.raw,a.actors,a.profile);
  const semiotic=semioticStructure(a,relations);
  const strategic=strategicStructure(a,semiotic,relations);
  const scenarios=strategicScenarios(a,strategic);
- return {version:"semiotic-strategic-v0.50",concordance,relations,semiotic,strategic,scenarios};
+ return {version:"semiotic-strategic-v0.51",semantic:a.semantic||null,concordance,relations,semiotic,strategic,scenarios};
 }
 function scenarioSelectPopulate(a){
  const sel=$("#strategicScenario"); if(!sel)return;
@@ -786,24 +923,27 @@ function chosenStrategicScenario(a){
 function applyStrategicScenarioToEvents(events,track,scenario){
  if(!scenario||!track)return events;
  const d=scenario.derived?.[track.id];
- if(!d||!Number.isFinite(d.G))return events;
- return events.map(e=>({...e,G:d.G,evidence:{...(e.evidence||{}),G:`G=${d.G.toFixed(2)} derivado del escenario estratégico "${scenario.label}". Evidencia textual base: ${limitEvidenceText(e.evidence?.G||e.sentence||"",260)}`},strategicScenario:scenario.id}));
+ if(!d||!Number.isFinite(d.terminalG))return events;
+ return events.map(e=>({...e,Ge:Number.isFinite(e.Ge)?e.Ge:e.G,terminalG:d.terminalG,evidence:{...(e.evidence||{}),G:`G_e=${Number(e.G).toFixed(2)} permanece local al evento. Gτ=${d.terminalG.toFixed(2)} corresponde al estado terminal del escenario "${scenario.label}" y no sustituye G_e.`},strategicScenario:scenario.id}));
 }
 function analysisLayerHtml(a){
  const x=a.analysis;if(!x)return "";
- const top=x.concordance.terms.slice(0,8);
- return `<h3>1. Concordancia contextual</h3>
- <div class="candidate"><b>${x.concordance.sentenceCount} oraciones · ${x.concordance.tokenCount} tokens</b>${top.map(t=>`<div class="snippet">${escapeHtml(t.term)}: f=${t.count} · rel=${t.relevance.toFixed(3)} · actores=${escapeHtml(t.actors.join(", ")||"—")} · verbos=${escapeHtml(t.verbs.join(", ")||"—")}</div>`).join("")}</div>
+ const sem=x.semantic,top=x.concordance.terms.slice(0,8);
+ const semBlock=sem?`<h3>0. Motor de interpretación semántica</h3>
+ <div class="candidate"><b>${sem.diagnostics.operationalPropositions} proposiciones operativas · ${sem.diagnostics.nonOperationalReferences} referencias no operativas · ${sem.diagnostics.clusteredEvents} eventos semánticos</b>
+ ${sem.eventClusters.slice(0,8).map(e=>`<div class="snippet">${escapeHtml(e.id)} · ${escapeHtml(e.family)} · evidencias=${e.evidenceCount} · confianza=${escapeHtml(e.confidence)}</div>`).join("")}</div>`:"";
+ return `${semBlock}<h3>1. Concordancia semántica</h3>
+ <div class="candidate"><b>${x.concordance.sentenceCount} oraciones · ${x.concordance.tokenCount} tokens</b>${top.map(t=>`<div class="snippet">${escapeHtml(t.term||t.lemma)}: f=${t.count} · rel=${t.relevance.toFixed(3)} · actores=${escapeHtml((t.actors||[]).join(", ")||"—")} · verbos=${escapeHtml((t.verbs||[]).join(", ")||"—")}</div>`).join("")}</div>
  <h3>2. Estructura semiótica</h3>
  <div class="candidate"><b>Objetos de valor</b>${x.semiotic.valueObjects.map(o=>`<div class="snippet">${escapeHtml(o.actor)} → ${escapeHtml(o.object)} [${escapeHtml(o.status)}]</div>`).join("")}
  <div class="snippet">Oposiciones: ${x.semiotic.oppositions.map(o=>escapeHtml(o.join(" ↔ "))).join(" · ")}</div>
  <div class="snippet">Programas: ${x.semiotic.programs.length}</div></div>
  <h3>3. Estructura estratégica</h3>
  <div class="candidate"><b>${escapeHtml(x.strategic.game.label)}</b><span class="badge">confianza ${escapeHtml(x.strategic.game.confidence)}</span><div class="snippet">Evidencia: ${escapeHtml(x.strategic.game.evidence.join(" · ")||"—")}</div>
- ${x.strategic.players.map(p=>`<div class="snippet">${escapeHtml(p.id)} | acciones: ${escapeHtml(p.actions.join(", ")||"—")} | preferencias: ${escapeHtml(p.preferences.join(" > ")||"indeterminadas")} [${escapeHtml(p.preferenceStatus)}]</div>`).join("")}</div>
- <h3>4. Escenarios estratégicos</h3>${x.scenarios.map(s=>`<div class="candidate"><b>${escapeHtml(s.label)}</b><span class="badge">${escapeHtml(s.confidence)}</span><div class="snippet">${escapeHtml(s.description)}</div></div>`).join("")}`;
+ ${x.strategic.players.map(p=>`<div class="snippet">${escapeHtml(p.id)} | estrategia observada: ${escapeHtml(p.observedStrategy||"—")} | acciones: ${escapeHtml(p.actions.join(", ")||"—")} | preferencias explícitas/inferidas: ${escapeHtml(p.preferences.join(" > ")||"indeterminadas")} [${escapeHtml(p.preferenceStatus)}]</div>`).join("")}
+ ${x.strategic.subgames.map(sg=>`<div class="snippet">${escapeHtml(sg.id)} · ${escapeHtml(sg.label)} | ${escapeHtml(sg.sequence.join(" → "))} [${escapeHtml(sg.status)}]</div>`).join("")}</div>
+ <h3>4. Escenarios estratégicos</h3>${x.scenarios.map(s=>{const tg=Object.entries(s.derived||{}).map(([k,v])=>`${k}: Gτ=${Number(v.terminalG).toFixed(2)}`).join(" · ");return `<div class="candidate"><b>${escapeHtml(s.label)}</b><span class="badge">${escapeHtml(s.confidence)}</span><div class="snippet">${escapeHtml(s.description)}</div><div class="snippet">${escapeHtml(tg)}</div></div>`;}).join("")}`;
 }
-
 function evidenceConfidence(kind,text){
  const t=String(text||"").trim();
  if(!t)return {level:"no observada",reason:"sin evidencia textual vinculada"};
@@ -872,7 +1012,7 @@ function buildObservationModel(a){
  if(tracks.length>1)warnings.push("El texto generó múltiples pistas; el cálculo debe ejecutarse por pista, no sobre una H mixta.");
  if(a.profile&&a.profile.id==="narrativa"&&/perlas|piedras preciosas|tesoro|felices|acabaron las penas/i.test(a.raw)&&!tracks[0].events.some(e=>e.type==="retorno / agencia restaurada"))warnings.push("El texto parece contener desenlace, pero no se detectó evento de retorno/restauración.");
  const actors={normalized:[...new Set(tracks.flatMap(t=>[t.actorEvaluado,...t.events.flatMap(e=>[e.source,e.target])]).filter(Boolean))].map(name=>({name,role:functionalRole(a.profile,name),hEvaluable:tracks.some(t=>t.actorEvaluado===name)}))};
- const model={version:"observational-model-v0.50",profile:a.profile?.id||"generico",profileLabel:a.profile?.label||"genérico",sourceTextLength:a.raw.length,actors,tracks,warnings,sufficiency:{calculableTracks:tracks.filter(t=>t.status.calculable).length,totalTracks:tracks.length}};
+ const model={version:"observational-model-v0.51",profile:a.profile?.id||"generico",profileLabel:a.profile?.label||"genérico",sourceTextLength:a.raw.length,actors,tracks,warnings,sufficiency:{calculableTracks:tracks.filter(t=>t.status.calculable).length,totalTracks:tracks.length}};
  model.globalStatus=model.sufficiency.calculableTracks? "calculable por pista" : "preliminar/no calculable";
  return model;
 }
@@ -907,7 +1047,8 @@ function loadTextEvidence(){
   s.anchors=activeTrack.anchors;
   s.H=activeTrack.H0;
   if(profile.id==="regulacion"&&observation.tracks.length>1){
-   s.note=(s.note||"")+" Se generaron múltiples tracks; se cargó por defecto el track matemáticamente separable: "+activeTrack.label+".";
+   const msg="Se generaron múltiples tracks; se cargó por defecto el track matemáticamente separable: "+activeTrack.label+".";
+   if(!(s.note||"").includes(msg))s.note=((s.note||"")+" "+msg).trim();
   }
  }
  const source=s.source||"Emisor";
@@ -917,7 +1058,8 @@ function loadTextEvidence(){
  const strategicScenario=chosenStrategicScenario(a);
  events=applyStrategicScenarioToEvents(events,activeTrack,strategicScenario);
  if(strategicScenario){
-  s.note=(s.note||"")+` Escenario estratégico aplicado: ${strategicScenario.label} (${strategicScenario.confidence}).`;
+  const msg=`Escenario estratégico aplicado: ${strategicScenario.label} (${strategicScenario.confidence}).`;
+  if(!(s.note||"").includes(msg))s.note=((s.note||"")+" "+msg).trim();
   s.strategicScenario=strategicScenario;
  }
  applyScenarioFields(s);
@@ -944,7 +1086,7 @@ function loadTextEvidence(){
   return `<tr><td><input value="${escapeHtml(name)}"></td><td><input value="${escapeHtml(role)}"></td><td><select class="hmode"><option value="${evalH?"sí":"no"}">${evalH?"sí":"no"}</option><option value="${evalH?"no":"sí"}">${evalH?"no":"sí"}</option></select></td><td><input type="number" step=".01" min="0" max="1" value="${S.toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${E.toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${hVal.toFixed(2)}"></td><td class="derived">—</td><td><textarea class="evS">${escapeHtml(evS)}</textarea><textarea class="evE">${escapeHtml(evE)}</textarea><textarea class="evH">${escapeHtml(evH)}</textarea></td><td><button class="smallbtn danger removeActor">×</button></td></tr>`;
  }).join("");
  $("#actors tbody").innerHTML=actorRowsHtml;
- $("#ops tbody").innerHTML=events.map(ev=>`<tr data-phase="${escapeHtml(ev.phase||"")}"><td><select class="source"></select></td><td><select class="target"></select></td><td><select class="optype"><option>${escapeHtml(ev.type||"persuasión")}</option><option>regulación coercitiva</option><option>impugnación / demanda</option><option>abandono / coerción</option><option>orientación / resistencia</option><option>orientación fallida</option><option>captura / amenaza</option><option>contraacción / escape</option><option>retorno / agencia restaurada</option><option>persuasión</option><option>seducción</option><option>coordinación</option><option>información redundante</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.D||s.D||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.phi||s.phi||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.G||s.G||.5).toFixed(2)}"></td><td><textarea class="evD">${escapeHtml(ev.evidence?.D||ev.sentence||a.evidence.D.join(" "))}</textarea><textarea class="evPhi">${escapeHtml(ev.evidence?.phi||ev.sentence||a.evidence.phi.join(" "))}</textarea><textarea class="evG">${escapeHtml(ev.evidence?.G||ev.sentence||s.note)}</textarea></td><td><button class="smallbtn danger removeOp">×</button></td></tr>`).join("");
+ $("#ops tbody").innerHTML=events.map(ev=>`<tr data-phase="${escapeHtml(ev.phase||"")}" data-action-target="${escapeHtml(ev.actionTarget||ev.target||"")}" data-state-target="${escapeHtml(ev.stateTarget||ev.target||"")}" data-semantic-event="${escapeHtml(ev.semanticEventId||"")}" data-confidence="${escapeHtml(ev.confidence||"")}" data-terminal-g="${Number.isFinite(ev.terminalG)?ev.terminalG:""}"><td><select class="source"></select></td><td><select class="target"></select></td><td><select class="optype"><option>${escapeHtml(ev.type||"persuasión")}</option><option>regulación coercitiva</option><option>impugnación / demanda</option><option>argumentación económica / legitimación</option><option>abandono / coerción</option><option>orientación / resistencia</option><option>orientación / intento</option><option>orientación fallida</option><option>captura / amenaza</option><option>contraacción / escape</option><option>adquisición de recursos</option><option>retorno / agencia restaurada</option><option>persuasión</option><option>seducción</option><option>coordinación</option><option>información redundante</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.D||s.D||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.phi||s.phi||.5).toFixed(2)}"></td><td><input type="number" step=".01" min="0" max="1" value="${Number(ev.G||s.G||.5).toFixed(2)}"></td><td><textarea class="evD">${escapeHtml(ev.evidence?.D||ev.sentence||a.evidence.D.join(" "))}</textarea><textarea class="evPhi">${escapeHtml(ev.evidence?.phi||ev.sentence||a.evidence.phi.join(" "))}</textarea><textarea class="evG">${escapeHtml(ev.evidence?.G||ev.sentence||s.note)}</textarea></td><td><button class="smallbtn danger removeOp">×</button></td></tr>`).join("");
  refreshDerived();
  opRows().forEach((row,i)=>{const ev=events[i];row.querySelector(".source").value=ev.source||source;row.querySelector(".target").value=ev.target||target;});
 }
@@ -954,60 +1096,122 @@ function interpretH(v){const a=nearestAnchor(v);return `${v.toFixed(3)} · cerca
 function actorRows(){return $$("#actors tbody tr");}function opRows(){return $$("#ops tbody tr");}
 function readActors(){return actorRows().map(r=>{const i=r.querySelectorAll("input");return{id:i[0].value.trim(),role:i[1].value.trim(),hmode:r.querySelector(".hmode")?.value||"sí",S:n(i[2].value),E:n(i[3].value),H:n(i[4].value),evidence:{S:r.querySelector(".evS")?.value.trim()||"",E:r.querySelector(".evE")?.value.trim()||"",H:r.querySelector(".evH")?.value.trim()||""}};});}
 function actorIds(){return readActors().filter(a=>a.id).map(a=>a.id);}
-function readOperations(){const issue=$("#issue").value.trim();return opRows().map(r=>{const inputs=r.querySelectorAll("input");return{issue,source:r.querySelector(".source").value,target:r.querySelector(".target").value,type:r.querySelector(".optype").value,D:n(inputs[0].value),phi:n(inputs[1].value),G:n(inputs[2].value),evidence:{phase:r.dataset.phase||"",D:r.querySelector(".evD")?.value.trim()||"",phi:r.querySelector(".evPhi")?.value.trim()||"",G:r.querySelector(".evG")?.value.trim()||""}};});}
+function readOperations(){const issue=$("#issue").value.trim();return opRows().map(r=>{const inputs=r.querySelectorAll("input"),terminalG=Number(r.dataset.terminalG);return{issue,source:r.querySelector(".source").value,target:r.querySelector(".target").value,stateTarget:r.dataset.stateTarget||r.querySelector(".target").value,actionTarget:r.dataset.actionTarget||r.querySelector(".target").value,semanticEventId:r.dataset.semanticEvent||"",confidence:r.dataset.confidence||"",terminalG:Number.isFinite(terminalG)?terminalG:null,type:r.querySelector(".optype").value,D:n(inputs[0].value),phi:n(inputs[1].value),G:n(inputs[2].value),evidence:{phase:r.dataset.phase||"",D:r.querySelector(".evD")?.value.trim()||"",phi:r.querySelector(".evPhi")?.value.trim()||"",G:r.querySelector(".evG")?.value.trim()||""}};});}
 function syncSelects(){const ids=actorIds();opRows().forEach(r=>{const s=r.querySelector(".source"),t=r.querySelector(".target"),ps=s.value||ids[0]||"",pt=t.value||ids[1]||ids[0]||"";const html=ids.map(id=>`<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`).join("");s.innerHTML=html;t.innerHTML=html;s.value=ids.includes(ps)?ps:(ids[0]||"");t.value=ids.includes(pt)?pt:(ids[1]||ids[0]||"");});}
 function refreshDerived(){const A=readActors();actorRows().forEach((r,k)=>{try{r.querySelector(".derived").textContent=LimesCore.symbolicResources(A[k]).toFixed(3);}catch(e){r.querySelector(".derived").textContent="?";}});syncSelects();}
 function classifyMovement(d){const a=Math.abs(d);if(a<.01)return"movimiento mínimo";if(a<.05)return"movimiento bajo";if(a<.15)return"movimiento medio";return"movimiento alto";}function direction(d){return d>0?"aumenta":d<0?"disminuye":"permanece estable";}
-function buildScenario(){const issue=$("#issue").value.trim(),actors=readActors(),operations=readOperations(),issueMode=$("#issueMode")?.value||"adopcion",eventGrouping=$("#eventGrouping")?.value||"compacto";if(!issue)throw new Error("Debe declararse una cuestión específica.");if(actors.length<2)throw new Error("Se requieren al menos dos actores.");if(!operations.length)throw new Error("Se requiere al menos una operación comunicativa.");return{version:"v0.50-semiotic-strategic-analysis",issue,issueMode,eventGrouping,note:$("#scenarioNote").value.trim(),hScale:hScale(),textAnalysis:lastTextAnalysis,analysis:lastTextAnalysis?.analysis||null,observation:lastTextAnalysis?.observation||null,strategicScenario:chosenStrategicScenario(lastTextAnalysis),input:{actors,operations},result:LimesCore.runSequence(actors,operations)};}
-function renderScenario(s){lastScenario=s;$("#status").className="card ok";$("#status").innerHTML=`<b>Issue</b><p>${escapeHtml(s.issue)}</p><p class="note">${escapeHtml(s.note||"Sin descripción adicional.")}</p><div class="metric"><span>Modo</span><b>${escapeHtml(s.issueMode||"—")}</b></div><div class="metric"><span>H mide</span><b>${escapeHtml(s.hScale.label)}</b></div>${s.observation?`<div class="metric"><span>Objeto de observación</span><b>${escapeHtml(s.observation.globalStatus)}</b></div>`:""}${s.analysis?`<div class="metric"><span>Juego</span><b>${escapeHtml(s.analysis.strategic.game.label)} · confianza ${escapeHtml(s.analysis.strategic.game.confidence)}</b></div>`:""}${s.strategicScenario?`<div class="metric"><span>Escenario estratégico</span><b>${escapeHtml(s.strategicScenario.label)}</b></div>`:""}`;$("#results").innerHTML=s.result.history.map((r,i)=>`<div class="card"><b>Operación ${i+1}: ${escapeHtml(r.source)} → ${escapeHtml(r.target)}</b><span class="badge">${escapeHtml(r.type||"operación")}</span>${r.evidence?.phase?`<span class="badge">${escapeHtml(r.evidence.phase)}</span>`:""}<div class="metric"><span>R</span><b>${r.R.toFixed(3)}</b></div><div class="metric"><span>D · φ · X</span><b>${r.D.toFixed(3)} · ${r.phi.toFixed(3)} · ${r.X.toFixed(3)}</b></div><div class="metric"><span>H antes</span><b>${interpretH(r.Hbefore)}</b></div><div class="metric"><span>G</span><b>${interpretH(r.G)}</b></div><div class="metric"><span>ΔH</span><b>${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · ${classifyMovement(r.deltaH)}</b></div><div class="metric"><span>H después</span><b>${interpretH(r.Hafter)}</b></div></div>`).join("")+`<div class="card"><b>Estado final</b>${s.result.actors.map(a=>`<div class="metric"><span>${escapeHtml(a.id)}</span><b>${a.hmode==="sí"?interpretH(a.H):"H no evaluado en esta escala"}</b></div>`).join("")}</div>`;$("#report").textContent=buildReport(s);}
-function buildReport(s){const lines=[];lines.push("REPORTE DE ESCENARIO — LIMES v0.50","======================================","","Issue: "+s.issue);if(s.note)lines.push("Contexto: "+s.note);if(s.issueMode)lines.push("Modo de issue: "+s.issueMode);lines.push("","Escala H: "+s.hScale.label);Object.entries(s.hScale.anchors).forEach(([k,v])=>lines.push(`- ${k}: ${v}`));if(s.textAnalysis){lines.push("","0. TEXTO FUENTE / EVIDENCIA PRELIMINAR");lines.push(`Perfil de dominio: ${s.textAnalysis.profile?.label||"—"} (${s.textAnalysis.profileScore||0})`);lines.push(`Modo inferido: ${s.textAnalysis.scenario?.issueModeLabel||s.textAnalysis.scenario?.issueMode||"—"}`);lines.push(`Actores candidatos: ${s.textAnalysis.actors.map(a=>a.name).join(", ")||"—"}`);lines.push(`Eventos candidatos: ${(s.textAnalysis.events||[]).map(e=>e.source+"→"+e.target+"["+e.type+"/"+e.polarity+"/"+(e.phase||"fase")+"]").join(", ")||"—"}`);lines.push(`Conceptos dominantes: ${s.textAnalysis.concepts.map(c=>c[0]+"("+c[1]+")").join(", ")}`);
- const ana=s.textAnalysis.analysis;
- if(ana){
-  lines.push("","0A. CONCORDANCIA CONTEXTUAL");
-  ana.concordance.terms.slice(0,10).forEach(t=>lines.push(`- ${t.term}: f=${t.count} · relevancia=${t.relevance.toFixed(3)} · actores=${t.actors.join(", ")||"—"} · verbos=${t.verbs.join(", ")||"—"}`));
-  lines.push("","0B. ESTRUCTURA SEMIÓTICA");
-  ana.semiotic.valueObjects.forEach(o=>lines.push(`- Objeto de valor | ${o.actor}: ${o.object} [${o.status}]`));
-  lines.push(`Oposiciones: ${ana.semiotic.oppositions.map(o=>o.join(" ↔ ")).join(" · ")}`);
-  ana.semiotic.modalities.forEach(m=>lines.push(`Modalidades | ${m.actor}: ${m.modes.join(", ")||"—"}`));
-  ana.semiotic.programs.slice(0,10).forEach(p=>lines.push(`Programa ${p.id}: ${p.source} → ${p.target} | ${p.operation} | polaridad=${p.polarity}`));
-  lines.push("","0C. ESTRUCTURA ESTRATÉGICA");
-  lines.push(`Familia de juego: ${ana.strategic.game.label} | confianza=${ana.strategic.game.confidence} | score=${ana.strategic.game.score.toFixed(2)}`);
-  lines.push(`Evidencia: ${ana.strategic.game.evidence.join(" · ")||"—"}`);
-  ana.strategic.players.forEach(p=>lines.push(`- ${p.id} | acciones=${p.actions.join(", ")||"—"} | preferencias=${p.preferences.join(" > ")||"indeterminadas"} | ${p.preferenceStatus}`));
-  lines.push(`Información: asimetría=${ana.strategic.information.asymmetry} · repetición=${ana.strategic.information.repetition}`);
-  lines.push("","0D. ESCENARIOS ESTRATÉGICOS");
-  ana.scenarios.forEach((sc,i)=>{
-   lines.push(`${i+1}. ${sc.label} [${sc.confidence}]`);
-   lines.push(`   ${sc.description}`);
-   const gs=Object.entries(sc.derived||{}).map(([k,v])=>`${k}: G=${Number(v.G).toFixed(2)}`).join(" · ");
-   if(gs)lines.push(`   Derivación: ${gs}`);
-  });
-  if(s.strategicScenario)lines.push(`Escenario aplicado al cálculo: ${s.strategicScenario.label}`);
+function buildScenario(){const issue=$("#issue").value.trim(),actors=readActors(),operations=readOperations(),issueMode=$("#issueMode")?.value||"adopcion",eventGrouping=$("#eventGrouping")?.value||"compacto";if(!issue)throw new Error("Debe declararse una cuestión específica.");if(actors.length<2)throw new Error("Se requieren al menos dos actores.");if(!operations.length)throw new Error("Se requiere al menos una operación comunicativa.");return{version:"v0.51-semantic-interpretation-engine",issue,issueMode,eventGrouping,note:$("#scenarioNote").value.trim(),hScale:hScale(),textAnalysis:lastTextAnalysis,analysis:lastTextAnalysis?.analysis||null,observation:lastTextAnalysis?.observation||null,strategicScenario:chosenStrategicScenario(lastTextAnalysis),input:{actors,operations},result:LimesCore.runSequence(actors,operations)};}
+function renderScenario(s){lastScenario=s;$("#status").className="card ok";$("#status").innerHTML=`<b>Issue</b><p>${escapeHtml(s.issue)}</p><p class="note">${escapeHtml(s.note||"Sin descripción adicional.")}</p><div class="metric"><span>Modo</span><b>${escapeHtml(s.issueMode||"—")}</b></div><div class="metric"><span>H mide</span><b>${escapeHtml(s.hScale.label)}</b></div>${s.observation?`<div class="metric"><span>Objeto de observación</span><b>${escapeHtml(s.observation.globalStatus)}</b></div>`:""}${s.analysis?`<div class="metric"><span>Juego</span><b>${escapeHtml(s.analysis.strategic.game.label)} · confianza ${escapeHtml(s.analysis.strategic.game.confidence)}</b></div>`:""}${s.strategicScenario?`<div class="metric"><span>Escenario estratégico</span><b>${escapeHtml(s.strategicScenario.label)}</b></div>`:""}`;$("#results").innerHTML=s.result.history.map((r,i)=>`<div class="card"><b>Operación ${i+1}: ${escapeHtml(r.source)} → ${escapeHtml(r.target)}</b><span class="badge">${escapeHtml(r.type||"operación")}</span>${r.evidence?.phase?`<span class="badge">${escapeHtml(r.evidence.phase)}</span>`:""}<div class="metric"><span>R</span><b>${r.R.toFixed(3)}</b></div><div class="metric"><span>D · φ · X</span><b>${r.D.toFixed(3)} · ${r.phi.toFixed(3)} · ${r.X.toFixed(3)}</b></div><div class="metric"><span>H antes</span><b>${interpretH(r.Hbefore)}</b></div><div class="metric"><span>G_e</span><b>${interpretH(r.G)}</b></div>${Number.isFinite(r.terminalG)?`<div class="metric"><span>Gτ terminal</span><b>${interpretH(r.terminalG)}</b></div>`:""}<div class="metric"><span>ΔH</span><b>${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · ${classifyMovement(r.deltaH)}</b></div><div class="metric"><span>H después</span><b>${interpretH(r.Hafter)}</b></div></div>`).join("")+`<div class="card"><b>Estado final</b>${s.result.actors.map(a=>`<div class="metric"><span>${escapeHtml(a.id)}</span><b>${a.hmode==="sí"?interpretH(a.H):"H no evaluado en esta escala"}</b></div>`).join("")}</div>`;$("#report").textContent=buildReport(s);}
+function buildReport(s){
+ const lines=[];
+ lines.push("REPORTE DE ESCENARIO — LIMES v0.51","======================================","","Issue: "+s.issue);
+ if(s.note)lines.push("Contexto: "+s.note);
+ if(s.issueMode)lines.push("Modo de issue: "+s.issueMode);
+ lines.push("","Escala H: "+s.hScale.label);
+ Object.entries(s.hScale.anchors).forEach(([k,v])=>lines.push(`- ${k}: ${v}`));
+ if(s.textAnalysis){
+  const ta=s.textAnalysis;
+  lines.push("","0. TEXTO FUENTE / EVIDENCIA PRELIMINAR");
+  lines.push(`Perfil de dominio: ${ta.profile?.label||"—"} (${ta.profileScore||0})`);
+  lines.push(`Modo inferido: ${ta.scenario?.issueModeLabel||ta.scenario?.issueMode||"—"}`);
+  lines.push(`Actores candidatos: ${ta.actors.map(a=>a.name).join(", ")||"—"}`);
+  lines.push(`Eventos candidatos: ${(ta.events||[]).map(e=>`${e.source}→${e.actionTarget||e.target}[${e.type}/${e.polarity}/${e.phase||"fase"}; H=${e.stateTarget||e.target}; sem=${e.semanticEventId||"—"}]`).join(", ")||"—"}`);
+  lines.push(`Conceptos dominantes (léxico bruto, sólo diagnóstico): ${ta.concepts.map(c=>c[0]+"("+c[1]+")").join(", ")}`);
+  const ana=ta.analysis;
+  if(ana){
+   if(ana.semantic){
+    lines.push("","0A. MOTOR DE INTERPRETACIÓN SEMÁNTICA");
+    lines.push(`Versión: ${ana.semantic.version}`);
+    lines.push(`Proposiciones operativas: ${ana.semantic.diagnostics.operationalPropositions}`);
+    lines.push(`Referencias no operativas: ${ana.semantic.diagnostics.nonOperationalReferences}`);
+    lines.push(`Eventos semánticos coreferidos: ${ana.semantic.diagnostics.clusteredEvents}`);
+    ana.semantic.eventClusters.forEach(e=>{
+     lines.push(`- ${e.id} | familia=${e.family} | evidencias=${e.evidenceCount} | confianza=${e.confidence}`);
+     e.evidence.slice(0,3).forEach(x=>lines.push(`  Evidencia: ${x}`));
+    });
+   }
+   lines.push("","0B. CONCORDANCIA SEMÁNTICA");
+   ana.concordance.terms.slice(0,12).forEach(t=>lines.push(`- ${t.term||t.lemma}: f=${t.count} · relevancia=${t.relevance.toFixed(3)} · actores=${(t.actors||[]).join(", ")||"—"} · verbos=${(t.verbs||[]).join(", ")||"—"}`));
+   lines.push("","0C. ESTRUCTURA SEMIÓTICA");
+   ana.semiotic.valueObjects.forEach(o=>lines.push(`- Objeto de valor | ${o.actor}: ${o.object} [${o.status}]`));
+   lines.push(`Oposiciones: ${ana.semiotic.oppositions.map(o=>o.join(" ↔ ")).join(" · ")}`);
+   ana.semiotic.modalities.forEach(m=>lines.push(`Modalidades | ${m.actor}: ${m.modes.join(", ")||"—"}`));
+   ana.semiotic.programs.slice(0,14).forEach(p=>{
+    lines.push(`Programa ${p.id}: ${p.source} → ${p.actionTarget||p.stateTarget} | ${p.operation} | H afectado=${p.stateTarget} | G_e=${Number(p.Ge).toFixed(2)} | evidencias=${p.evidenceCount||1}`);
+   });
+   lines.push("","0D. ESTRUCTURA ESTRATÉGICA");
+   lines.push(`Familia de juego: ${ana.strategic.game.label} | confianza=${ana.strategic.game.confidence} | score=${ana.strategic.game.score.toFixed(2)}`);
+   lines.push(`Evidencia: ${ana.strategic.game.evidence.join(" · ")||"—"}`);
+   ana.strategic.players.forEach(p=>{
+    lines.push(`- ${p.id} | estrategia observada=${p.observedStrategy||"—"} | acciones=${p.actions.join(", ")||"—"}`);
+    if(p.revealedPreference)lines.push(`  Preferencia revelada: ${p.revealedPreference}`);
+    lines.push(`  Preferencias explícitas/inferidas=${p.preferences.join(" > ")||"indeterminadas"} | ${p.preferenceStatus}`);
+   });
+   lines.push(`Información: brecha=${ana.strategic.information.gap} · información privada=${ana.strategic.information.privateInformation} · asimetría=${ana.strategic.information.asymmetry} · repetición=${ana.strategic.information.repetition}`);
+   if(ana.strategic.subgames.length){
+    lines.push("Subjuegos / unidades estratégicas:");
+    ana.strategic.subgames.forEach(sg=>lines.push(`- ${sg.id}: ${sg.label} | jugadores=${sg.players.join(" vs ")} | secuencia=${sg.sequence.join(" → ")} | ${sg.status}`));
+   }
+   lines.push("","0E. ESCENARIOS ESTRATÉGICOS");
+   ana.scenarios.forEach((sc,i)=>{
+    lines.push(`${i+1}. ${sc.label} [${sc.confidence}]`);
+    lines.push(`   ${sc.description}`);
+    const gs=Object.entries(sc.derived||{}).map(([k,v])=>`${k}: Gτ=${Number(v.terminalG).toFixed(2)}`).join(" · ");
+    if(gs)lines.push(`   Estado terminal: ${gs}`);
+   });
+   if(s.strategicScenario)lines.push(`Escenario aplicado como marco terminal: ${s.strategicScenario.label}. Gτ no sustituye G_e.`);
+  }
+  const obs=ta.observation;
+  if(obs){
+   lines.push("","0F. OBJETO DE OBSERVACIÓN / TRACKS");
+   lines.push(`Estado global: ${obs.globalStatus}`);
+   lines.push(`Tracks calculables: ${obs.sufficiency.calculableTracks}/${obs.sufficiency.totalTracks}`);
+   obs.warnings.forEach(w=>lines.push(`Advertencia: ${w}`));
+   obs.tracks.forEach((t,i)=>{
+    lines.push(`${i+1}. ${t.label} | modo=${t.mode} | ${t.status.calculable?"calculable":"preliminar"} | confianza=${t.status.confidence}`);
+    lines.push(`   H: ${t.hVariable}`);
+    lines.push(`   Actor evaluado: ${t.actorEvaluado} | H0=${Number(t.H0).toFixed(3)} | eventos=${t.events.length}`);
+    t.status.missing.forEach(m=>lines.push(`   Falta: ${m}`));
+    t.status.warnings.forEach(w=>lines.push(`   Nota: ${w}`));
+   });
+  }
  }
- const obs=s.textAnalysis.observation;
- if(obs){
-  lines.push("","0E. OBJETO DE OBSERVACIÓN / TRACKS");
-  lines.push(`Estado global: ${obs.globalStatus}`);
-  lines.push(`Tracks calculables: ${obs.sufficiency.calculableTracks}/${obs.sufficiency.totalTracks}`);
-  obs.warnings.forEach(w=>lines.push(`Advertencia: ${w}`));
-  obs.tracks.forEach((t,i)=>{
-   lines.push(`${i+1}. ${t.label} | modo=${t.mode} | ${t.status.calculable?"calculable":"preliminar"} | confianza=${t.status.confidence}`);
-   lines.push(`   H: ${t.hVariable}`);
-   lines.push(`   Actor evaluado: ${t.actorEvaluado} | H0=${Number(t.H0).toFixed(3)} | eventos=${t.events.length}`);
-   t.status.missing.forEach(m=>lines.push(`   Falta: ${m}`));
-   t.status.warnings.forEach(w=>lines.push(`   Nota: ${w}`));
-  });
- }
-}lines.push("","1. ACTORES");s.input.actors.forEach(a=>{lines.push(`- ${a.id}${a.role?` (${a.role})`:""} | S=${a.S.toFixed(3)} E=${a.E.toFixed(3)} H inicial=${a.H.toFixed(3)} R=${(a.S*a.E).toFixed(3)} | H evaluable=${a.hmode}`);if(a.evidence.S)lines.push(`  Evidencia S: ${a.evidence.S}`);if(a.evidence.E)lines.push(`  Evidencia E: ${a.evidence.E}`);if(a.evidence.H)lines.push(`  Evidencia H: ${a.evidence.H}`);});lines.push("","2. OPERACIONES Y DESPLAZAMIENTOS ESPERADOS");s.result.history.forEach((r,i)=>{lines.push(`${i+1}. ${r.source} → ${r.target} | tipo=${r.type||"operación"}${r.evidence?.phase?` | ${r.evidence.phase}`:""}`);lines.push(`   R=${r.R.toFixed(3)} · D=${r.D.toFixed(3)} · φ=${r.phi.toFixed(3)} · X=${r.X.toFixed(3)}`);lines.push(`   H antes=${r.Hbefore.toFixed(3)} · G=${r.G.toFixed(3)} · ΔH=${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · H después=${r.Hafter.toFixed(3)}`);lines.push(`   Lectura: el Hacer de ${r.target} ${direction(r.deltaH)} hacia ${r.G.toFixed(3)} con ${classifyMovement(r.deltaH)}.`);if(r.evidence.D)lines.push(`   Evidencia D: ${r.evidence.D}`);if(r.evidence.phi)lines.push(`   Evidencia φ: ${r.evidence.phi}`);if(r.evidence.G)lines.push(`   Evidencia G: ${r.evidence.G}`);});lines.push("","3. ESTADO FINAL");s.input.actors.forEach(a=>{const final=s.result.actors.find(x=>x.id===a.id)||a;lines.push(`- ${a.id}: ${a.hmode==="sí"?interpretH(final.H):"H no evaluado en esta escala"}`);});lines.push("","Nota metodológica: concordancia y semiótica reconstruyen evidencia; la capa estratégica restringe escenarios plausibles sin asignar probabilidades ni utilidad esperada. G puede derivarse del escenario seleccionado. S, E, D y φ siguen siendo sugerencias confirmables por el analista.");return lines.join("\n");}
+ lines.push("","1. ACTORES");
+ s.input.actors.forEach(a=>{
+  lines.push(`- ${a.id}${a.role?` (${a.role})`:""} | S=${a.S.toFixed(3)} E=${a.E.toFixed(3)} H inicial=${a.H.toFixed(3)} R=${(a.S*a.E).toFixed(3)} | H evaluable=${a.hmode}`);
+  if(a.evidence.S)lines.push(`  Evidencia S: ${a.evidence.S}`);
+  if(a.evidence.E)lines.push(`  Evidencia E: ${a.evidence.E}`);
+  if(a.evidence.H)lines.push(`  Evidencia H: ${a.evidence.H}`);
+ });
+ lines.push("","2. OPERACIONES Y DESPLAZAMIENTOS ESPERADOS");
+ s.result.history.forEach((r,i)=>{
+  const rel=(r.actionTarget&&r.actionTarget!==r.target)?`${r.source} → ${r.actionTarget} | H afectado=${r.target}`:`${r.source} → ${r.target}`;
+  lines.push(`${i+1}. ${rel} | tipo=${r.type||"operación"}${r.evidence?.phase?` | ${r.evidence.phase}`:""}${r.semanticEventId?` | sem=${r.semanticEventId}`:""}`);
+  lines.push(`   R=${r.R.toFixed(3)} · D=${r.D.toFixed(3)} · φ=${r.phi.toFixed(3)} · X=${r.X.toFixed(3)}`);
+  lines.push(`   H antes=${r.Hbefore.toFixed(3)} · G_e=${r.G.toFixed(3)} · ΔH=${r.deltaH>=0?"+":""}${r.deltaH.toFixed(3)} · H después=${r.Hafter.toFixed(3)}`);
+  if(Number.isFinite(r.terminalG))lines.push(`   Gτ=${r.terminalG.toFixed(3)} · estado terminal del escenario; no entra directamente en esta operación.`);
+  lines.push(`   Lectura: el Hacer de ${r.target} ${direction(r.deltaH)} hacia G_e=${r.G.toFixed(3)} con ${classifyMovement(r.deltaH)}.`);
+  if(r.evidence.D)lines.push(`   Evidencia D: ${r.evidence.D}`);
+  if(r.evidence.phi)lines.push(`   Evidencia φ: ${r.evidence.phi}`);
+  if(r.evidence.G)lines.push(`   Evidencia G: ${r.evidence.G}`);
+ });
+ lines.push("","3. ESTADO FINAL");
+ s.input.actors.forEach(a=>{
+  const final=s.result.actors.find(x=>x.id===a.id)||a;
+  lines.push(`- ${a.id}: ${a.hmode==="sí"?interpretH(final.H):"H no evaluado en esta escala"}`);
+ });
+ lines.push("","Nota metodológica: el motor semántico es una interpretación algorítmica local y trazable, no comprensión lingüística general. La repetición acumula evidencia/coreferencia y no impactos causales. G_e es local al evento; Gτ describe el estado terminal del escenario. El núcleo matemático permanece R=S×E; X=R×D×φ; ΔH=(G_e−H)×X.");
+ return lines.join("\n");
+}
 function download(name,content,type){const blob=new Blob([content],{type}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 $("#analyzeText").onclick=()=>{try{analyzeText();}catch(e){$("#textOut").innerHTML=`<b>Error</b><p>${escapeHtml(e.message)}</p>`;}};$("#loadTextEvidence").onclick=()=>{try{loadTextEvidence();}catch(e){alert(e.message);}};
 $("#actors").addEventListener("input",refreshDerived);$("#actors").addEventListener("click",e=>{if(e.target.classList.contains("removeActor")){e.target.closest("tr").remove();refreshDerived();}});$("#ops").addEventListener("click",e=>{if(e.target.classList.contains("removeOp")){e.target.closest("tr").remove();refreshDerived();}});
 $("#addActor").onclick=()=>{$("#actors tbody").insertAdjacentHTML("beforeend",`<tr><td><input value="Actor ${actorRows().length+1}"></td><td><input value=""></td><td><select class="hmode"><option value="sí">sí</option><option value="no">no</option></select></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td class="derived">—</td><td><textarea class="evS"></textarea><textarea class="evE"></textarea><textarea class="evH"></textarea></td><td><button class="smallbtn danger removeActor">×</button></td></tr>`);refreshDerived();};
 $("#addOp").onclick=()=>{$("#ops tbody").insertAdjacentHTML("beforeend",`<tr><td><select class="source"></select></td><td><select class="target"></select></td><td><select class="optype"><option>persuasión</option><option>seducción</option><option>coordinación</option><option>información redundante</option><option>coerción</option><option>reproducción</option><option>resistencia</option></select></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><input type="number" step=".01" min="0" max="1" value=".50"></td><td><textarea class="evD"></textarea><textarea class="evPhi"></textarea><textarea class="evG"></textarea></td><td><button class="smallbtn danger removeOp">×</button></td></tr>`);refreshDerived();};
 $("#run").onclick=()=>{try{renderScenario(buildScenario());}catch(e){$("#status").className="card warn";$("#status").innerHTML=`<b>No ejecutado</b><p>${escapeHtml(e.message)}</p>`;}};
-$("#exportTxt").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v050_reporte.txt",buildReport(lastScenario),"text/plain;charset=utf-8");};
-$("#exportJson").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v050_escenario.json",JSON.stringify(lastScenario,null,2),"application/json;charset=utf-8");};
-refreshDerived();const jscheck=$("#jscheck");if(jscheck){jscheck.className="card ok";jscheck.innerHTML="<b>JS activo</b><p>Interfaz, analizador y motor cargados correctamente.</p>";}
+$("#exportTxt").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v051_reporte.txt",buildReport(lastScenario),"text/plain;charset=utf-8");};
+$("#exportJson").onclick=()=>{if(!lastScenario){try{renderScenario(buildScenario());}catch(e){alert(e.message);return;}}download("Limes_v051_escenario.json",JSON.stringify(lastScenario,null,2),"application/json;charset=utf-8");};
+refreshDerived();const jscheck=$("#jscheck");if(jscheck){jscheck.className="card ok";jscheck.innerHTML=`<b>JS activo</b><p>Interfaz, analizador y motor cargados correctamente. Motor semántico: ${window.LimesSemantic?"activo":"no disponible"}.</p>`;}
 </script>
 </body>
 </html>
