@@ -1,98 +1,134 @@
-# Limes v0.51 · Semantic Interpretation Engine
+# Limes v0.52 · Language, Frames & Game Ontology
 
-Esta versión separa por primera vez el análisis profundo del texto en un módulo JavaScript independiente:
-
-- `semantic-engine.js`: interpretación semántica local y trazable.
-- `index.html`: interfaz, capa semiótico-estratégica y Limes Core.
-- `test-v051.js`: regresiones ejecutables en Node.
+v0.52 deja atrás la arquitectura de HTML con lógica principal incrustada. `index.html` contiene sólo interfaz y carga módulos externos por rutas relativas.
 
 ## Arquitectura
 
-texto
-→ motor semántico
-→ concordancia semántica
-→ proposiciones
-→ coreferencia / agrupación de eventos
-→ estructura semiótica
-→ juegos y subjuegos
-→ escenarios estratégicos
-→ tracks
-→ Limes Core
+```text
+index.html
+assets/
+  app.css
+js/
+  limes-core.js
+  spanish-semantics.js
+  entity-engine.js
+  semantic-engine.js
+  event-engine.js
+  game-ontology.js
+  game-engine.js
+  analysis-engine.js
+  app.js
+data/
+  lexicon/
+    es_MX.dic
+    es_MX.aff
+    LICENSE.md
+    LICENSE-LIBREOFFICE-ES.md
+tests/
+  test-v052.js
+  fixtures/
+    judicial-news.txt
+README.md
+DEPLOY.md
+SERVER-STRUCTURE-AUDIT.md
+```
 
-## Motor semántico
+## Cambios centrales
 
-`semantic-engine.js` incorpora, sin dependencias externas:
+### 1. Formulario sin presets
 
-- normalización y lematización ligera en español;
-- stopwords funcionales y verbos de atribución;
-- segmentación en oraciones y cláusulas;
-- detección de verbos/operaciones;
-- negación;
-- modalidades querer / poder / saber / deber;
-- temporalidad y estatus de la proposición:
-  - afirmada;
-  - reportada;
-  - hipotética;
-  - intencional;
-  - retrospectiva;
-  - rechazo de acción;
-- entidades y participantes;
-- firma semántica del objeto;
-- familias de proposiciones;
-- coreferencia de menciones en eventos;
-- concordancia basada en lemas, dispersión y participación en relaciones.
+El corpus, issue, descripción, escala H, actores y operaciones comienzan vacíos. Sólo permanecen las opciones estructurales de los selectores.
 
-No se presenta como comprensión lingüística general: es un motor algorítmico explícito, auditable y ampliable.
+### 2. Recurso léxico robusto
 
-## Correcciones estructurales
+Se incluye el diccionario `es_MX` de LibreOffice/Hunspell:
 
-### Repetición
-Varias menciones de una misma regulación o acontecimiento acumulan evidencia/confianza; no se calculan automáticamente como varios impactos.
+- más de 59 mil entradas base;
+- archivo de afijos y reglas morfológicas;
+- carga asíncrona desde `data/lexicon/`;
+- licencia incluida en la distribución.
 
-### Targets
-Los eventos pueden distinguir:
+El diccionario aporta cobertura léxica y morfológica. El significado no se deriva sólo del diccionario: `spanish-semantics.js` y `semantic-engine.js` aplican reglas de sentido, marcos y estatus proposicional.
 
-- `source`: actor que opera;
-- `actionTarget`: destinatario/objeto de la operación;
-- `stateTarget`: actor cuyo H se evalúa.
+### 3. Entidades
 
-### Jerarquía de G
-Se separan:
+`entity-engine.js` distingue personas, instituciones, gobiernos, roles judiciales, organizaciones, colectivos y lugares. Mantiene alias/acrónimos y separa entidad textual de actor operativo.
 
-- `G_e`: objetivo/estado local inducido por cada evento;
+La regresión judicial exige detectar, entre otros:
+
+- Claudia Sheinbaum;
+- Fiscalía General de la República / FGR;
+- Fausto Corrales Rodríguez;
+- FECOR;
+- Policía Federal Ministerial / PFM;
+- Interpol;
+- Agencia de Investigación Criminal / AIC;
+- juez de Control federal.
+
+### 4. Frames semánticos
+
+Cada proposición intenta producir:
+
+```text
+actor
+predicate/sense
+patient
+recipient
+object
+SER | ESTAR | DECIR | HACER
+temporality
+modalities
+logic
+realization
+epistemic_status
+relation_to_event
+confidence
+```
+
+Se distinguen realización, plan, retrospección, hipótesis/proyección, alegación atribuida, evaluación y hecho textual.
+
+### 5. Eventos y coreferencia
+
+La repetición acumula evidencia sobre el mismo episodio. No crea automáticamente impactos causales adicionales.
+
+Los episodios conservan separado:
+
+- evento constitutivo;
+- atributo/estado;
+- respuesta;
+- argumento;
+- evaluación;
+- proyección;
+- alegación.
+
+Sólo frames con estatus compatible pueden convertirse automáticamente en operaciones Limes.
+
+### 6. Ontología de juegos
+
+`game-ontology.js` contiene 76 plantillas canónicas y familias: coordinación, dilemas, bargaining, subastas, competencia industrial, información incompleta, principal-agente, señalización, screening, inspección, acción colectiva, repetición, coaliciones, votación, redes, juegos evolutivos y secuenciales, entre otras.
+
+El motor no fuerza una clasificación. Devuelve candidatos, evidencia coincidente, requisitos faltantes y sólo declara un juego cuando el umbral estructural se cumple.
+
+### 7. G_e y Gτ
+
+Se mantiene la distinción:
+
+- `G_e`: objetivo/estado local del evento;
 - `Gτ`: estado terminal del escenario.
 
-`Gτ` no sustituye `G_e` en cada operación.
-
-### Narrativa
-Se distinguen, entre otros:
-
-- abandono;
-- orientación exitosa;
-- secuencia de migas / orientación fallida;
-- captura;
-- contraacción;
-- adquisición de recursos;
-- retorno/restauración.
-
-La adquisición de recursos no equivale automáticamente al retorno.
-
-### Estrategia
-La estructura estratégica incorpora subjuegos/unidades estratégicas cuando el texto lo permite.
+`Gτ` no sustituye `G_e`.
 
 ## Núcleo matemático
 
 Sin cambios:
 
-R = S × E  
-X = R × D × φ  
-ΔH = (G_e − H) × X  
+```text
+R = S × E
+X = R × D × φ
+ΔH = (G_e − H) × X
 H' = H + ΔH
+```
 
-## Despliegue
+## Alcance
 
-`index.html` y `semantic-engine.js` deben conservarse en el mismo directorio. El HTML carga el módulo mediante una ruta relativa.
-
-## Validación
-
-La versión incluye pruebas de regresión para noticia regulatoria y narrativa. Las pruebas automatizadas no sustituyen la validación con textos completos en el navegador y en el despliegue real.
+El motor sigue siendo determinista y auditable. Un diccionario grande no equivale por sí solo a comprensión lingüística general. La v0.52 introduce una separación explícita entre cobertura léxica, frames de significado, estatus epistémico, episodios y juegos para poder ampliar cada capa sin contaminar el núcleo matemático.

@@ -1,0 +1,16 @@
+{
+  "name": "Limes",
+  "version": "0.52",
+  "branch": "language-frames-game-ontology",
+  "architecture": "modular-static",
+  "entrypoint": "index.html",
+  "dictionary": {
+    "locale": "es_MX",
+    "source": "LibreOffice/dictionaries",
+    "base_entries": 59093,
+    "files": ["data/lexicon/es_MX.dic", "data/lexicon/es_MX.aff"]
+  },
+  "game_templates": 76,
+  "core": ["R=S*E", "X=R*D*phi", "deltaH=(Ge-H)*X", "Hprime=H+deltaH"],
+  "presets": false
+}
