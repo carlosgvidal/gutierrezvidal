@@ -1,13 +1,49 @@
-# Limes v0.52 · Language, Frames & Game Ontology
+# Limes v0.52.1 · Integrity Recovery
 
-v0.52 deja atrás la arquitectura de HTML con lógica principal incrustada. `index.html` contiene sólo interfaz y carga módulos externos por rutas relativas.
+Rama de saneamiento construida después de la auditoría integral de v0.52 y cotejada contra el núcleo teórico v0.40.
 
-## Arquitectura
+## Objetivo
+
+Restaurar primero las condiciones de validez del modelo antes de añadir más capacidad semántica.
+
+## Principios restaurados
+
+- `R = S × E`
+- `X = R × D × φ`
+- `ΔH = (G_e − H) × X`
+- Ninguna entrada desconocida se sustituye por `0.5`.
+- Si falta `S`, `E`, `H`, `D`, `φ` o `G_e`, no se calcula.
+- `source` y `target` deben coincidir con los actores suministrados al núcleo.
+- Un frame no resuelto queda `UNRESOLVED`, no `HACER`.
+- Una acción material/institucional no se convierte automáticamente en `D` comunicativa.
+- `Gτ` no se asigna automáticamente ni entra en la ecuación del evento.
+
+## Correcciones de integridad
+
+1. Eliminados del código de producción los nombres y fallbacks específicos de los fixtures de prueba.
+2. Añadido gate de procedencia: actores de frames/operaciones se toman de entidades detectadas en el texto o de actores analíticos genéricos explícitos.
+3. Desambiguación conservadora de `detener`:
+   - `se detuvieron a/para + infinitivo` → pausa/movimiento;
+   - detención jurídica requiere estructura transitiva/contexto institucional.
+4. NER filtra verbos finitos y conectores al inicio de candidatos PERSON.
+5. Añadidos frames anidados para construcciones como `rechazó el límite impuesto por ...`.
+6. Memoria discursiva conservadora para verbos de atribución con sujeto elíptico.
+7. Dominio inferido por acumulación comparativa de evidencia; un solo trigger no decide automáticamente.
+8. Coreferencia acotada por firma semántica y proximidad; se retiraron claves específicas de casos.
+9. Juegos: todos los `requires` son requisitos duros. El dominio ya no inyecta features estratégicas.
+10. S/E/H/D/φ/G_e automáticos eliminados. El escenario se carga con campos numéricos vacíos.
+11. `Gτ` vacío permanece `null`; se eliminó la conversión `"" → 0`.
+12. El diccionario es_MX participa al menos en el filtro morfológico/NER; la aplicación integral de afijos queda como trabajo posterior.
+
+## Límite teórico deliberado
+
+v0.40 define `D` como movilización comunicativa. Por eso v0.52.1 conserva acciones materiales e institucionales como observaciones, pero no las introduce automáticamente en el núcleo. La generalización `Decir → Operación` queda pendiente de decisión teórica explícita.
+
+## Estructura
 
 ```text
 index.html
-assets/
-  app.css
+assets/app.css
 js/
   limes-core.js
   spanish-semantics.js
@@ -18,117 +54,10 @@ js/
   game-engine.js
   analysis-engine.js
   app.js
-data/
-  lexicon/
-    es_MX.dic
-    es_MX.aff
-    LICENSE.md
-    LICENSE-LIBREOFFICE-ES.md
+data/lexicon/
 tests/
-  test-v052.js
-  fixtures/
-    judicial-news.txt
-README.md
-DEPLOY.md
-SERVER-STRUCTURE-AUDIT.md
 ```
 
-## Cambios centrales
+## Estado
 
-### 1. Formulario sin presets
-
-El corpus, issue, descripción, escala H, actores y operaciones comienzan vacíos. Sólo permanecen las opciones estructurales de los selectores.
-
-### 2. Recurso léxico robusto
-
-Se incluye el diccionario `es_MX` de LibreOffice/Hunspell:
-
-- más de 59 mil entradas base;
-- archivo de afijos y reglas morfológicas;
-- carga asíncrona desde `data/lexicon/`;
-- licencia incluida en la distribución.
-
-El diccionario aporta cobertura léxica y morfológica. El significado no se deriva sólo del diccionario: `spanish-semantics.js` y `semantic-engine.js` aplican reglas de sentido, marcos y estatus proposicional.
-
-### 3. Entidades
-
-`entity-engine.js` distingue personas, instituciones, gobiernos, roles judiciales, organizaciones, colectivos y lugares. Mantiene alias/acrónimos y separa entidad textual de actor operativo.
-
-La regresión judicial exige detectar, entre otros:
-
-- Claudia Sheinbaum;
-- Fiscalía General de la República / FGR;
-- Fausto Corrales Rodríguez;
-- FECOR;
-- Policía Federal Ministerial / PFM;
-- Interpol;
-- Agencia de Investigación Criminal / AIC;
-- juez de Control federal.
-
-### 4. Frames semánticos
-
-Cada proposición intenta producir:
-
-```text
-actor
-predicate/sense
-patient
-recipient
-object
-SER | ESTAR | DECIR | HACER
-temporality
-modalities
-logic
-realization
-epistemic_status
-relation_to_event
-confidence
-```
-
-Se distinguen realización, plan, retrospección, hipótesis/proyección, alegación atribuida, evaluación y hecho textual.
-
-### 5. Eventos y coreferencia
-
-La repetición acumula evidencia sobre el mismo episodio. No crea automáticamente impactos causales adicionales.
-
-Los episodios conservan separado:
-
-- evento constitutivo;
-- atributo/estado;
-- respuesta;
-- argumento;
-- evaluación;
-- proyección;
-- alegación.
-
-Sólo frames con estatus compatible pueden convertirse automáticamente en operaciones Limes.
-
-### 6. Ontología de juegos
-
-`game-ontology.js` contiene 76 plantillas canónicas y familias: coordinación, dilemas, bargaining, subastas, competencia industrial, información incompleta, principal-agente, señalización, screening, inspección, acción colectiva, repetición, coaliciones, votación, redes, juegos evolutivos y secuenciales, entre otras.
-
-El motor no fuerza una clasificación. Devuelve candidatos, evidencia coincidente, requisitos faltantes y sólo declara un juego cuando el umbral estructural se cumple.
-
-### 7. G_e y Gτ
-
-Se mantiene la distinción:
-
-- `G_e`: objetivo/estado local del evento;
-- `Gτ`: estado terminal del escenario.
-
-`Gτ` no sustituye `G_e`.
-
-## Núcleo matemático
-
-Sin cambios:
-
-```text
-R = S × E
-X = R × D × φ
-ΔH = (G_e − H) × X
-H' = H + ΔH
-```
-
-## Alcance
-
-El motor sigue siendo determinista y auditable. Un diccionario grande no equivale por sí solo a comprensión lingüística general. La v0.52 introduce una separación explícita entre cobertura léxica, frames de significado, estatus epistémico, episodios y juegos para poder ampliar cada capa sin contaminar el núcleo matemático.
+Esta rama prioriza integridad sobre automatización. Un análisis puede quedar preliminar o sin operaciones calculables; eso es un resultado válido cuando la evidencia no permite parametrizar el modelo.

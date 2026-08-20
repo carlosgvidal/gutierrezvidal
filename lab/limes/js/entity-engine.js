@@ -1,59 +1,39 @@
 "use strict";
 (function(global){
-const ns=global.Limes52=global.Limes52||{},ES=()=>ns.Spanish;
-const ORG_PATTERNS=[
- {canonical:"Fiscalía General de la República",aliases:["FGR","Fiscalía","Fiscalia","la Fiscalía","la Fiscalia"],type:"INSTITUTION",role:"autoridad investigadora / fuente epistémica",rx:/\bFiscal[ií]a General de la Rep[uú]blica\b|\bFGR\b/gi},
- {canonical:"Fiscalía Especial de Investigación y Litigación de Casos Complejos",aliases:["Fiscalía Especial de Investigación y Litigación de Casos Complejos"],type:"INSTITUTION",role:"unidad investigadora",rx:/Fiscal[ií]a Especial de Investigaci[oó]n y Litigaci[oó]n de Casos Complejos/gi},
- {canonical:"Fiscalía Especializada de Control Regional",aliases:["FECOR"],type:"INSTITUTION",role:"unidad investigadora",rx:/Fiscal[ií]a Especializada de Control Regional|\bFECOR\b/gi},
- {canonical:"Policía Federal Ministerial",aliases:["PFM"],type:"INSTITUTION",role:"ejecutor operativo",rx:/Polic[ií]a Federal Ministerial|\bPFM\b/gi},
- {canonical:"Agencia de Investigación Criminal",aliases:["AIC"],type:"INSTITUTION",role:"agencia investigadora",rx:/Agencia de Investigaci[oó]n Criminal|\bAIC\b/gi},
- {canonical:"Interpol",aliases:["INTERPOL"],type:"INSTITUTION",role:"cooperación policial",rx:/\bInterpol\b|\bINTERPOL\b/g},
- {canonical:"Universidad Autónoma de Sinaloa",aliases:["UAS"],type:"INSTITUTION",role:"institución contextual",rx:/Universidad Aut[oó]noma de Sinaloa|\bUAS\b/gi},
- {canonical:"Cártel de Sinaloa",aliases:["Cartel de Sinaloa"],type:"ORGANIZATION",role:"organización contextual",rx:/C[aá]rtel de Sinaloa/gi},
- {canonical:"gobierno / autoridades",aliases:["gobierno federal","Gobierno de la Ciudad de México","Gobierno capitalino","autoridades","autoridades capitalinas","gobierno"],type:"GOVERNMENT",role:"autoridad pública",rx:/\b(?:gobierno federal|Gobierno de la Ciudad de M[eé]xico|Gobierno capitalino|autoridades capitalinas|autoridades|gobierno)\b/gi},
- {canonical:"Comunidad de Pequeños Anfitriones",aliases:["La Comunidad de Pequeños Anfitriones","comunidad","anfitriones","pequeños anfitriones"],type:"COLLECTIVE",role:"actor regulado / colectivo organizado",rx:/Comunidad de Pequeños Anfitriones|\bpequeños anfitriones\b|\banfitriones\b/gi}
-];
-const PLACE_WORDS=new Set(["México","Sinaloa","Culiacán","Culiacan","Estados Unidos"]);
-const FALSE_CAP=new Set("La El Los Las En Durante Según De Y Sí No Quién FGR Fiscalía Gobierno Presidenta Mandataria Ese Ese Ese Sin Al Acá Aquí Como Cuando Entonces Después Luego".split(/\s+/));
-function pushEntity(reg,e,mention,index){
- let x=reg.get(e.canonical);if(!x){x={id:"ent"+(reg.size+1),name:e.canonical,type:e.type||"UNKNOWN",subtype:e.subtype||"",role:e.role||"",aliases:[...(e.aliases||[])],mentions:[],confidence:e.confidence||"media",operationalCandidate:e.operationalCandidate!==false};reg.set(e.canonical,x);}if(mention&&!x.mentions.some(m=>m.text===mention&&m.index===index))x.mentions.push({text:mention,index});return x;
+const ns=global.Limes52=global.Limes52||{};
+const ORG_HEADS=["Fiscalía","Fiscalia","Gobierno","Congreso","Policía","Policia","Agencia","Universidad","Secretaría","Secretaria","Ayuntamiento","Tribunal","Juzgado","Corte","Instituto","Sindicato","Asociación","Asociacion","Comunidad","Consejo","Comisión","Comision","Partido","Ministerio","Procuraduría","Procuraduria","Fiscalía Especial","Fiscalia Especial","Cártel","Cartel"];
+const LAW_HEADS=["Ley","Código","Codigo","Reglamento","Constitución","Constitucion","Decreto","Norma"];
+const BAD_INITIAL=new Set(["Control","Federal","Pero","Por","Para","Y","E","O","U","Si","No","Como","Cuando","Mientras","Aunque","Porque","Entonces","Luego","Dijo","Dijeron","Corrió","Corrio","Volcó","Volco","Indicó","Indico","Indicaron","Aseguró","Aseguro","Aseguraron","Agregó","Agrego","Agregaron","Respondió","Respondio","Señaló","Senalo","Anunció","Anuncio","Según","Segun","Durante","Al","En","Del","La","El","Los","Las","Un","Una","Dios"]);
+function cleanSurface(s){return String(s||"").replace(/^[“"'¿¡\s]+|[”"'.,;:!?\s]+$/g,"").replace(/\s+/g," ").trim();}
+function canonicalKey(s){return ns.Spanish.strip(cleanSurface(s)).replace(/\s+/g," ");}
+function add(map,name,type,role,mention,index,confidence="media",aliases=[]){name=cleanSurface(name);if(!name)return;const key=canonicalKey(name);if(!key)return;let e=map.get(key);if(!e){e={name,type,role:role||"",aliases:[...aliases],mentions:[],confidence,operationalCandidate:!["PLACE","LAW","PROGRAM","EVENT"].includes(type)};map.set(key,e);}if(mention)e.mentions.push({surface:mention,index});for(const a of aliases)if(a&&!e.aliases.includes(a))e.aliases.push(a);return e;}
+function overlaps(a,b){return a.start<b.end&&b.start<a.end;}
+function detectInstitutional(raw,map,spans){
+ const head=ORG_HEADS.map(x=>x.replace(/\s+/g,"\\s+")).join("|");
+ const rx=new RegExp(`\\b(?:${head})(?:\\s+(?:General|Especial|Especializada|Federal|Nacional|Estatal|Municipal|de|del|la|las|los|y|e|para|en|Control|Investigación|Investigacion|Justicia|República|Republica|Ciudad|México|Mexico|Regional|Ministerial|Criminal|[A-ZÁÉÍÓÚÑ][\\p{L}áéíóúñ-]+)){0,10}`,'gu');
+ let m;while((m=rx.exec(raw))){let surface=cleanSurface(m[0]);surface=surface.replace(/\s+(de|del|la|las|los|y|e|para|en)$/i,"");if(surface.split(/\s+/).length<1)continue;let type=/Gobierno|Ayuntamiento|Congreso|Secretar|Ministerio|Consejo|Comisión|Comision/.test(surface)?"GOVERNMENT":"INSTITUTION";if(/Polic|Agencia/.test(surface))type="ORGANIZATION";const role=type==="GOVERNMENT"?"autoridad pública":/Fiscal|Polic|Agencia|Procur/.test(surface)?"institución de investigación/seguridad":"institución/organización";add(map,surface,type,role,surface,m.index,"media-alta");spans.push({start:m.index,end:m.index+m[0].length});}
+ const ac=/\b[A-ZÁÉÍÓÚÑ]{2,10}\b/g;while((m=ac.exec(raw))){const s=m[0];if(["CDMX","EU","EEUU"].includes(s))continue;const prev=raw.slice(Math.max(0,m.index-120),m.index);if(/\b(?:Fiscalía|Fiscalia|Policía|Policia|Agencia|Universidad|Secretaría|Secretaria|Instituto|Organización|Organizacion|Interpol)\b[^.]{0,100}$/i.test(prev)){add(map,s,"INSTITUTION","sigla institucional",s,m.index,"media");spans.push({start:m.index,end:m.index+s.length});}}
 }
-function detectOrganizations(raw,reg){for(const p of ORG_PATTERNS){p.rx.lastIndex=0;let m;while((m=p.rx.exec(raw)))pushEntity(reg,p,m[0],m.index);}}
-function detectRoleEntities(raw,reg){
- const patterns=[
-  {canonical:"juez de Control federal",type:"COURT_ROLE",role:"autorizador jurídico",rx:/\b(?:un |el )?juez de Control federal\b/gi},
-  {canonical:"Presidencia de la República",type:"GOVERNMENT",role:"arena político-discursiva",rx:/\bPresidencia de la Rep[uú]blica\b/gi}
- ];for(const p of patterns){let m;while((m=p.rx.exec(raw)))pushEntity(reg,p,m[0],m.index);}
+function detectLaws(raw,map,spans){const head=LAW_HEADS.join("|");const rx=new RegExp(`\\b(?:${head})(?:\\s+(?:de|del|la|las|los|y|e|para|en|[A-ZÁÉÍÓÚÑ][\\p{L}áéíóúñ]+)){1,10}`,'gu');let m;while((m=rx.exec(raw))){let s=cleanSurface(m[0]).replace(/\s+(de|del|la|las|los|y|e|para|en)$/i,"");add(map,s,"LAW","instrumento normativo",s,m.index,"alta");spans.push({start:m.index,end:m.index+m[0].length});}}
+function detectPlaces(raw,map,spans){const rx=/\b(?:Ciudad de|Estado de|Municipio de|República de)\s+[A-ZÁÉÍÓÚÑ][\p{L}áéíóúñ]+(?:\s+(?:de|del|la|las|los|y|[A-ZÁÉÍÓÚÑ][\p{L}áéíóúñ]+)){0,5}/gu;let m;while((m=rx.exec(raw))){add(map,m[0],"PLACE","lugar / contexto",m[0],m.index,"alta");spans.push({start:m.index,end:m.index+m[0].length});}}
+function detectPersons(raw,map,spans){
+ const rx=/\b[A-ZÁÉÍÓÚÑ][\p{L}áéíóúñ'-]+(?:\s+(?:[A-ZÁÉÍÓÚÑ][\p{L}áéíóúñ'-]+|de|del|la|las|los)){1,4}\b/gu;let m;
+ while((m=rx.exec(raw))){const surface=cleanSurface(m[0]),parts=surface.split(/\s+/),first=parts[0];if(BAD_INITIAL.has(first)||ns.Spanish.isLikelyFiniteVerb(first))continue;if(spans.some(s=>overlaps({start:m.index,end:m.index+m[0].length},s)))continue;if(/^(?:Fiscalía|Fiscalia|Gobierno|Congreso|Policía|Policia|Agencia|Universidad|Secretaría|Secretaria|Ayuntamiento|Tribunal|Juzgado|Corte|Instituto|Sindicato|Asociación|Asociacion|Comunidad|Consejo|Comisión|Comision|Ley|Código|Codigo|Reglamento|Constitución|Constitucion)\b/.test(surface))continue;
+  // At least two lexical name tokens, and first token should not be an ordinary dictionary word when available unless honorific/context says person.
+  const lexical=parts.filter(x=>!/^(de|del|la|las|los)$/i.test(x));if(lexical.length<2)continue;const context=raw.slice(Math.max(0,m.index-50),Math.min(raw.length,m.index+m[0].length+50));const personCue=/\b(president[ae]|doctor|doctora|señor|señora|sr\.?|sra\.?|juez|integrante|hijo|hija|fundador|rector|diputad[oa]|senador[oa]|gobernador[ae])\b/i.test(context);
+  if(!personCue&&ns.Spanish.inDictionary(first)&&ns.Spanish.inDictionary(lexical[1]))continue;
+  add(map,surface,"PERSON","persona",surface,m.index,personCue?"alta":"media");spans.push({start:m.index,end:m.index+m[0].length});
+ }
+ // Single proper names repeated or used after a speech/action cue.
+ const single=/\b[A-ZÁÉÍÓÚÑ][\p{L}áéíóúñ'-]{2,}\b/gu;const counts=new Map(),hits=[];while((m=single.exec(raw))){const s=m[0];if(BAD_INITIAL.has(s)||ns.Spanish.isLikelyFiniteVerb(s)||spans.some(x=>m.index>=x.start&&m.index<x.end))continue;counts.set(s,(counts.get(s)||0)+1);hits.push({s,index:m.index});}
+ for(const h of hits){const cue=raw.slice(Math.max(0,h.index-25),h.index);if((counts.get(h.s)||0)>=2||/\b(dijo|respondió|respondio|exclamó|exclamo|llamaba|llamado|llamada)\s*$/i.test(cue)){add(map,h.s,"PERSON","persona/personaje",h.s,h.index,"media");}}
 }
-function personCandidates(raw){
- const out=[];
- const titleRx=/\b(?:presidenta|presidente|mandataria|mandatario|fiscal|rector|exrector|juez|gobernadora|gobernador|senadora|senador|diputada|diputado)\s+([A-ZÁÉÍÓÚÑ][\p{L}'’-]+(?:\s+[A-ZÁÉÍÓÚÑ][\p{L}'’-]+){1,4})/gu;let m;
- while((m=titleRx.exec(raw)))out.push({name:m[1],index:m.index,confidence:"alta"});
- const cap=/\b([A-ZÁÉÍÓÚÑ][\p{L}'’-]+(?:\s+(?:de|del|la|las|los|y)?\s*[A-ZÁÉÍÓÚÑ][\p{L}'’-]+){1,4})\b/gu;
- while((m=cap.exec(raw))){let name=m[1].replace(/\s+/g," ").trim();const first=name.split(/\s+/)[0];if(FALSE_CAP.has(first))continue;if(/Fiscal|República|Investigación|Policía|Agencia|Universidad|Gobierno|Ciudad de México|Estados Unidos|Huertos del Pedregal|Santa Julia/i.test(name))continue;out.push({name,index:m.index,confidence:"media"});}
- return out;
-}
-function normalizePersonName(name){return name.replace(/^(?:La|El)\s+/,"").trim();}
-function detectPersons(raw,reg){
- const special=[{canonical:"Ismael Zambada",aliases:["Ismael “El Mayo” Zambada","Ismael \"El Mayo\" Zambada","El Mayo Zambada","Zambada"],type:"PERSON",role:"referente de acontecimiento relacionado",rx:/Ismael\s+[“\"]El Mayo[”\"]\s+Zambada|Ismael\s+Zambada/gi}];for(const sp of special){let m;while((m=sp.rx.exec(raw)))pushEntity(reg,sp,m[0],m.index);}
- const seen=[];for(const c of personCandidates(raw)){const name=normalizePersonName(c.name);if(name.split(/\s+/).length<2)continue;if(seen.some(x=>x.includes(name)||name.includes(x)))continue;seen.push(name);pushEntity(reg,{canonical:name,type:"PERSON",role:"persona",confidence:c.confidence},name,c.index);}
- // Canonical aliases for titles after full person has appeared.
- const persons=[...reg.values()].filter(e=>e.type==="PERSON");
- for(const e of persons){const parts=e.name.split(/\s+/);if(parts.length>=2){const surname=parts[parts.length-1];if(surname.length>3&&!e.aliases.includes(surname))e.aliases.push(surname);}}
- const shein=persons.find(e=>/Sheinbaum/i.test(e.name));if(shein){for(const a of ["Presidenta","presidenta","mandataria","la Presidenta","La mandataria"]){if(new RegExp(`\\b${a.replace(/ /g,"\\s+")}\\b`,"i").test(raw)&&!shein.aliases.includes(a))shein.aliases.push(a);}}
-}
-function detectPlaces(raw,reg){for(const p of PLACE_WORDS){const rx=new RegExp(`\\b${p}\\b`,"g");let m;while((m=rx.exec(raw)))pushEntity(reg,{canonical:p,type:"PLACE",role:"lugar / contexto",operationalCandidate:false},m[0],m.index);}}
-function detectNarrativeRoles(raw,reg){const roles=[
- ["Hänsel",/[Hh][äa]nsel/g,"PERSON","actor de orientación"],["Gretel",/Gretel/g,"PERSON","actor de contraacción"],["madrastra",/madrastra/gi,"PERSON_ROLE","amenaza familiar"],["padre",/\bpadre\b|\bleñador\b/gi,"PERSON_ROLE","mediador ambivalente"],["bruja",/\bbruja\b|\bvieja\b/gi,"PERSON_ROLE","amenaza de captura"]];
- for(const [name,rx,type,role] of roles){let m;while((m=rx.exec(raw)))pushEntity(reg,{canonical:name,type,role},m[0],m.index);}if(reg.has("Hänsel")&&reg.has("Gretel"))pushEntity(reg,{canonical:"Hänsel y Gretel",aliases:["niños","hijos","hermanitos"],type:"COLLECTIVE",role:"actor vulnerable / resistencia"},"Hänsel y Gretel",0);
-}
-function assignFunctionalRoles(raw,entities){const n=ES().strip(raw);for(const e of entities){const name=ES().strip(e.name),contexts=e.mentions.map(m=>raw.slice(Math.max(0,m.index-120),Math.min(raw.length,m.index+220))).join(" ").toLowerCase();if(e.type==="PERSON"&&/sheinbaum/.test(name))e.role="autoridad política / fuente discursiva";if(e.type==="PERSON"&&/corrales/.test(name))e.role=/detenci|falsedad|encubrimiento|declaracion/.test(contexts)?"investigado / fuente potencial de información":"persona referida";if(e.type==="PERSON"&&/cu[eé]n/.test(name))e.role="víctima / referente del acontecimiento";if(e.type==="PERSON"&&/zambada/.test(name))e.role="referente de acontecimiento relacionado";if(e.type==="INSTITUTION"&&/fiscal[ií]a general/.test(name))e.role="autoridad investigadora / fuente epistémica";}}
-function detect(raw){const reg=new Map();detectOrganizations(raw,reg);detectRoleEntities(raw,reg);detectNarrativeRoles(raw,reg);detectPersons(raw,reg);detectPlaces(raw,reg);const entities=[...reg.values()];assignFunctionalRoles(raw,entities);
- // Deduplicate person fragments contained in longer names.
- const persons=entities.filter(e=>e.type==="PERSON");for(const e of persons){const longer=entities.find(x=>x!==e&&x.name.includes(e.name)&&x.name.length>e.name.length);if(longer)e.suppressed=true;}
- return entities.filter(e=>!e.suppressed).sort((a,b)=>b.mentions.length-a.mentions.length||a.name.localeCompare(b.name));}
-function aliasesFor(e){return [e.name,...(e.aliases||[])];}
-function mentionsIn(text,entities){const n=ES().strip(text),out=[];for(const e of entities){if(aliasesFor(e).some(a=>a&&n.includes(ES().strip(a))))out.push(e.name);}return [...new Set(out)];}
-function resolveActor(text,entities,{preferBefore=""}={}){const n=ES().strip(text),mentions=mentionsIn(text,entities);if(!mentions.length)return "";if(preferBefore){const i=n.indexOf(ES().strip(preferBefore));if(i>=0){const before=mentions.filter(x=>{const p=n.indexOf(ES().strip(x));return p>=0&&p<i;});if(before.length)return before[before.length-1];}}return mentions[0];}
-ns.Entities={detect,mentionsIn,resolveActor,ORG_PATTERNS};
+function detectCollectives(raw,map){const rx=/\b(?:los|las)\s+([a-záéíóúñ][\p{L}áéíóúñ-]{3,})(?:\s+([a-záéíóúñ][\p{L}áéíóúñ-]{3,}))?/giu;let m;while((m=rx.exec(raw))){const phrase=cleanSurface(m[0]),noun=cleanSurface([m[1],m[2]].filter(Boolean).join(" "));if(ns.Spanish.STOP.has(ns.Spanish.strip(noun))||/^(hechos?|investigaciones?|circunstancias?|datos?|declaraciones?|implicaciones?|noches?|barrios?)$/i.test(noun))continue;const contexts=(raw.match(new RegExp(`\\b${phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}\\b`,'gi'))||[]).length;if(contexts>=2||/rechaz|pid|exhort|protest|demand|organiza|represent/.test(ns.Spanish.strip(raw.slice(Math.max(0,m.index-80),m.index+180))))add(map,phrase,"COLLECTIVE","colectivo textual",phrase,m.index,"media");}}
+
+function detectRoleEntities(raw,map){const roles={"padre":"PERSON_ROLE","madre":"PERSON_ROLE","madrastra":"PERSON_ROLE","padrastro":"PERSON_ROLE","bruja":"PERSON_ROLE","rey":"PERSON_ROLE","reina":"PERSON_ROLE","juez":"COURT_ROLE","testigo":"PERSON_ROLE","investigado":"PERSON_ROLE","acusado":"PERSON_ROLE","víctima":"PERSON_ROLE","victima":"PERSON_ROLE"};for(const [word,type] of Object.entries(roles)){const rx=new RegExp(`\\b${word}\\b`,'gi'),hits=[...raw.matchAll(rx)];if(!hits.length)continue;const role=type==="COURT_ROLE"?"rol judicial":"rol textual";for(const m of hits)add(map,word,type,role,m[0],m.index,"media");}}
+function mergeAliases(list){const removed=new Set();for(let i=0;i<list.length;i++){if(removed.has(i))continue;for(let j=0;j<list.length;j++){if(i===j||removed.has(j))continue;const a=list[i],b=list[j];if(a.type!==b.type)continue;const ka=canonicalKey(a.name),kb=canonicalKey(b.name);if(a.type==="PERSON"&&(ka.includes(kb)||kb.includes(ka))){const keep=a.name.length>=b.name.length?a:b,drop=keep===a?b:a,ki=keep===a?i:j,kd=keep===a?j:i;if(drop.name!==keep.name&&!keep.aliases.includes(drop.name))keep.aliases.push(drop.name);keep.mentions.push(...drop.mentions);removed.add(kd);if(kd===i)break;}}}return list.filter((_,i)=>!removed.has(i));}
+function detect(raw){const map=new Map(),spans=[];detectInstitutional(raw,map,spans);detectLaws(raw,map,spans);detectPlaces(raw,map,spans);detectPersons(raw,map,spans);detectCollectives(raw,map);detectRoleEntities(raw,map);
+ let out=mergeAliases([...map.values()]);out.forEach(e=>{e.aliases=[...new Set(e.aliases)];e.mentions=e.mentions.sort((a,b)=>a.index-b.index);});return out.sort((a,b)=>b.mentions.length-a.mentions.length||a.name.localeCompare(b.name,"es"));}
+function mentionsIn(text,entities){const n=ns.Spanish.strip(text),out=[];for(const e of entities){const forms=[e.name,...e.aliases].filter(Boolean);if(forms.some(f=>n.includes(ns.Spanish.strip(f))))out.push(e.name);}return [...new Set(out)];}
+ns.Entities={detect,mentionsIn,canonicalKey};
 })(window);
