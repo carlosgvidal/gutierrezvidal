@@ -1,36 +1,31 @@
-# Limes v0.49 · Observational Model
+# Limes v0.50 · Semiotic–Strategic Analysis Layer
 
-Versión centrada en hacer matemáticamente factible el paso de texto a núcleo.
+Arquitectura:
 
-## Cambio arquitectónico
+texto → concordancia contextual → relaciones lingüísticas → estructura semiótica → estructura estratégica → escenarios → tracks → Limes Core.
 
-Se separa la lectura textual del cálculo:
+## Capas nuevas
 
-texto → observaciones → actores normalizados → roles funcionales → tracks → H única por track → eventos válidos → evidencia/confianza → suficiencia → cálculo.
+- Concordancia contextual: frecuencia, dispersión, asociaciones actorales, verbos y relevancia discursiva.
+- Relaciones lingüísticas ligeras: sujeto operativo, destinatario, entidades mencionadas, negación y modalidades.
+- Estructura semiótica: actantes, objetos de valor, oposiciones, programas y modalidades querer/poder/saber/deber.
+- Estructura estratégica: jugadores, acciones, preferencias ordinales explícitas/inferidas/indeterminadas, secuencia e información.
+- Clasificador inicial de familias de juego:
+  - coordinación
+  - conflicto distributivo / bargaining
+  - amenaza–respuesta secuencial
+  - señalización
+  - acción colectiva
+  - principal–agente
+- Escenarios estratégicos sin probabilidades ni utilidad esperada.
+- Conversión escenario → G por track.
+- Trazabilidad completa en el reporte.
 
-## Cambios principales
-
-- Objeto de observación validable (`observational-model-v0.49`).
-- Tracks analíticos separados cuando un texto contiene más de una H.
-- En regulación:
-  - separa `impacto_regulatorio` de `impugnacion`;
-  - carga por defecto el track operativo, no una H mixta;
-  - conserva el track de impugnación como pista disponible.
-- En narrativa:
-  - selección por cobertura de arco;
-  - evita pan contextual como orientación fallida;
-  - evita remordimiento/retrospectiva como coerción actual;
-  - mejora alias niños/hijos/hermanitos → Hänsel y Gretel.
-- Cada track incluye estado de suficiencia, faltantes, advertencias y confianza.
-- El reporte incluye una sección `0B. OBJETO DE OBSERVACIÓN`.
-
-## Núcleo matemático intacto
+## Núcleo matemático sin cambios
 
 R = S × E  
 X = R × D × φ  
 ΔH = (G − H) × X  
 H' = H + ΔH
 
-## Nota
-
-Esta versión no incorpora todavía una capa de concordancia lingüística. La deja como intervención posterior sobre el objeto de observación.
+La teoría de juegos restringe escenarios plausibles; no sustituye el núcleo de Limes.
