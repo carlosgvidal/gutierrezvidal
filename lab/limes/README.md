@@ -1,23 +1,28 @@
-# Limes v0.48 · Actor Roles & Event Modes
+# Limes v0.49 · Observational Model
 
-Capa textual con roles funcionales, modos de issue y eventos compactos.
+Versión centrada en hacer matemáticamente factible el paso de texto a núcleo.
+
+## Cambio arquitectónico
+
+Se separa la lectura textual del cálculo:
+
+texto → observaciones → actores normalizados → roles funcionales → tracks → H única por track → eventos válidos → evidencia/confianza → suficiencia → cálculo.
 
 ## Cambios principales
 
-- Añade selector de modo de issue: impacto regulatorio, impugnación, mixto, supervivencia/agencia, adopción y movilización.
-- Añade selector de agrupación de eventos: compacto/detallado.
-- Unifica actores duplicados en la carga desde texto.
-- Asigna roles funcionales por dominio: autoridad reguladora, actor regulado, vocería, territorio, norma, amenaza, receptor vulnerable, actor de orientación, actor de contraacción.
-- Separa actor mencionado de actor operativo en textos regulatorios.
-- Reconoce eventos regulatorios bidireccionales:
-  - gobierno / autoridades → actor regulado: regulación coercitiva;
-  - actor regulado → actor regulado: impugnación/demanda como aumento de capacidad de respuesta.
-- Mejora narrativa:
-  - mujer/madrastra y mujer/bruja se resuelven por contexto;
-  - distingue orientación exitosa y orientación fallida;
-  - detecta negación semántica como “no nos abandonará”;
-  - incluye contraacción, escape, retorno y agencia restaurada.
-- Evidencia S/E se marca como contextual o inferida por rol cuando no es individual.
+- Objeto de observación validable (`observational-model-v0.49`).
+- Tracks analíticos separados cuando un texto contiene más de una H.
+- En regulación:
+  - separa `impacto_regulatorio` de `impugnacion`;
+  - carga por defecto el track operativo, no una H mixta;
+  - conserva el track de impugnación como pista disponible.
+- En narrativa:
+  - selección por cobertura de arco;
+  - evita pan contextual como orientación fallida;
+  - evita remordimiento/retrospectiva como coerción actual;
+  - mejora alias niños/hijos/hermanitos → Hänsel y Gretel.
+- Cada track incluye estado de suficiencia, faltantes, advertencias y confianza.
+- El reporte incluye una sección `0B. OBJETO DE OBSERVACIÓN`.
 
 ## Núcleo matemático intacto
 
@@ -26,10 +31,6 @@ X = R × D × φ
 ΔH = (G − H) × X  
 H' = H + ΔH
 
-## Validación incluida
+## Nota
 
-Ejecute:
-
-```bash
-node test-v048.js
-```
+Esta versión no incorpora todavía una capa de concordancia lingüística. La deja como intervención posterior sobre el objeto de observación.
