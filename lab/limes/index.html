@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Limes v0.52.1 · Integrity Recovery</title>
+<title>Limes v0.53 · Qualitative Synthesis</title>
 <link rel="stylesheet" href="assets/app.css">
 <script defer src="js/limes-core.js"></script>
 <script defer src="js/spanish-semantics.js"></script>
@@ -11,31 +11,37 @@
 <script defer src="js/semantic-engine.js"></script>
 <script defer src="js/event-engine.js"></script>
 <script defer src="js/game-ontology.js"></script>
+<script defer src="js/synthesis-engine.js"></script>
 <script defer src="js/game-engine.js"></script>
 <script defer src="js/analysis-engine.js"></script>
 <script defer src="js/app.js"></script>
 </head>
 <body>
-<header><div><b>Limes</b><span>v0.52.1 · integrity-recovery</span></div><small>Integridad · lengua · entidades · frames · episodios · juegos · Limes Core</small></header>
+<header><div><b>Limes</b><span>v0.53 · qualitative-synthesis</span></div><small>Semiótica → mediación estratégica → extrapolación → cuantificación selectiva → Limes Core</small></header>
 <main>
 <section>
 <h2>Texto fuente</h2>
-<p class="note">El formulario parte vacío. Esta rama restaura las reglas epistemológicas de v0.40: no inventa actores ni números desconocidos; los frames no resueltos quedan UNRESOLVED y el cálculo se bloquea hasta parametrización explícita.</p>
-<label>Corpus / información de entrada</label>
+<p class="note">Limes analiza primero la estructura cualitativa del texto. La cuantificación es posterior y sólo se ejecuta sobre variables sustentadas; los valores no identificables permanecen sin número.</p>
+<label for="corpus">Corpus / información de entrada</label>
 <textarea id="corpus" placeholder="Pegue aquí el texto a analizar."></textarea>
-<button id="analyzeText">Analizar texto</button>
-<button id="loadTextEvidence">Generar escenario desde análisis</button>
-<div id="textOut" class="card">Sin análisis.</div>
-
-<h2>Escenario</h2>
-<label>Issue / cuestión específica</label><input id="issue" value="" placeholder="Se propone desde el análisis o se declara manualmente.">
-<label>Descripción breve del escenario</label><textarea id="scenarioNote" placeholder="Contexto y alcance del escenario."></textarea>
-<label>Modo de issue</label><select id="issueMode"><option value="">sin seleccionar</option><option value="impacto_regulatorio">impacto regulatorio / capacidad operativa</option><option value="impugnacion">resistencia / impugnación</option><option value="supervivencia">supervivencia / agencia narrativa</option><option value="investigacion">investigación / esclarecimiento</option><option value="adopcion">persuasión / adopción</option><option value="movilizacion">movilización colectiva</option><option value="generico">genérico</option></select>
-<label>Escenario estratégico</label><select id="strategicScenario"><option value="">sin seleccionar</option></select>
+<button id="analyzeText" class="primary">Analizar</button>
+<button id="exportTxt">Exportar reporte TXT</button>
+<button id="exportJson">Exportar análisis JSON</button>
 <div id="jscheck" class="card warn"><b>JS no ejecutado</b><p>Si este mensaje permanece, revise rutas relativas y carga de módulos.</p></div>
 
-<h2>Escala de Hacer</h2>
-<label>Variable H observada</label><input id="hLabel" value="" placeholder="Defina la conducta/capacidad observable.">
+<details id="quantPanel" class="advanced">
+<summary>Cuantificación opcional / trazabilidad de variables</summary>
+<p class="note">Esta sección no es necesaria para obtener el análisis cualitativo. Se utiliza únicamente cuando existen datos suficientes para cuantificar parte o toda la operación.</p>
+<button id="loadTextEvidence">Preparar variables desde el análisis</button>
+
+<h3>Issue</h3>
+<label>Cuestión específica</label><input id="issue" value="" placeholder="Se propone desde el análisis o se declara con evidencia.">
+<label>Contexto</label><textarea id="scenarioNote" placeholder="Alcance analítico del escenario."></textarea>
+<label>Track</label><select id="issueMode"><option value="">sin seleccionar</option><option value="impacto_regulatorio">impacto regulatorio / capacidad operativa</option><option value="impugnacion">resistencia / impugnación</option><option value="supervivencia">supervivencia / agencia narrativa</option><option value="investigacion">investigación / esclarecimiento</option><option value="adopcion">persuasión / adopción</option><option value="movilizacion">movilización colectiva</option><option value="generico">genérico</option></select>
+<label>Marco estratégico</label><select id="strategicScenario"><option value="">estado observado</option></select>
+
+<h3>Escala de Hacer</h3>
+<label>Variable H observada</label><input id="hLabel" value="" placeholder="Conducta/capacidad observable.">
 <div class="anchor-grid">
 <b>0.00</b><input id="h0" value="">
 <b>0.25</b><input id="h25" value="">
@@ -44,20 +50,36 @@
 <b>1.00</b><input id="h100" value="">
 </div>
 
-<h2>Actores</h2>
-<table id="actors"><thead><tr><th>Actor</th><th>Rol</th><th>H evaluable</th><th>Ser S</th><th>Estar E</th><th>Hacer H</th><th>R=S×E</th><th>Evidencia S/E/H</th><th></th></tr></thead><tbody></tbody></table>
+<h3>Actores / parámetros disponibles</h3>
+<table id="actors"><thead><tr><th>Actor</th><th>Rol</th><th>H evaluable</th><th>S</th><th>E</th><th>H</th><th>R=S×E</th><th>Evidencia / fuente</th><th></th></tr></thead><tbody></tbody></table>
 <button id="addActor">Añadir actor</button>
 
-<h2>Operaciones Limes</h2>
-<table id="ops"><thead><tr><th>Fuente</th><th>H afectado</th><th>Tipo</th><th>D</th><th>φ</th><th>G_e</th><th>Evidencia</th><th></th></tr></thead><tbody></tbody></table>
-<button id="addOp">Añadir operación</button><button id="run" class="primary">Ejecutar escenario</button><button id="exportTxt">Exportar reporte TXT</button><button id="exportJson">Exportar JSON</button>
+<h3>Operaciones / parámetros disponibles</h3>
+<table id="ops"><thead><tr><th>Fuente</th><th>H afectado</th><th>Tipo</th><th>D</th><th>φ</th><th>G_e</th><th>Evidencia / fuente</th><th></th></tr></thead><tbody></tbody></table>
+<button id="addOp">Añadir operación</button>
+<button id="run">Calcular lo sustentado</button>
+<div id="partialResult" class="card">Sin cuantificación.</div>
+</details>
 </section>
 
 <section>
-<h2>Resultado</h2><div id="status" class="card"><b>Sin ejecutar</b><p>Analice un texto o construya manualmente el escenario.</p></div>
-<div id="results"></div>
-<h2>Flujo causal</h2><div class="flow"><div>Texto</div><i>→</i><div>Entidades</div><i>→</i><div>Frames</div><i>→</i><div>Episodios</div><i>→</i><div>Juego</div><i>→</i><div>Track</div><i>→</i><div>ΔH</div></div>
-<h2>Reporte</h2><div id="report" class="card report">Sin reporte.</div>
+<h2>Resultado</h2>
+<div id="status" class="card"><b>Sin análisis</b><p>Ingrese un texto para producir una lectura cualitativa.</p></div>
+
+<div id="qualitativeResult"></div>
+<div id="strategicResult"></div>
+<div id="quantResult"></div>
+
+<h2>Flujo de análisis</h2>
+<div class="flow"><div>Texto</div><i>→</i><div>Semiótica</div><i>→</i><div>Mediación estratégica</div><i>→</i><div>Extrapolación</div><i>→</i><div>Cuantificación selectiva</div><i>→</i><div>ΔH si procede</div></div>
+
+<details id="tracePanel" class="advanced">
+<summary>Trazabilidad técnica</summary>
+<div id="technicalTrace">Sin trazabilidad.</div>
+</details>
+
+<h2>Reporte</h2>
+<div id="report" class="card report">Sin reporte.</div>
 </section>
 </main>
 </body>

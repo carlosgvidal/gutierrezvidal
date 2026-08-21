@@ -1,7 +1,8 @@
 {
-  "version": "0.52.1",
-  "name": "Integrity Recovery",
-  "basis": "v0.40 theory core + v0.52 modular architecture",
-  "status": "recovery / conservative automatic analysis",
-  "automatic_numeric_inference": false
+  "version": "0.53",
+  "name": "Qualitative Synthesis & Strategic Mediation",
+  "basis": "v0.40 theory core + v0.52.1 integrity recovery + selected qualitative patterns recovered from v0.33",
+  "status": "qualitative-first / selective quantification",
+  "automatic_numeric_inference": false,
+  "game_catalog_size": 76
 }

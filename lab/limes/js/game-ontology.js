@@ -21,7 +21,7 @@ G("weakest_link","Weakest-Link Game","coordinacion",["coordination","minimum_eff
 G("best_shot","Best-Shot Game","accion_colectiva",["collective_action","maximum_effort","free_riding"],["group"],[],["Nash"]),
 G("nash_bargaining","Nash Bargaining","negociacion",["bargaining","agreement","outside_option"],["negotiable_outcome","disagreement_point"],[],["solución de Nash"]),
 G("rubinstein","Rubinstein Bargaining","negociacion",["bargaining","sequential","alternating_offers","discounting"],["two_players","offers"],[],["equilibrio perfecto en subjuegos"]),
-G("alternating_offers","Alternating-Offers Bargaining","negociacion",["bargaining","sequential","offers"],["negotiable_outcome"],[],["SPE"]),
+G("alternating_offers","Alternating-Offers Bargaining","negociacion",["bargaining","sequential","offers","alternating_offers"],["negotiable_outcome"],[],["SPE"]),
 G("ultimatum","Ultimatum Game","negociacion",["bargaining","sequential","take_it_or_leave_it"],["proposer","responder"],[],["SPE"]),
 G("dictator","Dictator Game","asignacion",["allocation","unilateral"],["allocator","recipient"],[],["elección unilateral"]),
 G("war_attrition","War of Attrition","conflicto",["conflict","waiting","costly_delay"],["contest"],[],["equilibrio mixto"]),

@@ -1,22 +1,23 @@
-# Despliegue v0.52.1
+# Despliegue v0.53
 
-Reemplace la carpeta completa de Limes, preservando la estructura relativa:
+Sustituya la carpeta completa de Limes preservando la estructura relativa. No copie únicamente `index.html`.
 
-- `index.html`
-- `assets/`
-- `js/`
-- `data/`
+```text
+index.html
+assets/
+js/
+data/
+```
 
-No copie únicamente `index.html`.
+La versión no requiere backend. `index.html` carga módulos JS y recursos lingüísticos mediante rutas relativas.
 
-La rama no requiere un backend: los módulos y el diccionario se cargan mediante rutas relativas.
-
-Después del despliegue, comprobar en la consola/red del navegador que cargan con HTTP 200:
+Comprobar tras el despliegue:
 
 - `assets/app.css`
 - `js/app.js`
+- `js/synthesis-engine.js`
 - `js/limes-core.js`
 - `data/lexicon/es_MX.dic`
 - `data/lexicon/es_MX.aff`
 
-La validación incluida en el paquete cubre sintaxis, regresiones y rutas locales; no sustituye una prueba del servidor real/Safari.
+La validación incluida comprueba sintaxis, regresiones, arquitectura y rutas HTTP locales. No sustituye una prueba del despliegue real en Safari/gutierrezvidal.com.

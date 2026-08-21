@@ -1,63 +1,102 @@
-# Limes v0.52.1 · Integrity Recovery
+# Limes v0.53 · Qualitative Synthesis & Strategic Mediation
 
-Rama de saneamiento construida después de la auditoría integral de v0.52 y cotejada contra el núcleo teórico v0.40.
+Esta versión integra los elementos recuperables de la versión monolítica v0.33 sin reincorporar su matemática de expected utility, posición estratégica, saliencia, rigidez, riesgo, coaliciones automáticas o normalización Ser/Estar/Decir/Hacer.
 
-## Objetivo
-
-Restaurar primero las condiciones de validez del modelo antes de añadir más capacidad semántica.
-
-## Principios restaurados
-
-- `R = S × E`
-- `X = R × D × φ`
-- `ΔH = (G_e − H) × X`
-- Ninguna entrada desconocida se sustituye por `0.5`.
-- Si falta `S`, `E`, `H`, `D`, `φ` o `G_e`, no se calcula.
-- `source` y `target` deben coincidir con los actores suministrados al núcleo.
-- Un frame no resuelto queda `UNRESOLVED`, no `HACER`.
-- Una acción material/institucional no se convierte automáticamente en `D` comunicativa.
-- `Gτ` no se asigna automáticamente ni entra en la ecuación del evento.
-
-## Correcciones de integridad
-
-1. Eliminados del código de producción los nombres y fallbacks específicos de los fixtures de prueba.
-2. Añadido gate de procedencia: actores de frames/operaciones se toman de entidades detectadas en el texto o de actores analíticos genéricos explícitos.
-3. Desambiguación conservadora de `detener`:
-   - `se detuvieron a/para + infinitivo` → pausa/movimiento;
-   - detención jurídica requiere estructura transitiva/contexto institucional.
-4. NER filtra verbos finitos y conectores al inicio de candidatos PERSON.
-5. Añadidos frames anidados para construcciones como `rechazó el límite impuesto por ...`.
-6. Memoria discursiva conservadora para verbos de atribución con sujeto elíptico.
-7. Dominio inferido por acumulación comparativa de evidencia; un solo trigger no decide automáticamente.
-8. Coreferencia acotada por firma semántica y proximidad; se retiraron claves específicas de casos.
-9. Juegos: todos los `requires` son requisitos duros. El dominio ya no inyecta features estratégicas.
-10. S/E/H/D/φ/G_e automáticos eliminados. El escenario se carga con campos numéricos vacíos.
-11. `Gτ` vacío permanece `null`; se eliminó la conversión `"" → 0`.
-12. El diccionario es_MX participa al menos en el filtro morfológico/NER; la aplicación integral de afijos queda como trabajo posterior.
-
-## Límite teórico deliberado
-
-v0.40 define `D` como movilización comunicativa. Por eso v0.52.1 conserva acciones materiales e institucionales como observaciones, pero no las introduce automáticamente en el núcleo. La generalización `Decir → Operación` queda pendiente de decisión teórica explícita.
-
-## Estructura
+## Arquitectura conceptual
 
 ```text
-index.html
-assets/app.css
-js/
-  limes-core.js
-  spanish-semantics.js
-  entity-engine.js
-  semantic-engine.js
-  event-engine.js
-  game-ontology.js
-  game-engine.js
-  analysis-engine.js
-  app.js
-data/lexicon/
-tests/
+Texto
+→ interpretación semiótica
+→ mediación estratégica por teoría de juegos
+→ extrapolación cualitativa
+→ cuantificación selectiva
+→ Limes Core cuando procede
 ```
 
-## Estado
+La semiótica es el análisis primario. La teoría de juegos funciona como lente analítica sobre estructuras ya interpretadas y no como herramienta de medición. La cuantificación no condiciona la existencia ni la validez del análisis cualitativo.
 
-Esta rama prioriza integridad sobre automatización. Un análisis puede quedar preliminar o sin operaciones calculables; eso es un resultado válido cuando la evidencia no permite parametrizar el modelo.
+## Recuperado de v0.33
+
+Se recuperaron, reescritos sobre la arquitectura actual:
+
+- síntesis cualitativa antes del cálculo;
+- lectura de actores y relaciones;
+- oposiciones como componente semiótico;
+- dimensión estratégica legible para el usuario;
+- separación entre resultado principal y anexo técnico;
+- expresión explícita de límites/incertidumbre.
+
+No se recuperaron:
+
+- `x`, `c`, `s`, `r`, `ρ`, `σ`;
+- expected utility;
+- probabilidad de victoria;
+- amenazas/coaliciones automáticas;
+- Monte Carlo como validación empírica;
+- normalización Ser+Estar+Decir+Hacer=1;
+- transiciones heurísticas de Ser/Estar/Decir/Hacer.
+
+## Conservado de v0.52.1 / v0.40
+
+- `R = S × E`;
+- `X = R × D × φ`;
+- `ΔH = (G_e − H) × X`;
+- `UNRESOLVED` como salida válida;
+- no sustitución de datos desconocidos;
+- separación `source / actionTarget / stateTarget`;
+- acciones materiales/institucionales fuera de `D` automática;
+- modularidad;
+- diccionario es_MX;
+- catálogo declarativo de 76 juegos;
+- requisitos duros para identificación canónica;
+- fixtures únicamente en `tests/`.
+
+## Nuevo módulo: `synthesis-engine.js`
+
+Produce internamente:
+
+- perfiles funcionales Ser/Estar/Decir/Hacer por actor;
+- objetos de valor / objetos en disputa;
+- oposiciones contextuales;
+- programas y contra-programas;
+- fronteras cualitativas source→target;
+- transformaciones observadas;
+- mediación estratégica;
+- escenarios cualitativos extrapolables y sus límites;
+- evaluación de qué variables Limes son interpretables y cuáles no tienen valor numérico identificable.
+
+## Cuantificación selectiva
+
+El núcleo incorpora `partialInteraction()` para calcular únicamente componentes efectivamente disponibles:
+
+- `R` si existen `S` y `E`;
+- `X` si además existen `D` y `φ`;
+- `gap` si existen `G_e` y `H`;
+- `ΔH` sólo cuando existen ambos bloques.
+
+Una trayectoria secuencial completa sólo se construye si todas las operaciones necesarias están completas. No se fabrican parámetros para completar una ecuación.
+
+## Interfaz
+
+La vista principal muestra:
+
+1. análisis cualitativo;
+2. mediación estratégica y extrapolación;
+3. estado de cuantificación.
+
+Frames, episodios, candidatos de juegos y concordancia quedan en **Trazabilidad técnica**, colapsada por defecto. La parametrización numérica también queda en una sección opcional.
+
+## Mejoras lingüísticas adicionales
+
+- aliases institucionales y siglas entre paréntesis;
+- fusión de denominaciones institucionales cortas/largas;
+- índices temporales de frames para coreferencia;
+- stems narrativos corregidos para abandono, captura, contraacción, orientación y retorno;
+- nombres propios simples cuando funcionan sintácticamente como sujeto;
+- atribuciones de alegación (`atribuir`, `señalar como probable`) diferenciadas;
+- `de acuerdo con` ya no cuenta como acuerdo estratégico;
+- identificación canónica de juegos más estricta.
+
+## Límite teórico preservado
+
+v0.40 define `D` como movilización comunicativa. Las acciones materiales e institucionales se analizan cualitativamente, pero no entran automáticamente a `X` hasta que exista una decisión teórica explícita sobre una posible generalización de `Decir` a una categoría más amplia de operación/intercambio.

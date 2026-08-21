@@ -17,11 +17,25 @@
     const R=symbolicResources(source),X=R*op.D*op.phi,gap=op.G-target.H,deltaH=gap*X,Hafter=clamp01(target.H+deltaH);
     return {source:source.id,target:target.id,actionTarget:op.actionTarget||op.target,stateTarget:op.stateTarget||op.target,type:op.type||"operación",frameId:op.frameId||"",episodeId:op.episodeId||"",R,D:op.D,phi:op.phi,X,G:op.G,Ge:op.G,terminalG:Number.isFinite(op.terminalG)?op.terminalG:null,Hbefore:target.H,gap,deltaH,Hafter,evidence:op.evidence||{}};
   }
+  function partialInteraction(source,target,op){
+    const finite01=v=>Number.isFinite(v)&&v>=0&&v<=1;
+    if(!source||!source.id||!target||!target.id||!op||!op.source||!op.target)return {status:"insuficiente",missing:["source/target"],R:null,X:null,gap:null,deltaH:null,Hafter:null,direction:"indeterminada"};
+    if(source.id!==op.source||target.id!==op.target)return {status:"insuficiente",missing:["coherencia source/target"],R:null,X:null,gap:null,deltaH:null,Hafter:null,direction:"indeterminada"};
+    const missing=[];for(const [k,v] of [["S",source.S],["E",source.E],["H",target.H],["D",op.D],["phi",op.phi],["G",op.G]])if(!finite01(v))missing.push(k);
+    const R=finite01(source.S)&&finite01(source.E)?source.S*source.E:null;
+    const X=Number.isFinite(R)&&finite01(op.D)&&finite01(op.phi)?R*op.D*op.phi:null;
+    const gap=finite01(op.G)&&finite01(target.H)?op.G-target.H:null;
+    const deltaH=Number.isFinite(X)&&Number.isFinite(gap)?gap*X:null;
+    const Hafter=Number.isFinite(deltaH)&&finite01(target.H)?clamp01(target.H+deltaH):null;
+    const direction=Number.isFinite(gap)?(gap>0?"aumento":gap<0?"disminución":"sin brecha"):"indeterminada";
+    const derived=[R,X,gap,deltaH,Hafter].filter(Number.isFinite).length;
+    return {source:source.id,target:target.id,R,X,gap,deltaH,Hafter,direction,missing,status:Number.isFinite(deltaH)?"completo":derived?"parcial":"sin cuantificación"};
+  }
   function runSequence(actors,ops){
     const state=new Map();actors.forEach(a=>{validateActor(a);if(state.has(a.id))throw new Error(`Actor duplicado: ${a.id}`);state.set(a.id,{...a});});
     const history=[];
     ops.forEach((op,index)=>{validateOperation(op);const s=state.get(op.source),t=state.get(op.target);if(!s||!t)throw new Error(`Operación ${index+1}: actor inexistente`);const r=predictInteraction(s,t,op);state.set(t.id,{...t,H:r.Hafter});history.push({...r,index});});
     return {actors:[...state.values()],history};
   }
-  ns.Core={clamp01,validateActor,validateOperation,symbolicResources,predictInteraction,runSequence};
+  ns.Core={clamp01,validateActor,validateOperation,symbolicResources,predictInteraction,partialInteraction,runSequence};
 })(window);
