@@ -1,33 +1,32 @@
-# Changelog v0.53
+# Changelog v0.54
 
-## Recuperación cualitativa desde v0.33
+## Jerarquía semántica
 
-- síntesis semiótica visible;
-- actores/relaciones en lectura integrada;
-- oposiciones contextuales;
-- programas y contra-programas;
-- salida estratégica legible;
-- reporte principal + anexo técnico.
+- gate de agencia antes de síntesis estratégica;
+- separación de sujeto, hablante, destinatario, paciente y agente pasivo;
+- continuidad discursiva para atribuciones elípticas;
+- contenido propuesto de actos de habla separado de acciones realizadas;
+- programas jerárquicos en vez de un programa por acto;
+- subgames múltiples en textos con fases estratégicas distintas;
+- fronteras limitadas a actores operativos y relaciones pertinentes;
+- objetos de valor diferenciados de obstáculos e instrumentos.
 
-## Integridad preservada desde v0.52.1
+## Generalización
 
-- sin fixtures nominales en producción;
-- sin números automáticos;
-- sin expected utility;
-- `UNRESOLVED`;
-- requisitos duros de juegos;
-- core v0.40 aislado.
+- eliminados atajos de producción ligados a nombres, organizaciones, episodios y vocabulario estrecho de los fixtures;
+- detección de siglas institucionales basada en contexto sintáctico/institucional, no en siglas concretas;
+- detección narrativa basada en estructura temporal, personajes y secuencias de acción, no en objetos particulares de un cuento;
+- familias de orientación, captura, retorno y adquisición derivadas de predicados/objetos semánticos generales;
+- movilidad institucional derivada de léxico y operaciones generales, no de organismos o destinos concretos;
+- síntesis regulatoria sin reglas para una comunidad específica;
+- nuevo gate estático `tests/test-generalization.js`.
 
-## Correcciones adicionales
+## Integridad preservada
 
-- `sentenceIndex`/`clauseIndex` en frames;
-- fusión de alias institucionales;
-- siglas institucionales vinculadas a su forma larga;
-- mejor detección de sujetos propios simples;
-- familias narrativas con flexión verbal;
-- contraacción priorizada frente a captura cuando el predicado lo indica;
-- `ATTRIBUTED_ALLEGATION` antes del frame genérico de atribución;
-- `de acuerdo con` excluido de `agreement` estratégico;
-- identificación canónica de juegos exige todos sus tags además de `requires`;
-- `Alternating-Offers Bargaining` exige señal explícita de alternancia;
-- cálculo parcial de `R`, `X`, `gap` y `ΔH` sin completar datos faltantes.
+- núcleo v0.40 sin expected utility;
+- 76 juegos declarativos;
+- requisitos duros para elegibilidad canónica;
+- ninguna asignación automática de `S/E/H/D/φ/G_e`;
+- `Gτ` ausente permanece `null`;
+- formularios sin presets;
+- JavaScript modular, sin bloque monolítico inline.

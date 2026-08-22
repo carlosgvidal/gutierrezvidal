@@ -1,38 +1,58 @@
-# Validación — Limes v0.53
+# Validación — Limes v0.54 · Semantic Hierarchy & Agency Resolution
 
 ## Alcance
 
-Validación local de sintaxis, regresiones, integridad teórica, síntesis cualitativa, mediación estratégica, cuantificación parcial y estructura de despliegue.
+Validación local de sintaxis, regresiones, aislamiento de fixtures, generalización fuera de los ejemplos, integridad teórica, jerarquía semiótica, mediación estratégica, cuantificación selectiva y estructura de despliegue.
 
-## Resultados
+## Resultados ejecutados
 
-- JavaScript `node --check`: **PASS** para todos los módulos y la suite.
-- Suite `tests/test-v053.js`: **41/41 PASS**.
-- Nombres específicos de fixtures en `js/`: **0**.
-- Mecánicas descartadas de la monolítica (`expected utility`, `normalizeStates`, probabilidad de victoria, etc.) en producción: **0**.
+- JavaScript `node --check`: **PASS** para todos los módulos y suites.
+- Suite heredada `tests/test-v053.js`: **41/41 PASS**.
+- Suite v0.54 `tests/test-v054.js`: **46/46 PASS**.
+- Suite de generalización `tests/test-generalization.js`: **5/5 PASS**.
+- Anclajes nominales/específicos de fixtures en producción: **0**.
+- `expected utility`, `function utility` y `normalizeStates` en producción: **0**.
 - Catálogo de juegos: **76 plantillas**.
-- Formulario fuente sin presets: **PASS**.
 - JavaScript inline monolítico: **0 bloques**.
-- Rutas HTTP locales:
-  - `index.html`: 200
-  - `assets/app.css`: 200
-  - `js/app.js`: 200
-  - `js/synthesis-engine.js`: 200
-  - `data/lexicon/es_MX.dic`: 200
+- Formulario fuente sin presets analíticos: **PASS**.
 
-## Gates específicos añadidos
+## Rutas HTTP locales
 
-1. El análisis cualitativo existe aun cuando no existe ningún valor numérico.
-2. Semiótica se construye antes de la mediación estratégica.
-3. Teoría de juegos no asigna `S/E/H/D/φ/G_e`.
-4. Extrapolación cualitativa sólo aparece cuando existe estructura interpretable suficiente.
-5. `partialInteraction()` calcula sólo componentes disponibles y devuelve faltantes sin sustituirlos.
-6. `de acuerdo con` no se interpreta como acuerdo estratégico.
-7. Una nota judicial completa se reconoce como interacción de información, sin declarar automáticamente `Screening Game`.
-8. Una narrativa breve atribuye una contraacción a su actor real y distingue captura, respuesta y retorno.
-9. `Alternating-Offers Bargaining` no es elegible sin evidencia explícita de alternancia.
-10. La interfaz principal presenta análisis cualitativo; frames/episodios/juegos candidatos quedan en trazabilidad colapsada.
+Servidor estático local verificado:
 
-## Limitación de esta validación
+- `/` → 200
+- `/index.html` → 200
+- `/assets/app.css` → 200
+- `/js/app.js` → 200
+- `/js/synthesis-engine.js` → 200
+- `/js/limes-core.js` → 200
+- `/data/lexicon/es_MX.dic` → 200
+- `/data/lexicon/es_MX.aff` → 200
 
-Estas pruebas se ejecutaron con Node, análisis estático y servidor HTTP local. No constituyen una prueba del despliegue real en Safari ni en `gutierrezvidal.com`.
+## Gates semánticos comprobados
+
+1. Falsos nombres derivados de formas verbales o marcadores discursivos no entran como actores.
+2. Objetos no agentes no entran como colectivos estratégicos.
+3. Hablante, sujeto, destinatario y paciente se distinguen en atribuciones probadas.
+4. Contenido de solicitudes/propuestas queda como contenido propuesto, no como `HACER` realizado.
+5. Regulación se sintetiza en programas jerárquicos, no un programa por acto.
+6. Narrativa separa abandono, captura, orientación, liberación, adquisición de recursos y retorno sin depender de objetos específicos del fixture.
+7. Múltiples subgames bloquean una determinación canónica global.
+8. Fronteras sólo conectan actores operativos.
+9. La mediación estratégica no asigna `S/E/H/D/φ/G_e`.
+10. La cuantificación permanece selectiva y no enumera parámetros vacíos cuando no hay cálculo.
+
+## Gate de generalización
+
+La suite adicional usa actores y textos nuevos no utilizados como fixtures originales:
+
+- regulación municipal con actores nuevos;
+- narrativa con personajes nuevos;
+- movilidad institucional con organización y sigla nuevas;
+- investigación judicial con nombres nuevos.
+
+Todos pasan sin recurrir a nombres o shortcuts de los ejemplos originales.
+
+## Limitación
+
+Estas pruebas verifican comportamiento del código, no validación empírica del modelo. Se ejecutaron con Node, análisis estático y servidor HTTP local; no constituyen una prueba del despliegue real en Safari ni en el servidor público.

@@ -1,102 +1,60 @@
-# Limes v0.53 · Qualitative Synthesis & Strategic Mediation
+# Limes v0.54 · Semantic Hierarchy & Agency Resolution
 
-Esta versión integra los elementos recuperables de la versión monolítica v0.33 sin reincorporar su matemática de expected utility, posición estratégica, saliencia, rigidez, riesgo, coaliciones automáticas o normalización Ser/Estar/Decir/Hacer.
+Limes v0.54 conserva el núcleo formal v0.40 y la arquitectura cualitativa de v0.53, pero corrige el cuello de botella semántico: la teoría de juegos sólo recibe estructuras después de pasar por gates de agencia, atribución y composición jerárquica.
 
 ## Arquitectura conceptual
 
 ```text
 Texto
-→ interpretación semiótica
-→ mediación estratégica por teoría de juegos
+→ lenguaje / entidades
+→ frames y roles semánticos
+→ actos / episodios
+→ programas y contra-programas
+→ subgames sustentados
+→ mediación estratégica
 → extrapolación cualitativa
 → cuantificación selectiva
 → Limes Core cuando procede
 ```
 
-La semiótica es el análisis primario. La teoría de juegos funciona como lente analítica sobre estructuras ya interpretadas y no como herramienta de medición. La cuantificación no condiciona la existencia ni la validez del análisis cualitativo.
+## Gates antes de teoría de juegos
 
-## Recuperado de v0.33
+1. **Agencia válida.** Un lugar, ley, objeto, marcador discursivo o sintagma no agente no puede entrar automáticamente como actor estratégico.
+2. **Atribución.** Se distinguen entidad mencionada, sujeto, hablante, destinatario, paciente y agente de una pasiva.
+3. **Composición jerárquica.** Los actos se agrupan en programas y contra-programas; no se equipara cada frame a un programa.
+4. **Frontera pertinente.** Sólo relaciones entre actores operativos y vinculadas a una transformación pueden presentarse como fronteras Limes.
+5. **Gate estratégico.** Un juego canónico global no se determina si la integridad semántica es insuficiente o si el texto contiene varios subgames.
 
-Se recuperaron, reescritos sobre la arquitectura actual:
+## Integridad teórica
 
-- síntesis cualitativa antes del cálculo;
-- lectura de actores y relaciones;
-- oposiciones como componente semiótico;
-- dimensión estratégica legible para el usuario;
-- separación entre resultado principal y anexo técnico;
-- expresión explícita de límites/incertidumbre.
-
-No se recuperaron:
-
-- `x`, `c`, `s`, `r`, `ρ`, `σ`;
-- expected utility;
-- probabilidad de victoria;
-- amenazas/coaliciones automáticas;
-- Monte Carlo como validación empírica;
-- normalización Ser+Estar+Decir+Hacer=1;
-- transiciones heurísticas de Ser/Estar/Decir/Hacer.
-
-## Conservado de v0.52.1 / v0.40
+Se preservan:
 
 - `R = S × E`;
 - `X = R × D × φ`;
 - `ΔH = (G_e − H) × X`;
 - `UNRESOLVED` como salida válida;
-- no sustitución de datos desconocidos;
+- ausencia de sustitución numérica de variables desconocidas;
 - separación `source / actionTarget / stateTarget`;
 - acciones materiales/institucionales fuera de `D` automática;
-- modularidad;
-- diccionario es_MX;
-- catálogo declarativo de 76 juegos;
-- requisitos duros para identificación canónica;
-- fixtures únicamente en `tests/`.
+- teoría de juegos como mediación analítica, no como herramienta de medición;
+- cuantificación sólo de componentes sustentados.
 
-## Nuevo módulo: `synthesis-engine.js`
+## Generalización y fixtures
 
-Produce internamente:
+Los casos usados para regresión permanecen en `tests/`. El código de producción no contiene nombres propios, identificadores de episodios ni atajos léxicos exclusivos de esos casos. Además existe `tests/test-generalization.js`, que falla si esos anclajes reaparecen en `js/` o `index.html` y prueba textos nuevos no usados como fixtures originales.
 
-- perfiles funcionales Ser/Estar/Decir/Hacer por actor;
-- objetos de valor / objetos en disputa;
-- oposiciones contextuales;
-- programas y contra-programas;
-- fronteras cualitativas source→target;
-- transformaciones observadas;
-- mediación estratégica;
-- escenarios cualitativos extrapolables y sus límites;
-- evaluación de qué variables Limes son interpretables y cuáles no tienen valor numérico identificable.
-
-## Cuantificación selectiva
-
-El núcleo incorpora `partialInteraction()` para calcular únicamente componentes efectivamente disponibles:
-
-- `R` si existen `S` y `E`;
-- `X` si además existen `D` y `φ`;
-- `gap` si existen `G_e` y `H`;
-- `ΔH` sólo cuando existen ambos bloques.
-
-Una trayectoria secuencial completa sólo se construye si todas las operaciones necesarias están completas. No se fabrican parámetros para completar una ecuación.
+Los vocabularios lingüísticos generales —verbos, roles, términos regulatorios, jurídicos, narrativos o de movilidad— sí permanecen cuando son categorías de lengua/dominio y no datos nominales de un caso.
 
 ## Interfaz
 
-La vista principal muestra:
+La salida principal mantiene:
 
 1. análisis cualitativo;
 2. mediación estratégica y extrapolación;
-3. estado de cuantificación.
+3. cuantificación selectiva cuando procede.
 
-Frames, episodios, candidatos de juegos y concordancia quedan en **Trazabilidad técnica**, colapsada por defecto. La parametrización numérica también queda en una sección opcional.
+Frames, episodios y candidatos de juegos quedan en trazabilidad técnica. Si no existen magnitudes numéricas sustentadas, la interfaz no enumera filas vacías ni traslada al usuario la obligación de inventar parámetros.
 
-## Mejoras lingüísticas adicionales
+## Límite
 
-- aliases institucionales y siglas entre paréntesis;
-- fusión de denominaciones institucionales cortas/largas;
-- índices temporales de frames para coreferencia;
-- stems narrativos corregidos para abandono, captura, contraacción, orientación y retorno;
-- nombres propios simples cuando funcionan sintácticamente como sujeto;
-- atribuciones de alegación (`atribuir`, `señalar como probable`) diferenciadas;
-- `de acuerdo con` ya no cuenta como acuerdo estratégico;
-- identificación canónica de juegos más estricta.
-
-## Límite teórico preservado
-
-v0.40 define `D` como movilización comunicativa. Las acciones materiales e institucionales se analizan cualitativamente, pero no entran automáticamente a `X` hasta que exista una decisión teórica explícita sobre una posible generalización de `Decir` a una categoría más amplia de operación/intercambio.
+Las pruebas incluidas verifican código, regresiones, generalización, integridad y rutas HTTP locales. No equivalen a una validación empírica del modelo ni a una prueba del despliegue real en Safari o en el servidor público.
