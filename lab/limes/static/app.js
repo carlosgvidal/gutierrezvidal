@@ -8,7 +8,48 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tabbody').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#tab-'+b.dataset.tab).classList.add('active')});
 document.querySelectorAll('[data-result]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-result]').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.resultbody').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#result-'+b.dataset.result).classList.add('active')});
 
-async function request(url,opts){$('#status').textContent='Procesando…';try{const r=await fetch(url,opts);const j=await r.json();if(!r.ok)throw new Error(j.detail||'Error de análisis');$('#status').textContent='Análisis completado.';return j}catch(e){$('#status').textContent=e.message;throw e}}
+function responseDetail(payload){
+  if(payload==null)return '';
+  if(typeof payload==='string')return payload;
+  if(Array.isArray(payload))return payload.map(responseDetail).filter(Boolean).join(' · ');
+  if(typeof payload==='object'){
+    if(typeof payload.detail==='string')return payload.detail;
+    if(Array.isArray(payload.detail))return responseDetail(payload.detail);
+    if(typeof payload.msg==='string')return payload.msg;
+    try{return JSON.stringify(payload)}catch(_){return String(payload)}
+  }
+  return String(payload)
+}
+async function request(url,opts){
+  $('#status').textContent='Procesando…';
+  try{
+    const r=await fetch(url,opts);
+    const contentType=(r.headers.get('content-type')||'').toLowerCase();
+    const raw=await r.text();
+    let payload=null;
+    if(raw){
+      if(contentType.includes('application/json')){
+        try{payload=JSON.parse(raw)}catch(_){
+          throw new Error(`Respuesta JSON inválida · HTTP ${r.status} · ${url}`)
+        }
+      }else{
+        try{payload=JSON.parse(raw)}catch(_){payload=null}
+      }
+    }
+    if(!r.ok){
+      const detail=responseDetail(payload);
+      throw new Error(`HTTP ${r.status}${detail?' · '+detail:''} · ${url}`)
+    }
+    if(payload===null){
+      throw new Error(`La API no devolvió JSON · HTTP ${r.status} · ${contentType||'sin Content-Type'} · ${url}`)
+    }
+    $('#status').textContent='Análisis completado.';
+    return payload
+  }catch(e){
+    $('#status').textContent=e&&e.message?e.message:String(e);
+    throw e
+  }
+}
 $('#analyzeText').onclick=async()=>{const text=$('#textInput').value;if(!text.trim()){$('#status').textContent='El texto está vacío.';return}analysis=await request(apiUrl('analyze/text'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text})});render()};
 $('#analyzeFile').onclick=async()=>{const f=$('#fileInput').files[0];if(!f){$('#status').textContent='Seleccione un archivo.';return}const fd=new FormData();fd.append('file',f);analysis=await request(apiUrl('analyze/file'),{method:'POST',body:fd});render()};
 
@@ -29,5 +70,26 @@ async function runStrategy(){const axis=$('#axisLabel').value.trim();const actor
 function fmt(x){return x===null||x===undefined?'—':Number(x).toFixed(3)}
 function renderAudit(){$('#result-audit').innerHTML=`<table><tbody><tr><th>Documentos</th><td>${analysis.documents.length}</td></tr><tr><th>Evidencias</th><td>${analysis.evidence.length}</td></tr><tr><th>Claims</th><td>${analysis.claims.length}</td></tr><tr><th>Entidades candidatas</th><td>${analysis.entities.length}</td></tr><tr><th>Relaciones semánticas automáticas</th><td>0</td></tr><tr><th>Fronteras inferidas automáticamente</th><td>0</td></tr><tr><th>Objetos de valor inferidos automáticamente</th><td>0</td></tr><tr><th>Juegos seleccionados automáticamente</th><td>0</td></tr></tbody></table><p class="section-note">La abstención es deliberada cuando la capa disponible no permite sostener una inferencia con reglas generales y trazables.</p>`}
 
-async function checkEngine(){try{const r=await fetch(apiUrl('health'),{method:'GET',cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const j=await r.json();$('#status').textContent='Motor disponible · LIMES '+(j.version||'');$('#status').dataset.engine='online'}catch(e){$('#status').textContent='Interfaz cargada. Motor API no disponible en esta ruta.';$('#status').dataset.engine='offline'}}
+async function checkEngine(){
+  const url=apiUrl('health');
+  try{
+    const r=await fetch(url,{method:'GET',cache:'no-store'});
+    const contentType=(r.headers.get('content-type')||'').toLowerCase();
+    const raw=await r.text();
+    let j=null;
+    if(raw&&contentType.includes('application/json')){
+      try{j=JSON.parse(raw)}catch(_){j=null}
+    }
+    if(!r.ok||!j){
+      $('#status').textContent=`Interfaz disponible · API no válida · HTTP ${r.status} · ${url}`;
+      $('#status').dataset.engine='offline';
+      return
+    }
+    $('#status').textContent='Motor disponible · LIMES '+(j.version||'');
+    $('#status').dataset.engine='online'
+  }catch(e){
+    $('#status').textContent=`Interfaz disponible · API inaccesible · ${url}`;
+    $('#status').dataset.engine='offline'
+  }
+}
 checkEngine();

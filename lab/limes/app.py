@@ -13,7 +13,7 @@ from limes.strategy import run_strategy, pure_nash
 
 ROOT=Path(__file__).resolve().parent
 STATIC=ROOT/'static'
-app=FastAPI(title='LIMES',version='0.1.1')
+app=FastAPI(title='LIMES',version='0.1.2')
 app.mount('/static',StaticFiles(directory=STATIC),name='static')
 
 class TextRequest(BaseModel):
@@ -26,7 +26,7 @@ def root():
 
 @app.get('/api/health')
 def health():
-    return {'status':'ok','version':'0.1.1'}
+    return {'status':'ok','version':'0.1.2'}
 
 @app.post('/api/analyze/text')
 def analyze_text(req:TextRequest):

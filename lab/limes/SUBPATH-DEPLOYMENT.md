@@ -1,4 +1,4 @@
-# LIMES 0.1.1 — montaje bajo subruta
+# LIMES 0.1.2 — montaje bajo subruta
 
 Esta revisión elimina dependencias de rutas absolutas en el frontend.
 
