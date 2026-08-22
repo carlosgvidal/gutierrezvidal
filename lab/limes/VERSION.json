@@ -1,9 +1,0 @@
-{
-  "name": "LIMES",
-  "lineage": "canonical-rebuild",
-  "version": "0.1.2",
-  "schema": "0.1.0",
-  "theory": "canonical-0.1",
-  "status": "research-foundation",
-  "softwareVersion": "0.1.2"
-}
