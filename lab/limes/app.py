@@ -2,7 +2,7 @@ from __future__ import annotations
 import io, json, zipfile
 from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -13,7 +13,7 @@ from limes.strategy import run_strategy, pure_nash
 
 ROOT=Path(__file__).resolve().parent
 STATIC=ROOT/'static'
-app=FastAPI(title='LIMES',version='0.1.0')
+app=FastAPI(title='LIMES',version='0.1.1')
 app.mount('/static',StaticFiles(directory=STATIC),name='static')
 
 class TextRequest(BaseModel):
@@ -22,11 +22,11 @@ class TextRequest(BaseModel):
 
 @app.get('/')
 def root():
-    return FileResponse(STATIC/'index.html')
+    return RedirectResponse(url='./static/index.html')
 
 @app.get('/api/health')
 def health():
-    return {'status':'ok','version':'0.1.0'}
+    return {'status':'ok','version':'0.1.1'}
 
 @app.post('/api/analyze/text')
 def analyze_text(req:TextRequest):
