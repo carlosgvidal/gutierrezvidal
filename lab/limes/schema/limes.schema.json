@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "limes-canonical-0.1",
-  "title": "LIMES Canonical 0.1",
+  "$id": "limes-canonical-0.1.4",
+  "title": "LIMES Canonical 0.1.4",
   "type": "object",
   "$defs": {
     "Claim": {
@@ -412,6 +412,10 @@
           },
           "title": "Warnings",
           "type": "array"
+        },
+        "interpretation": {
+          "type": "object",
+          "title": "Interpretation"
         }
       },
       "required": [
@@ -421,7 +425,8 @@
         "entities",
         "semantic_evidence",
         "cooccurrence",
-        "metrics"
+        "metrics",
+        "interpretation"
       ],
       "title": "AnalyzeResult",
       "type": "object"

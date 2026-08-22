@@ -1,17 +1,25 @@
-# LIMES · Canonical 0.1.3
+# LIMES · Canonical 0.1.4
 
-Ejecución estática para despliegue directo en GitHub Pages.
+Runtime estático para despliegue directo desde `lab/limes/`.
 
-## Runtime
+## Arquitectura
 
-El análisis se ejecuta dentro del navegador. No requiere Python, FastAPI, Uvicorn, proxy ni API de servidor.
+El análisis se ejecuta íntegramente en el navegador. `static/engine.js` conserva la capa factual, documental, léxica y estratégica. `static/interpretation.js` añade una capa separada de interpretación estructural que consume claims, entidades, factualidad y evidencia del motor base.
 
-`static/engine.js` implementa la misma capa funcional que en 0.1.2 estaba distribuida entre `analyze.py`, `linguistics.py`, `ingest.py` y `strategy.py`. El cambio 0.1.3 es de runtime y despliegue; no modifica la ontología ni añade reglas de análisis.
+La secuencia interpretativa implementada es:
+
+`claim → roles funcionales → operación → objeto de valor → programa/contraprograma → perfil S/E/D/H → relación dirigida → frontera → transformación → reporte`.
+
+Cada objeto interpretativo conserva `status`, `method` y referencias a evidencia. La ausencia de evidencia no se transforma en valor cero.
 
 ## Entrada
 
-Texto directo, TXT, MD, CSV, JSON, XLSX y XLSM. Los libros XLSX/XLSM se procesan en el navegador mediante SheetJS CE 0.20.3 cargado desde su CDN oficial.
+Texto directo, TXT, MD, CSV, JSON, XLSX y XLSM.
 
-## Despliegue
+## Salida
 
-El contenido del directorio puede colocarse directamente en `lab/limes/`. La interfaz queda disponible tanto en `lab/limes/` como en `lab/limes/static/index.html`.
+La interfaz incorpora reporte interpretativo, objetos de valor, programas, fronteras, relaciones dirigidas, perfiles S/E/D/H, modelado estratégico y auditoría. El análisis completo puede exportarse como JSON y el reporte interpretativo como HTML.
+
+## Integridad
+
+El paquete no contiene corpus, actores, escenarios, datos, fixtures ni material textual de referencia incorporado para dirigir los resultados. Las reglas interpretativas son generales y declaradas por método.

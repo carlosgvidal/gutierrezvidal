@@ -4,7 +4,7 @@
   if(typeof module==='object'&&module.exports) module.exports=api;
   root.LIMES_ENGINE=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(){
-  const VERSION='0.1.3';
+  const VERSION='0.1.4';
 
   const THEORY_TERMS={
     SER:new Set(['autoconciencia','autopoiesis','identidad','valores','valor','memoria','imaginación','imaginario','reflexividad','interiorización','autorregulación','cognición','emociones','conciencia','biológico','biológica','cognitivo','cognitiva','mundos','vida']),
@@ -22,7 +22,7 @@
     ['si','CONDITIONAL']
   ]);
   const ATTRIBUTION=new Set(['según','afirma','afirman','sostiene','sostienen','señala','señalan','reporta','reportan']);
-  const DENIAL=new Set(['niega','niegan','negó','negaron','rechaza','rechazan','desmiente','desmienten']);
+  const DENIAL=new Set(['niega','niegan','negó','negaron','desmiente','desmienten']);
 
   function normalizeToken(token){return String(token??'').normalize('NFKC').toLowerCase().replace(/^[\'’\-_]+|[\'’\-_]+$/g,'')}
   function tokenList(text){
