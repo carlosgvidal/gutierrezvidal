@@ -1,9 +1,29 @@
-# LIMES Canonical 0.2.0
+# LIMES Canonical 0.3.1 · Linguistic Core + Relational Boundaries
 
-Runtime estático de análisis semiótico estructural, relacional y estratégico.
+## Alcance
+Aplicación estática JavaScript para análisis lingüístico y construcción semiótica trazable.
 
-La arquitectura separa análisis proposicional, actantes, perfiles Ser/Estar/Decir/Hacer, objetos de valor, programas, relaciones, fronteras, transformaciones y modelado estratégico.
+## Corrección conceptual de frontera
+Una frontera no se obtiene de un léxico de conflicto, acceso, restricción o legitimación. Se registra cuando una relación discursiva contiene al menos dos referentes distintos en posiciones argumentales diferenciadas dentro de la misma estructura predicativa.
 
-El motor semiótico no usa frecuencia léxica como sustituto de interpretación. La estrategia permanece independiente y requiere parámetros explícitos.
+Cada frontera conserva:
+- la operación/predicado que constituye la relación;
+- los dos referentes;
+- la posición argumental de cada referente;
+- el rol sintáctico y el rol semántico disponible;
+- el estatuto de soporte de cada posición;
+- la factualidad de la relación;
+- la oración de evidencia.
 
-La aplicación admite texto, TXT, MD, CSV, JSON, XLSX y XLSM. Exporta el análisis completo como JSON y el informe interpretativo como HTML.
+La frontera no recibe automáticamente resistencia, permeabilidad, conflicto, legitimidad ni polaridad. Esas propiedades requieren evidencia adicional y no se deducen del vocabulario.
+
+## Separaciones preservadas
+- frase nominal != entidad
+- entidad != actor
+- actor != actante
+- actante != actor estratégico
+- frontera != palabra o categoría léxica
+- coocurrencia != relación
+
+## Runtime
+100% JavaScript en navegador. No requiere backend Python.

@@ -1,0 +1,3 @@
+function download(name,blob){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+export function exportJSON(analysis){download('limes-analysis.json',new Blob([JSON.stringify(analysis,null,2)],{type:'application/json'}));}
+export function exportHTML(analysis){const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const body=analysis.report.map(x=>`<p>${esc(x)}</p>`).join('');download('limes-report.html',new Blob([`<!doctype html><meta charset="utf-8"><title>LIMES</title><h1>LIMES · Informe interpretativo</h1>${body}`],{type:'text/html'}));}

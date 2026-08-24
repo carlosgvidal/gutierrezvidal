@@ -1,0 +1,10 @@
+function actantMap(sentence){return new Map(sentence.actants.map(a=>[a.actant_id,a]));}
+export function buildSEDHEvidence(sentence){
+  const amap=actantMap(sentence),evidence=[];
+  for(const op of sentence.operations){const p=op.predicate,acts=[...op.source_actants,...op.affected_actants,...op.content_actants,...op.goal_actants].map(id=>amap.get(id)).filter(Boolean);
+    if(p.copular&&p.lemma==='ser'){const subj=acts.find(a=>['nsubj','csubj'].includes(a.syntactic_relation)),attr=sentence.tokens[p.predicative_head_index];if(subj?.referent&&attr)evidence.push({dimension:'SER',operation_id:op.operation_id,actor_ref:subj.referent,configuration:{predicate:attr.lemma,upos:attr.upos},kind:'IDENTITY_OR_ATTRIBUTION',status:(subj.status==='STRUCTURALLY_SUPPORTED'&&p.copula_syntax_status==='RESOLVED')?'STRUCTURALLY_SUPPORTED':'CANDIDATE'});}
+    if(p.copular&&p.lemma==='estar'){const subj=acts.find(a=>['nsubj','csubj'].includes(a.syntactic_relation)),attr=sentence.tokens[p.predicative_head_index];if(subj?.referent&&attr)evidence.push({dimension:'ESTAR',operation_id:op.operation_id,actor_ref:subj.referent,configuration:{predicate:attr.lemma,upos:attr.upos},kind:'SITUATIONAL_OR_STATE_PREDICATION',status:(subj.status==='STRUCTURALLY_SUPPORTED'&&p.copula_syntax_status==='RESOLVED')?'STRUCTURALLY_SUPPORTED':'CANDIDATE'});}
+    if(op.content_actants.length&&op.source_actants.length)evidence.push({dimension:'DECIR',operation_id:op.operation_id,actor_ref:amap.get(op.source_actants[0])?.referent||null,kind:'SOURCE_WITH_PROPOSITIONAL_CONTENT',status:'CANDIDATE',qualification:'La estructura fuente-contenido requiere clase semántica verbal para promoverse a evidencia resuelta de Decir.'});
+    const agent=acts.find(a=>a.generalized_role==='AGENT'),affected=acts.find(a=>a.generalized_role==='AFFECTED_OR_THEME');if(agent?.referent&&affected?.referent)evidence.push({dimension:'HACER',operation_id:op.operation_id,actor_ref:agent.referent,kind:'AGENTIVE_AFFECTED_CONFIGURATION',status:'CANDIDATE',qualification:'La agencia estructural no demuestra por sí sola una transformación consumada del Estar.'});
+  }return evidence;
+}

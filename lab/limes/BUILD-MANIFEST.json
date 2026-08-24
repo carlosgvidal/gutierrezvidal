@@ -1,0 +1,155 @@
+{
+  "version": "0.3.1",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "324094d49222215526c1e7c3c42e95545f0293684c26089c47d3fb020459a5fa",
+      "bytes": 1239
+    },
+    {
+      "path": "RELATIONAL-BOUNDARY-CONTRACT.md",
+      "sha256": "5ea0951cfd4d3dc5501131285773468ff7b9cd45abfdbd1d38c68cbf605dc10d",
+      "bytes": 905
+    },
+    {
+      "path": "index.html",
+      "sha256": "51af004c3f8f6b6cac16ffc72a9bb5ca0b30fc0c071581a74d98b72615938bbc",
+      "bytes": 167
+    },
+    {
+      "path": "static/app.js",
+      "sha256": "e03d0f901b6d590934baa08407ecf64a8d05e724b63675c9f515b861ade3482b",
+      "bytes": 12885
+    },
+    {
+      "path": "static/index.html",
+      "sha256": "ec9501d709b43577c7e04dd91e14e8aafd2ce4097588924f6df43f597bbf5980",
+      "bytes": 2638
+    },
+    {
+      "path": "static/linguistics/coreference.js",
+      "sha256": "e8c212013cf9f734544220184b8e52687ca5b7f592a9d37220523e4bd5afa670",
+      "bytes": 432
+    },
+    {
+      "path": "static/linguistics/morphology.js",
+      "sha256": "a6d5bfa2bb80642d7cf59e3c38cc23f91e21b895a9064dc73618cf58827f2e67",
+      "bytes": 1757
+    },
+    {
+      "path": "static/linguistics/ner.js",
+      "sha256": "f8e54ca49617ce3df03713bff5fb34f261d881acf41d65434d3cf8e85bd0fc78",
+      "bytes": 2525
+    },
+    {
+      "path": "static/linguistics/predicates.js",
+      "sha256": "7a129051405ea3ca0c58abb2027f9331d9d8aeb0f153b2d3f3df0dc5738b5fbf",
+      "bytes": 2533
+    },
+    {
+      "path": "static/linguistics/referents.js",
+      "sha256": "f474c9358af53b3bc1db3d5663a17d12a95762f7045f2c3e6c2e84a485b6c592",
+      "bytes": 1859
+    },
+    {
+      "path": "static/linguistics/resources.js",
+      "sha256": "a5cc7d9ca5d8346ca1dd24c379db99fda7f260e61b315715f40bc325d4173c4a",
+      "bytes": 643
+    },
+    {
+      "path": "static/linguistics/syntax.js",
+      "sha256": "e9e3cadfc55d3cd48c9173d2bb4723bda4ed89eb65169e2bf1dc0d12b2d7b7ee",
+      "bytes": 3321
+    },
+    {
+      "path": "static/linguistics/tokenizer.js",
+      "sha256": "026b3ecaea830226d41536809568c313a0e2820be0a8021350b730ac18503748",
+      "bytes": 1486
+    },
+    {
+      "path": "static/metrics/textmetrics.js",
+      "sha256": "942668cddb2ef29779b32f628c4e258f89fa19f5fa3ca9f52ac966de6982eca7",
+      "bytes": 1263
+    },
+    {
+      "path": "static/pipeline.js",
+      "sha256": "65fb8ae1f4f37709c7c3f837dfd43983dbb3a9dee6f8c945f7ed53b53b438f64",
+      "bytes": 7781
+    },
+    {
+      "path": "static/report/export.js",
+      "sha256": "cc07a3311fa4486476fe2fbdd420e0d955136fed7aa9a3232330f302011b43ef",
+      "bytes": 744
+    },
+    {
+      "path": "static/report/report.js",
+      "sha256": "33cad683c6a5c017d456fde54b19b43b3eca537d35676ada7669aa89ac94a880",
+      "bytes": 1975
+    },
+    {
+      "path": "static/resources/dependencies.json",
+      "sha256": "ad0b65f5a66ef4685720893e52cf5959c8e10585a0891593410deed7988a9cdd",
+      "bytes": 46939
+    },
+    {
+      "path": "static/resources/morph_features.json",
+      "sha256": "329bb475e52fc393123754aa5a62952caa7fef4cc13d590067425da6eafe8da2",
+      "bytes": 790918
+    },
+    {
+      "path": "static/resources/morphology.json",
+      "sha256": "d5aac6f5f3a5dba3322cac5b928e99f04fb5331ee889bcd0fa4cf9827379fcc4",
+      "bytes": 1646763
+    },
+    {
+      "path": "static/resources/valency.json",
+      "sha256": "b2731ed6fb779078b843f0d85c30e198533b877606c5cee69f6642b6b319f0d9",
+      "bytes": 335749
+    },
+    {
+      "path": "static/semiotics/actants.js",
+      "sha256": "0a34a405bedfd244f62fe94e4615e682fc44c2ceb1c20a20477e35da5e777f4c",
+      "bytes": 1463
+    },
+    {
+      "path": "static/semiotics/boundaries.js",
+      "sha256": "8704bd3b5afbb2856788d77b2d789a336194d707b18b1afd05bb3ec817561029",
+      "bytes": 2070
+    },
+    {
+      "path": "static/semiotics/index.js",
+      "sha256": "09bfa140e3f8b3df375ecc1d3359a538673ada91c951adba5889b27fa3164384",
+      "bytes": 644
+    },
+    {
+      "path": "static/semiotics/operations.js",
+      "sha256": "7cb0f93815ac0513478ad0c620009d67cf0ae2bb26825c9d76981efe419a989d",
+      "bytes": 1013
+    },
+    {
+      "path": "static/semiotics/programs.js",
+      "sha256": "212f933eea5ebf9978e26bc3291028f3c7c0b26235573372ed5efa42b425e94c",
+      "bytes": 749
+    },
+    {
+      "path": "static/semiotics/sedh.js",
+      "sha256": "a5f3aa947aca91d373659b675d8e373a705bd9252f272e8776fc2f6af40fe0a9",
+      "bytes": 2135
+    },
+    {
+      "path": "static/semiotics/value-objects.js",
+      "sha256": "fd754f6ba705922e832b885b3f1d1a20aad514aa48bb6834e53c2cef2a4e5f38",
+      "bytes": 666
+    },
+    {
+      "path": "static/strategy/model.js",
+      "sha256": "c1cc5464b678c333ec2f35dd3411203166110b3ddcc933fae40b1ac90c24c7ce",
+      "bytes": 1454
+    },
+    {
+      "path": "static/style.css",
+      "sha256": "6691b34a9344faefa1530c2c3d680a3c3e95664cecca267fa2bfffd203eb0ba1",
+      "bytes": 3928
+    }
+  ]
+}
