@@ -1,29 +1,5 @@
-<!doctype html>
-<html lang="es">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LIMES</title>
-<link rel="stylesheet" href="./style.css">
-</head>
-<body>
-<header><div><h1>LIMES</h1><p>Marco de análisis semiótico, relacional y estratégico</p></div><span class="version">0.1.4</span></header>
-<main>
-<section class="panel">
-<h2>Entrada</h2>
-<div class="tabs"><button class="tab active" data-tab="text">Texto</button><button class="tab" data-tab="file">Archivo</button></div>
-<div id="tab-text" class="tabbody active"><textarea id="textInput" aria-label="Texto de análisis"></textarea><button id="analyzeText">Analizar</button></div>
-<div id="tab-file" class="tabbody"><input id="fileInput" type="file" accept=".txt,.md,.csv,.xlsx,.xlsm,.json"><button id="analyzeFile">Analizar archivo</button></div>
-<div id="status" class="status"></div>
-</section>
-<section id="results" class="hidden">
-<nav class="result-tabs"><button data-result="overview" class="active">Panorama</button><button data-result="claims">Claims</button><button data-result="entities">Entidades</button><button data-result="semantic">Ser · Estar · Decir · Hacer</button><button data-result="interpretation">Interpretación</button><button data-result="network">Estructura relacional</button><button data-result="strategy">Estrategia</button><button data-result="audit">Auditoría</button></nav>
-<div id="result-overview" class="resultbody active"></div><div id="result-claims" class="resultbody"></div><div id="result-entities" class="resultbody"></div><div id="result-semantic" class="resultbody"></div><div id="result-interpretation" class="resultbody"></div><div id="result-network" class="resultbody"></div><div id="result-strategy" class="resultbody"></div><div id="result-audit" class="resultbody"></div>
-</section>
-</main>
-<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
-<script src="./engine.js"></script>
-<script src="./interpretation.js"></script>
-<script src="./app.js"></script>
-</body>
-</html>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>LIMES</title><link rel="stylesheet" href="./style.css"></head><body>
+<header><div><h1>LIMES</h1><p>Análisis semiótico, relacional y estratégico</p></div><span class="version">0.2.0</span></header>
+<main><section class="panel"><h2>Entrada</h2><div class="tabs"><button class="tab active" data-tab="text">Texto</button><button class="tab" data-tab="file">Archivo</button></div><div id="tab-text" class="tabbody active"><textarea id="textInput" aria-label="Texto de análisis"></textarea><button id="analyzeText">Analizar</button></div><div id="tab-file" class="tabbody"><input id="fileInput" type="file" accept=".txt,.md,.csv,.xlsx,.xlsm,.json"><button id="analyzeFile">Analizar archivo</button></div><div id="status" class="status"></div></section>
+<section id="results" class="hidden"><nav class="result-tabs"><button data-result="overview" class="active">Panorama</button><button data-result="claims">Proposiciones</button><button data-result="actants">Actantes</button><button data-result="semiotic">Ser · Estar · Decir · Hacer</button><button data-result="objects">Objetos de valor</button><button data-result="relations">Relaciones</button><button data-result="boundaries">Fronteras</button><button data-result="report">Interpretación</button><button data-result="strategy">Estrategia</button><button data-result="games">Juegos</button><button data-result="audit">Auditoría</button></nav><div id="result-overview" class="resultbody active"></div><div id="result-claims" class="resultbody"></div><div id="result-actants" class="resultbody"></div><div id="result-semiotic" class="resultbody"></div><div id="result-objects" class="resultbody"></div><div id="result-relations" class="resultbody"></div><div id="result-boundaries" class="resultbody"></div><div id="result-report" class="resultbody"></div><div id="result-strategy" class="resultbody"></div><div id="result-games" class="resultbody"></div><div id="result-audit" class="resultbody"></div></section></main>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script><script src="./core.js"></script><script src="./semiotics.js"></script><script src="./strategy.js"></script><script src="./games.js"></script><script src="./app.js"></script></body></html>
